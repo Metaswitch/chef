@@ -1,0 +1,13 @@
+$TTL 1h
+@ IN SOA e164.arpa cw-ngv-admin@metaswitch.com (
+                                                        2009010910 ;serial
+                                                        3600 ;refresh
+                                                        3600 ;retry
+                                                        3600 ;expire
+                                                        3600 ;minimum TTL
+)
+@ IN NS e164.arpa.
+@ IN A <%= @node[:cloud][:local_ipv4] %>
+
+; Route all numbers to <%= @domain %>
+* IN NAPTR 1 1 "u" "E2U+sip" "!(^.*$)!sip:\\1@<%= @domain %>!" .

@@ -1,0 +1,7 @@
+name "<%= name %>"
+description "<%= name %> environment - created by BGB page"
+cookbook_versions "clearwater" => "= 0.1.0"
+override_attributes "clearwater" => {
+  "number_count" => <%= number_count %>,
+  "dns_ttl" => 300
+}

@@ -1,0 +1,189 @@
+# @file cluster.rb
+#
+# Copyright (C) 2013  Metaswitch Networks Ltd
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# The author can be reached by email at clearwater@metaswitch.com or by post at
+# Metaswitch Networks Ltd, 100 Church St, Enfield EN2 6BQ, UK
+
+# We need the Cassandra-CQL gem later, install it as a pre-requisite.
+build_essential_action = apt_package "build-essential" do
+  action :nothing
+end
+build_essential_action.run_action(:install)
+
+chef_gem "cassandra-cql" do
+  action :install
+  source "https://rubygems.org"
+end
+
+# Clustering for Sprout nodes
+if node.run_list.include? "role[sprout]"
+  sprouts = search(:node,
+                   "role:sprout AND chef_environment:#{node.chef_environment}")
+  sprouts.map! { |s| s.cloud.local_ipv4 }
+
+  template "/etc/clearwater/cluster_settings" do
+    source "cluster/cluster_settings.sprout.erb"
+    mode 0440
+    owner "root"
+    group "root"
+    variables nodes: sprouts
+  end
+end
+
+# Support clustering for homer and homestead
+if node.roles.include? "cassandra" 
+  node_type = if node.run_list.include? "role[homer]"
+                "homer"
+              elsif node.run_list.include? "role[homestead]"  
+                "homestead"
+              end
+  cluster_name = node_type.capitalize + "Cluster"
+
+  # Work out the other nodes in the cluster
+  cluster_nodes = search(:node, "role:#{node_type} AND chef_environment:#{node.chef_environment}")
+  cluster_ips = cluster_nodes.map { |n| n.cloud.local_ipv4 }
+  cluster_ips.sort!
+
+  # Calculate our token by taking an even chunk of the token space
+  index = cluster_ips.index(node.cloud.local_ipv4)
+  token = (index * 2**127) / cluster_ips.length
+
+  # Create the Cassandra config file
+  template "/etc/cassandra/cassandra.yaml" do
+    source "cassandra/cassandra.yaml.erb"
+    mode 0440
+    owner "root"
+    group "root"
+    variables cluster_name: cluster_name,
+              token: token,
+              seeds: cluster_ips,
+              node: node
+  end
+
+  if tagged?('clustered')
+    # Node is already in the cluster, just move to the correct token
+    execute "nodetool" do
+      command "nodetool move #{token}"
+      action :run
+      not_if { node.clearwater.cassandra.token == token rescue false }
+    end
+  else
+    # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
+    execute "monit" do
+      command "monit unmonitor cassandra"
+      user "root"
+      action :run
+    end
+
+    service "cassandra" do
+      action :stop
+    end
+
+    directory "/var/lib/cassandra" do
+      recursive true
+      action :delete
+    end
+
+    directory "/var/lib/cassandra" do
+      action :create
+      mode "0700"
+      owner "cassandra"
+      group "cassandra"
+    end
+
+    service "cassandra" do
+      action :start
+    end
+
+    # It's possible that we might need to create the keyspace now.
+    ruby_block "create_keyspace_and_tables" do
+      block do
+        require 'cassandra-cql'
+
+        # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
+        db = nil
+        60.times do
+          begin
+            db = CassandraCQL::Database.new('127.0.0.1:9160')
+          rescue ThriftClient::NoServersAvailable
+            sleep 1
+          end
+        end
+
+        # Create the KeySpace and table(s), don't care if they already exist
+        begin
+          db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
+        rescue CassandraCQL::Thrift::Client::TransportException => e
+          sleep 1
+          retry
+        rescue CassandraCQL::Error::InvalidRequestException
+          # Pass
+        end
+
+        db.execute("USE #{node_type}")
+        if node_type == "homer"
+          begin
+            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text)")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException
+            # Pass
+          end
+        elsif node_type == "homestead"
+          begin
+            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text)")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException 
+            # Pass
+          end
+
+          begin
+            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text)")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException
+            # Pass
+          end
+        end
+      end
+      action :run
+    end
+
+    # Re-enable monitoring
+    execute "monit" do
+      command "monit monitor cassandra"
+      user "root"
+      action :run
+    end
+  end
+
+  # Now we've migrated to our new token, remember it
+  ruby_block "save_cluster_details" do
+    block do
+      node.set[:clearwater][:cassandra][:cluster] = cluster_name
+      node.set[:clearwater][:cassandra][:token] = token
+    end
+    action :run
+  end
+end
+          
+# Now we're clustered
+tag('clustered')

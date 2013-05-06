@@ -1,0 +1,5 @@
+view "external-view" {
+  match-clients { any; };
+  recursion no;
+  include "/etc/bind/named.conf.external-zones";
+};

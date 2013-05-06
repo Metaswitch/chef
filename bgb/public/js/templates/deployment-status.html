@@ -1,0 +1,53 @@
+<% if (progress == 100) { %>
+    <h2>Success!</h2>
+    <h4>Deployment <%= environment %> launched</h4>
+    <br/>
+    <h4>Useful links</h4>
+    <table class="table table-borderless" id='success-table' >
+        <col/>
+        <col/>
+        <tbody>
+            <tr>
+                <td>To create subscribers, go to:</td>
+                <td><a href="http://ellis.<%= environment %>.cw-ngv.com">ellis.<%= environment %>.cw-ngv.com</td>
+            </tr>
+            <tr>
+                <td>To view instances in the AWS console:</td>
+                <td><a href="http://console.aws.amazon.com/ec2/home?region=us-east-1">console.aws.amazon.com/ec2/home?region=us-east-1</td>
+            </tr>
+        </tbody>
+    </table>
+<% } else { %>
+    <h2>Launching deployment <%= environment %></h2>
+    <div class="progress progress-striped active">
+        <div class="bar" style="width: <%= progress %>%;"></div>
+    </div>
+    <table class="table table-borderless" id='status-table' >
+        <col/>
+        <col/>
+        <tbody>
+            <% if (_.isEmpty(status)) { %>
+                <tr><td colspan='2'>No Status</td></tr>
+            <% } else {
+                _.each(status, function (val, key) { %>
+                    <% if (key == "Nodes") { %>
+                        <tr>
+                            <td>Nodes</td>
+                        </tr>
+                        <% _.each(val, function (nodeValue, node) { %>
+                            <tr>
+                                <td class="node-status"><%= node %> (<%= nodeValue.count %>)</td>
+                                <td class="status-<%= nodeValue.status.toLowerCase().replace(/\./g, "") %>"><%= nodeValue.status %></td>
+                            </tr>
+                        <% })
+                    } else { %>
+                        <tr>
+                            <td><%= key %></td>
+                            <td class="status-<%= val.status.toLowerCase().replace(/\./g, "") %>"><%= val.status %></td>
+                        </tr>
+                    <% } 
+                })
+            } %>
+        </tbody>
+    </table>
+<% } %>

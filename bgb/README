@@ -1,0 +1,12 @@
+BGB is the web frontend on top of knife-deployment-create
+
+== Setup ==
+
+Execute the following the the bgb directory:
+sudo gem install bundler
+bundle
+
+== Running the server ==
+
+sudo ruby server.rb
+(Runs on port 80 by default, to use another port modify server.rb)

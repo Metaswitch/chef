@@ -1,0 +1,111 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    builder (3.2.0)
+    chef (11.4.0)
+      erubis
+      highline (>= 1.6.9)
+      json (>= 1.4.4, <= 1.7.7)
+      mixlib-authentication (>= 1.3.0)
+      mixlib-cli (~> 1.3.0)
+      mixlib-config (>= 1.1.2)
+      mixlib-log (>= 1.3.0)
+      mixlib-shellout
+      net-ssh (~> 2.6)
+      net-ssh-multi (~> 1.1.0)
+      ohai (>= 0.6.0)
+      rest-client (>= 1.0.4, < 1.7.0)
+      yajl-ruby (~> 1.1)
+    coderay (1.0.9)
+    colored (1.2)
+    erubis (2.7.0)
+    excon (0.20.1)
+    facets (2.9.3)
+    fog (1.10.0)
+      builder
+      excon (~> 0.14)
+      formatador (~> 0.2.0)
+      mime-types
+      multi_json (~> 1.0)
+      net-scp (~> 1.1)
+      net-ssh (>= 2.1.3)
+      nokogiri (~> 1.5.0)
+      ruby-hmac
+    formatador (0.2.4)
+    highline (1.6.15)
+    ipaddress (0.8.0)
+    json (1.7.7)
+    knife-ec2 (0.6.2)
+      chef (>= 0.10.10)
+      fog (~> 1.6)
+    knife-openstack (0.7.1)
+      chef (>= 0.10.10)
+      fog (>= 1.10.0)
+    knife-rackspace (0.6.2)
+      chef (>= 0.10.10)
+      fog (~> 1.6)
+    method_source (0.8.1)
+    mime-types (1.22)
+    mixlib-authentication (1.3.0)
+      mixlib-log
+    mixlib-cli (1.3.0)
+    mixlib-config (1.1.2)
+    mixlib-log (1.4.1)
+    mixlib-shellout (1.1.0)
+    multi_json (1.7.2)
+    net-scp (1.1.0)
+      net-ssh (>= 2.6.5)
+    net-ssh (2.6.6)
+    net-ssh-gateway (1.2.0)
+      net-ssh (>= 2.6.5)
+    net-ssh-multi (1.1)
+      net-ssh (>= 2.1.4)
+      net-ssh-gateway (>= 0.99.0)
+    nokogiri (1.5.9)
+    ohai (6.16.0)
+      ipaddress
+      mixlib-cli
+      mixlib-config
+      mixlib-log
+      mixlib-shellout
+      systemu
+      yajl-ruby
+    parallel (0.6.2)
+    pry (0.9.12)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+    quality_extensions (1.3.2)
+    rack (1.5.2)
+    rack-protection (1.5.0)
+      rack
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
+    ruby-hmac (0.4.0)
+    sinatra (1.4.2)
+      rack (~> 1.5, >= 1.5.2)
+      rack-protection (~> 1.4)
+      tilt (~> 1.3, >= 1.3.4)
+    slop (3.4.4)
+    systemu (2.5.2)
+    tilt (1.3.6)
+    unroller (1.0.0)
+      colored
+      facets (>= 2.4.1)
+      quality_extensions (>= 1.1.2)
+    yajl-ruby (1.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  chef
+  fog
+  json
+  knife-ec2
+  knife-openstack
+  knife-rackspace
+  parallel
+  pry
+  sinatra
+  unroller

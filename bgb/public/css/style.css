@@ -1,0 +1,36 @@
+#launch-container, #status-container {
+	padding-top: 50px;
+}
+
+.table-borderless td,
+.table-borderless th { 
+    border: 0 !important
+}
+
+.table {
+    width: auto;
+}
+
+#status-table col{
+    width: 200px;
+}
+
+.progress {
+    width: 400px;
+}
+
+td.node-status {
+    padding-left: 30px;
+}
+
+td.status-pending {
+    color: #a8a8a8;
+}
+
+td.status-configuring, td.status-creating {
+    color: #ff631a;
+}
+
+td.status-done {
+    color: #14df14;
+}

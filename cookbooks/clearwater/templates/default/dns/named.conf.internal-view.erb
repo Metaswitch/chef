@@ -1,0 +1,10 @@
+view "internal-view" {
+  match-clients {
+    <%= @node[:clearwater][:dns_internal_subnet] %>;
+    127.0.0.1/32;
+   };
+  forwarders { <%= @node[:clearwater][:dns_forwarder] %>; };
+  dnssec-enable yes;
+  dnssec-validation no;
+  include "/etc/bind/named.conf.internal-zones";
+};

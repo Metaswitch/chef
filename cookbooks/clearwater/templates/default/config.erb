@@ -1,0 +1,30 @@
+# Deployment definitions
+home_domain=<%= @domain %>
+sprout_hostname=sprout.<%= @domain %>
+hs_hostname=hs.<%= @domain %>:8888
+garden_hostname=localhost
+xdms_hostname=homer.<%= @domain %>:7888
+splunk_hostname=<%= @node[:clearwater][:splunk_server] || "0.0.0.0" %>
+mmonit_hostname=<%= @node[:clearwater][:mmonit_server] %>
+mmonit_username=<%= @node[:clearwater][:mmonit_username] %>
+mmonit_password=<%= @node[:clearwater][:mmonit_password] %>
+sas_server=<%= @sas %>
+enum_server=<%= @enum %>
+<% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
+
+# Local IP configuration
+local_ip=<%= @node[:cloud][:local_ipv4] %>
+public_ip=<%= @node[:cloud][:public_ipv4] %>
+public_hostname=<%= @node[:cloud][:public_hostname] %>
+
+# Email server configuration
+smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
+smtp_username=<%= @node[:clearwater][:smtp_username] %>
+smtp_password=<%= @node[:clearwater][:smtp_password] %>
+email_recovery_sender=<%= @node[:clearwater][:email_sender] %>
+
+# Keys
+signup_key=<%= @node[:clearwater][:signup_key] %>
+turn_workaround=<%= @node[:clearwater][:turn_workaround] %>
+ellis_api_key=<%= @node[:clearwater][:ellis_api_key] %>
+ellis_cookie_key=<%= @node[:clearwater][:ellis_cookie_key] %>
