@@ -46,7 +46,7 @@ def base_security_group_rules
     # NTP
     { ip_protocol: :udp, min: 123, max: 123, cidr_ip: "0.0.0.0/0" },
     # Monit
-    { ip_protocol: :tcp, min: 2812, max: 2812, group: "M/Monit" },
+    { ip_protocol: :tcp, min: 2812, max: 2812, group: "mmonit" },
     # SNMP from cacti
     { ip_protocol: :udp, min: 161, max: 162, group: "cacti" },
   ]
@@ -90,7 +90,7 @@ def sprout_security_group_rules
     [
       # SIP from bono and Perimeta
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
-      { ip_protocol: :tcp, min: 5058, max: 5058, group: "Perimeta" },
+      { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
       # Memcached from other sprout nodes
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       { ip_protocol: :udp, min: 11211, max: 11211, group: "sprout" },
@@ -154,6 +154,24 @@ def cacti_security_group_rules
   ]
 end
 
+def mmonit_security_group_rules
+  [
+    # HTTP
+    { ip_protocol: :tcp, min: 80, max: 80, cidr_ip: "0.0.0.0/0" },
+    { ip_protocol: :tcp, min: 443, max: 443, cidr_ip: "0.0.0.0/0" },
+  ]
+end
+
+def perimeta_security_group_rules
+  [
+    # Global SIP
+    { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
+    # SIP from bono/sprout
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
+  ]
+end
+
 def repo_security_group_rules
   [
     # HTTP
@@ -176,5 +194,7 @@ def clearwater_security_groups
     "dns" => dns_security_group_rules,
     "enum" => enum_security_group_rules,
     "cacti" => cacti_security_group_rules,
+    "mmonit" => mmonit_security_group_rules,
+    "perimeta" => perimeta_security_group_rules,
   }
 end

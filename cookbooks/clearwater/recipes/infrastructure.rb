@@ -85,8 +85,6 @@ domain = if node.chef_environment != "_default"
            node[:clearwater][:root_domain]
          end
 
-aws = data_bag_item("aws","main")
-
 begin
   sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s }
 rescue
@@ -104,7 +102,6 @@ template "/etc/clearwater/config" do
   source "config.erb"
   variables domain: domain,
             node: node,
-            aws: aws,
             sas: sas,
             enum: enum
 end
