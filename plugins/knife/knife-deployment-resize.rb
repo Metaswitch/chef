@@ -350,6 +350,7 @@ module ClearwaterKnifePlugins
             box_cluster = BoxCluster.new("-E #{env.name}".split)
             box_cluster.config[:verbosity] = config[:verbosity]
             Chef::Config[:verbosity] = config[:verbosity]
+            box_cluster.config[:cloud] = config[:cloud]
             box_cluster.name_args = [node]
             box_cluster.run
           end

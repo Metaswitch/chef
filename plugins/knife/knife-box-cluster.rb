@@ -20,6 +20,7 @@
 
 require_relative 'knife-clearwater-utils'
 require_relative 'cluster-boxes'
+require_relative 'boxes'
 
 module ClearwaterKnifePlugins
   class BoxCluster < Chef::Knife
@@ -27,6 +28,17 @@ module ClearwaterKnifePlugins
     include ClearwaterKnifePlugins::ClusterBoxes
 
     banner "box cluster ROLE"
+
+    option :cloud,
+      :long => "--cloud CLOUD",
+      :default => "ec2",
+      :description => "Cloud to create box in. Currently support: #{Clearwater::BoxManager.supported_clouds.join ', '}",
+      :proc => (Proc.new do |arg|
+        unless Clearwater::BoxManager.supported_clouds.include? arg.to_sym
+          Chef::Log.error "#{arg} is not a supported cloud"
+          exit 2
+        end
+      end)
 
     deps do
       require 'chef'
@@ -41,7 +53,7 @@ module ClearwaterKnifePlugins
       end
 
       role = name_args.first
-      cluster_boxes(role)
+      cluster_boxes(role, config[:cloud].to_sym)
     end
   end
 end
