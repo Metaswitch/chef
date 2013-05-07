@@ -63,7 +63,7 @@ module ClearwaterKnifePlugins
       ArecordCreate.load_deps
     end
 
-    %w{bono ellis homestead homer sprout}.each do |node|
+    %w{bono homestead homer sprout}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              default: 1,
@@ -273,8 +273,6 @@ module ClearwaterKnifePlugins
 
       [:homer, :homestead].each do |n|
         unless old[n] == new[n]
-          # In theory, growing a cluster could be non-destructive, but currently re-clustering is always destructive.
-          subscribers_lost = true
           @to_be_clustered << n
         end
       end
@@ -284,8 +282,6 @@ module ClearwaterKnifePlugins
         @to_be_clustered.each { |c| ui.msg " - #{c.to_s}" }
         ui.msg "This is a destructive operation:"
         ui.msg " - Service will be interrupted" if service_interruption
-        ui.msg " - Subscriber records will be lost" if subscribers_lost
-        ui.msg " - Ellis configuration will be out of sync" if subscribers_lost
       end
 
       fail "Exiting on user request" unless continue?
@@ -293,7 +289,7 @@ module ClearwaterKnifePlugins
 
     def calculate_box_counts(config)
       Chef::Log.info "Subscriber count given, calculating box counts automatically:"
-      %w{bono homer homestead sprout ellis}.each do |role|
+      %w{bono homer homestead sprout}.each do |role|
         count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil
         count_using_subs_limit = (config[:subscribers] / SCALING_LIMITS[role][:subs]).ceil
         config["#{role}_count".to_sym] = [count_using_bhca_limit, count_using_subs_limit, 1].max
@@ -325,7 +321,7 @@ module ClearwaterKnifePlugins
       new_counts = { homestead: config[:homestead_count],
                      sprout: config[:sprout_count],
                      homer: config[:homer_count],
-                     ellis: config[:ellis_count],
+                     ellis: 1,
                      bono: config[:bono_count] }
 
       # Confirm changes if there are any
