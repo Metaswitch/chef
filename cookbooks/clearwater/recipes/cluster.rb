@@ -145,7 +145,13 @@ if node.roles.include? "cassandra"
 
         # Create the KeySpace and table(s), don't care if they already exist.
         #
-        # For all of these requests, it's possible that the creating a keyspace/table might take so long that the thrift client times out.  This seems to happen a lot when Cassandra has just booted, probably it's still settling down or garbage collecting.  In any case, on a transport exception we'll simply sleep for a second and retry.  The interesting case is an InvalidRequest which means that the keyspace/table already exists and we should stop trying to create it.
+        # For all of these requests, it's possible that the creating a 
+        # keyspace/table might take so long that the thrift client times out.
+        # This seems to happen a lot when Cassandra has just booted, probably 
+        # it's still settling down or garbage collecting.  In any case, on a 
+        # transport exception we'll simply sleep for a second and retry.  The 
+        # interesting case is an InvalidRequest which means that the 
+        # keyspace/table already exists and we should stop trying to create it.
         begin
           db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
         rescue CassandraCQL::Thrift::Client::TransportException => e
