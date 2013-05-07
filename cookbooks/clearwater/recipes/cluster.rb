@@ -90,20 +90,21 @@ if node.roles.include? "cassandra"
 
   if tagged?('clustered')
     # Node is already in the cluster, just move to the correct token
-    execute "nodetool" do
+    execute "nodetool move" do
       command "nodetool move #{token}"
       action :run
       not_if { node.clearwater.cassandra.token == token rescue false }
     end
   else
     # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
-    execute "monit" do
+    execute "monit (unmonitor)" do
       command "monit unmonitor cassandra"
       user "root"
       action :run
     end
 
-    service "cassandra" do
+    service "cassandra (stop)" do
+      service_name "cassandra"
       action :stop
     end
 
@@ -119,12 +120,13 @@ if node.roles.include? "cassandra"
       group "cassandra"
     end
 
-    service "cassandra" do
+    service "cassandra (start)" do
+      service_name "cassandra"
       action :start
     end
 
     # It's possible that we might need to create the keyspace now.
-    ruby_block "create_keyspace_and_tables" do
+    ruby_block "create keyspace and tables" do
       block do
         require 'cassandra-cql'
 
@@ -133,12 +135,23 @@ if node.roles.include? "cassandra"
         60.times do
           begin
             db = CassandraCQL::Database.new('127.0.0.1:9160')
+            break
           rescue ThriftClient::NoServersAvailable
             sleep 1
           end
         end
 
-        # Create the KeySpace and table(s), don't care if they already exist
+        fail "Cassandra failed to start in the cluster" unless db
+
+        # Create the KeySpace and table(s), don't care if they already exist.
+        #
+        # For all of these requests, it's possible that the creating a 
+        # keyspace/table might take so long that the thrift client times out.
+        # This seems to happen a lot when Cassandra has just booted, probably 
+        # it's still settling down or garbage collecting.  In any case, on a 
+        # transport exception we'll simply sleep for a second and retry.  The 
+        # interesting case is an InvalidRequest which means that the 
+        # keyspace/table already exists and we should stop trying to create it.
         begin
           db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
         rescue CassandraCQL::Thrift::Client::TransportException => e
@@ -182,7 +195,7 @@ if node.roles.include? "cassandra"
     end
 
     # Re-enable monitoring
-    execute "monit" do
+    execute "monit (monitor)" do
       command "monit monitor cassandra"
       user "root"
       action :run
@@ -190,7 +203,7 @@ if node.roles.include? "cassandra"
   end
 
   # Now we've migrated to our new token, remember it
-  ruby_block "save_cluster_details" do
+  ruby_block "save cluster details" do
     block do
       node.set[:clearwater][:cassandra][:cluster] = cluster_name
       node.set[:clearwater][:cassandra][:token] = token
