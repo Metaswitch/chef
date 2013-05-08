@@ -60,9 +60,9 @@ module Clearwater
         {:name => "sprout", :security_groups => ["base", "sprout"]},
         {:name => "ibcf", :security_groups => ["base", "ibcf", "bono"]},
         {:name => "dns", :security_groups => ["base", "dns"]},
-        {:name => "cacti", :security_groups => ["base", "cacti"]},
+        {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
         {:name => "sipp", :security_groups => ["base", "bono"], :public_ip => true},
-        {:name => "enum", :security_groups => ["base", "enum"]}
+        {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true}
       ]
 
     @@supported_roles = @@supported_boxes.map { |r| r[:name] }
