@@ -51,7 +51,7 @@ module ClearwaterKnifePlugins
     def run
       # Setup DNS records defined above
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
-      record_manager.create_or_update_deployment_records(dns_records, env, attributes)
+      record_manager.create_or_update_deployment_records(dns_records, env.name, attributes)
     end
   end
 end
