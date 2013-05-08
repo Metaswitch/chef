@@ -80,7 +80,7 @@ module Clearwater
         options = {}
         options[:value] = record[:value]
         options[:type] = record[:type]
-        options[:prefix] = env.name if env.name != "_default"
+        options[:prefix] = env.name if env[:clearwater][:use_subdomain]
         options[:ttl] = attributes["dns_ttl"]
 
         create_or_update_record(record_name, options)
@@ -91,7 +91,7 @@ module Clearwater
       definitions.each do |record_name, record|
         options = {}
         options[:type] = record[:type]
-        options[:prefix] = env.name if env.name != "_default"
+        options[:prefix] = env.name if env[:clearwater][:use_subdomain]
 
         delete_record(record_name, options)
       end
@@ -124,7 +124,7 @@ module Clearwater
       options = {}
       subdomain = node.name.split("-")[1]
       subdomain << "-#{node[:clearwater][:index]}" if node[:clearwater][:index]
-      options[:prefix] = node.environment unless node.environment == "_default"
+      options[:prefix] = node.environment if node[:clearwater][:use_subdomain]
       options[:type] = "A"
       [subdomain, options]
     end
@@ -170,7 +170,7 @@ module Clearwater
         msg = Nokogiri::XML(e.response.body).xpath("//xmlns:Message").text
         message = "Creation of #{name(options)} failed: #{msg}"
         Chef::Log.error(message)
-        raise e 
+        raise e
       end
     end
   end

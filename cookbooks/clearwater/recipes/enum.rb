@@ -48,7 +48,7 @@ template "/etc/bind/named.conf.e164.arpa" do
   group "bind"
 end
 
-domain = if node.chef_environment != "_default"
+domain = if node[:clearwater][:use_subdomain]
            node.chef_environment + "." + node[:clearwater][:root_domain]
          else
            node[:clearwater][:root_domain]

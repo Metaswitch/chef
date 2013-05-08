@@ -64,7 +64,7 @@ module ClearwaterKnifePlugins
       else
         name = "#{config[:environment]}-#{role}"
       end
-      
+
       node = find_nodes(name: name).first
       unless node
         ui.fatal "No matching node found for name #{name}"
@@ -81,7 +81,7 @@ module ClearwaterKnifePlugins
       options[:value] = node[:cloud][:public_ipv4]
       options[:type] = "A"
       options[:ttl] = attributes["dns_ttl"]
-      options[:prefix] = env.name if env.name != "_default"
+      options[:prefix] = env.name if env[:clearwater][:use_subdomain]
       subdomain = role
       subdomain += "-#{config[:index]}" if config[:index]
       record_manager.create_or_update_record(subdomain, options)
