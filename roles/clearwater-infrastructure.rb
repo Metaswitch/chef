@@ -43,6 +43,11 @@ default_attributes "clearwater" => {
   # This is the domain name of the DNS zone we create.
   "root_domain" => "example.com",
 
+  # Whether we use a subdomain of the root domain, named automatically
+  # after the environment (true), vs. using the root domain itself
+  # (false).
+  "use_subdomain" => true,
+
   # Default region to create instances in
   "region" => "us-east-1",
 
