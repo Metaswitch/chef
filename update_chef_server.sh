@@ -35,7 +35,9 @@
 # File generated using: spiceweasel --extractlocal
 knife cookbook upload apt
 knife cookbook upload clearwater
-if [ "$1" != "" ] ; then
+if [[ "$1" == *.rb ]] ; then
+  knife environment from file $1
+elif [[ "$1" != "" ]] ; then
   knife environment from file environments/$1.rb
 else
   echo "No environment name given - not uploading any environments"
