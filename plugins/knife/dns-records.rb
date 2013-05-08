@@ -80,8 +80,6 @@ module Clearwater
         options = {}
         options[:value] = record[:value]
         options[:type] = record[:type]
-        require 'pry'
-        binding.pry
         options[:prefix] = env_name if attributes[:use_subdomain]
         options[:ttl] = attributes["dns_ttl"]
 
