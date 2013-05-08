@@ -37,7 +37,10 @@ package "bind9" do
   options "--force-yes"
 end
 
-template "/etc/bind/named.conf" do
+# Copy the config on.  Some files are static, and so use cookbook_file (and
+# come from the files/ directory).  Other files are dynamic, and so use
+# template (and come from the templates/ directory).
+cookbook_file "/etc/bind/named.conf" do
   mode "0644"
   source "dns/named.conf"
   owner "root"
@@ -52,21 +55,21 @@ template "/etc/bind/named.conf.internal-view" do
   group "bind"
 end
 
-template "/etc/bind/named.conf.external-view" do
+cookbook_file "/etc/bind/named.conf.external-view" do
   mode "0644"
   source "dns/named.conf.external-view"
   owner "root"
   group "bind"
 end
 
-template "/etc/bind/named.conf.internal-zones" do
+cookbook_file "/etc/bind/named.conf.internal-zones" do
   mode "0644"
   source "dns/named.conf.internal-zones"
   owner "root"
   group "bind"
 end
 
-template "/etc/bind/named.conf.external-zones" do
+cookbook_file "/etc/bind/named.conf.external-zones" do
   mode "0644"
   source "dns/named.conf.external-zones"
   owner "root"
