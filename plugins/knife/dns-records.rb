@@ -97,10 +97,11 @@ module Clearwater
       end
     end
 
-    def create_node_records(nodes)
+    def create_node_records(nodes, attributes)
       nodes.each do |n|
         subdomain, options = calculate_options_from_node(n)
         options[:value] = [ n[:cloud][:public_ipv4] ]
+        options[:ttl] = attributes["dns_ttl"]
         create_or_update_record(subdomain, options)
       end
     end

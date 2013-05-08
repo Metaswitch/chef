@@ -52,15 +52,11 @@ module ClearwaterKnifePlugins
       require_relative 'knife-deployment-clean'
       require_relative 'knife-security-groups-create'
       require_relative 'knife-dnszone-create'
-      require_relative 'knife-dns-record-create'
       require_relative 'knife-dns-records-create'
-      require_relative 'knife-arecord-create'
       require_relative 'dns-records'
       BoxCreate.load_deps
       DeploymentClean.load_deps
-      DnsRecordCreate.load_deps
       DnsRecordsCreate.load_deps
-      ArecordCreate.load_deps
     end
 
     %w{bono homestead homer sprout}.each do |node|
@@ -113,7 +109,7 @@ module ClearwaterKnifePlugins
     # Estimated number of busy hour calls per subscriber.
     BHCA_PER_SUB = 2
 
-    def launch_box(box, environment, dns_lock, retries)
+    def launch_box(box, environment, retries)
       success = false
 
       # Since we run this in an agressively multi-threaded way, smear our start
@@ -156,16 +152,6 @@ module ClearwaterKnifePlugins
         return false if @fail_count >= retries
       end
 
-      # Configure the A record for the new box (must be serialized).
-      dns_lock.synchronize do
-        arecord_create = ArecordCreate.new("-E #{environment}".split)
-        arecord_create.name_args = [box[:role]]
-        arecord_create.config[:index] = box[:index]
-        arecord_create.config[:verbosity] = config[:verbosity]
-        Chef::Config[:verbosity] = config[:verbosity]
-        arecord_create.run
-      end
-      
       return true
     end
 
@@ -192,10 +178,9 @@ module ClearwaterKnifePlugins
 
     def launch_boxes(box_list)
       @fail_count = 0
-      dns_lock = Mutex.new
       results = Parallel.map(box_list, in_threads: box_list.length) do |box|
         if @fail_count < config[:fail_limit]
-          launch_box(box, config[:environment], dns_lock, config[:fail_limit])
+          launch_box(box, config[:environment], config[:fail_limit])
         else
           false
         end
@@ -360,6 +345,7 @@ module ClearwaterKnifePlugins
             box_cluster = BoxCluster.new("-E #{env.name}".split)
             box_cluster.config[:verbosity] = config[:verbosity]
             Chef::Config[:verbosity] = config[:verbosity]
+            box_cluster.config[:cloud] = config[:cloud]
             box_cluster.name_args = [node]
             box_cluster.run
           end

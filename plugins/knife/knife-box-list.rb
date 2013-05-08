@@ -53,7 +53,7 @@ module ClearwaterKnifePlugins
         if node[:ec2]
           puts "Found node #{node.name} with instance-id #{node.ec2.instance_id} at #{node.cloud.public_hostname}"
         else
-          puts "Found node #{node.name} with hostname #{node.cloud.public_hostname}"
+          puts "Found node #{node.name} with hostname #{node.cloud.public_hostname} ip #{node.cloud.local_ipv4}"
         end
       end.empty?
     end
