@@ -36,11 +36,11 @@ require 'chef/knife'
 
 module ClearwaterKnifePlugins
   module ClusterBoxes
-    def cluster_boxes(role)
+    def cluster_boxes(role, cloud)
       if ["homer", "homestead", "sprout"].include? role
         add_cluster_role(role)
-        trigger_chef_client(role)
-        rolling_restart(role)
+        trigger_chef_client(role, cloud)
+        rolling_restart(role, cloud)
       else
         fail "Clustering of #{role} nodes not supported"
       end
