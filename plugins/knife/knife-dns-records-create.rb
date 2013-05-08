@@ -54,7 +54,7 @@ module ClearwaterKnifePlugins
       # Create node records e.g. bono-1
       record_manager.create_node_records(nodes, attributes)
       # Setup DNS records defined in clearwater-dns-records
-      record_manager.create_or_update_deployment_records(dns_records, env, attributes)
+      record_manager.create_or_update_deployment_records(dns_records, env.name, attributes)
     end
   end
 end
