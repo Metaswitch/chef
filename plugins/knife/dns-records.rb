@@ -73,25 +73,25 @@ module Clearwater
     end
 
     # Converge on a collection of specified DNS entries
-    def create_or_update_deployment_records(definitions, env, attributes)
+    def create_or_update_deployment_records(definitions, env_name, attributes)
       definitions.each do |record_name, record|
         fail "A DNS record must have a value" unless record[:value]
 
         options = {}
         options[:value] = record[:value]
         options[:type] = record[:type]
-        options[:prefix] = env.name if env[:clearwater][:use_subdomain]
+        options[:prefix] = env_name if attributes[:use_subdomain]
         options[:ttl] = attributes["dns_ttl"]
 
         create_or_update_record(record_name, options)
       end
     end
 
-    def delete_deployment_records(definitions, env)
+    def delete_deployment_records(definitions, env_name, attributes)
       definitions.each do |record_name, record|
         options = {}
         options[:type] = record[:type]
-        options[:prefix] = env.name if env[:clearwater][:use_subdomain]
+        options[:prefix] = env_name if attributes[:use_subdomain]
 
         delete_record(record_name, options)
       end

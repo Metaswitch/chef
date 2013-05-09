@@ -65,7 +65,7 @@ module ClearwaterKnifePlugins
 
       Chef::Log.info "Deleting cluster DNS records..."
       dns_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
-      dns_manager.delete_deployment_records(dns_records, env)
+      dns_manager.delete_deployment_records(dns_records, env.name, attributes)
       
       Chef::Log.info "Deleting node DNS entries..."
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
