@@ -81,7 +81,7 @@ module ClearwaterKnifePlugins
       options[:value] = node[:cloud][:public_ipv4]
       options[:type] = "A"
       options[:ttl] = attributes["dns_ttl"]
-      options[:prefix] = env.name if env[:clearwater][:use_subdomain]
+      options[:prefix] = env.name if attributes["use_subdomain"]
       subdomain = role
       subdomain += "-#{config[:index]}" if config[:index]
       record_manager.create_or_update_record(subdomain, options)
