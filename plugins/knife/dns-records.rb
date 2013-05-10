@@ -80,7 +80,7 @@ module Clearwater
         options = {}
         options[:value] = record[:value]
         options[:type] = record[:type]
-        options[:prefix] = env_name if attributes[:use_subdomain]
+        options[:prefix] = env_name if attributes["use_subdomain"]
         options[:ttl] = attributes["dns_ttl"]
 
         create_or_update_record(record_name, options)
@@ -91,7 +91,7 @@ module Clearwater
       definitions.each do |record_name, record|
         options = {}
         options[:type] = record[:type]
-        options[:prefix] = env_name if attributes[:use_subdomain]
+        options[:prefix] = env_name if attributes["use_subdomain"]
 
         delete_record(record_name, options)
       end
