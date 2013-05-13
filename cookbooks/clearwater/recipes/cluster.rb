@@ -90,20 +90,21 @@ if node.roles.include? "cassandra"
 
   if tagged?('clustered')
     # Node is already in the cluster, just move to the correct token
-    execute "nodetool move" do
+    execute "nodetool" do
       command "nodetool move #{token}"
       action :run
       not_if { node.clearwater.cassandra.token == token rescue false }
     end
   else
     # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
-    execute "monit (unmonitor)" do
+    execute "monit" do
       command "monit unmonitor cassandra"
       user "root"
       action :run
     end
 
-    service "cassandra (stop)" do
+    service "cassandra" do
+      pattern "jsvc.exec"
       service_name "cassandra"
       action :stop
     end
@@ -120,7 +121,8 @@ if node.roles.include? "cassandra"
       group "cassandra"
     end
 
-    service "cassandra (start)" do
+    service "cassandra" do
+      pattern "jsvc.exec"
       service_name "cassandra"
       action :start
     end
@@ -195,7 +197,7 @@ if node.roles.include? "cassandra"
     end
 
     # Re-enable monitoring
-    execute "monit (monitor)" do
+    execute "monit" do
       command "monit monitor cassandra"
       user "root"
       action :run
