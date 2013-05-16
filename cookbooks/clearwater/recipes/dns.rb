@@ -76,6 +76,12 @@ cookbook_file "/etc/bind/named.conf.external-zones" do
   group "bind"
 end
 
+directory "/var/cache/bind/zones" do
+  owner "bind"
+  group "bind"
+  action :create
+end
+
 service "bind9" do
   action :restart
 end
