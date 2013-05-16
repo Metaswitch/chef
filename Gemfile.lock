@@ -105,6 +105,7 @@ DEPENDENCIES
   knife-ec2
   knife-openstack
   knife-rackspace
+  net-scp
   parallel
   pry
   sinatra

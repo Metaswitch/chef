@@ -32,6 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require 'net/scp'
+require 'net/ssh'
+
 module Clearwater
   class BindRecordManager
     # Options may optionally be specified at create time and overwritten for each record created.
@@ -42,15 +45,38 @@ module Clearwater
 
     # Converge on the specified zone record entry
     def create_or_update_zone(zone)
-      puts bind_server_ip
-      puts @options[:root_domain]
-      puts zone
+      puts @zone_template
+      ssh_options = { keys: ["/home/felix/.ssh/dogfood-cw-keypair.pem"] }
+      Net::SSH.start(bind_server_ip, "ubuntu", ssh_options) do |ssh|
+        ["internal", "external"].each do |location|
+          zone_data = ssh.scp.download! zone_file(location)
+          definition = zone_definition zone, location
+          regex = Regexp.new definition
+          if regex.match zone_data
+            Chef::Log.info "#{location.capitalize} DNS zone for #{zone}.#{@options[:root_domain]} already exists"
+          else
+            Chef::Log.info "Creating #{location} DNS zone for #{zone}.#{@options[:root_domain]}"
+            zone_data += definition
+            # scp cannot copy directly to /etc/bind, so use a temp file
+            ssh.scp.upload! StringIO.new(zone_data), "tmp_zone_file"
+            ssh.exec "sudo mv tmp_zone_file #{zone_file(location)}"
+          end
+        end
+      end
     end
 
     def bind_server_ip
       @bind_server_ip ||= Chef::Config[:knife][:bind_server_ip]
       raise "Couldn't load BIND server IP, please configure knife[:bind_server_ip]" unless @bind_server_ip
       @bind_server_ip
+    end
+
+    def zone_definition(zone, location)
+      "zone \"#{zone}\.#{@options[:root_domain]}\" IN \{ type master; file \"zones\/#{location}\.#{zone}\.#{@options[:root_domain]}\"; \};"
+    end
+
+    def zone_file(location)
+      "/etc/bind/named.conf.#{location}-zones"
     end
   end
 end
