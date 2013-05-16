@@ -1,0 +1,26 @@
+$TTL 1h
+@ IN SOA <%= @options[:domain] %>. <%= @options[:contact] %>. (
+                                                        2009010910 ;serial
+                                                        3600 ;refresh
+                                                        3600 ;retry
+                                                        3600 ;expire
+                                                        3600 ;minimum TTL
+)
+@                       IN NS    ns1.<%= @options[:domain] %>.
+ns1             3600    IN A     <%= bind_server_ip %>
+<% 
+dns_records.select! { |k, v| ["", "ellis"].include? k }
+dns_records.each do |name, config|
+  config[:value].each_with_index do |ip, i| %><%= 
+    "%-15s 300     IN %-5s %s\n" % [i == 0 ? (name.empty? ? "@" : name) : "", 
+                                      config[:type], 
+                                      ip] %><%   
+  end
+end 
+nodes.select! { |n| n[:cloud][:public_ipv4] and not n[:cloud][:public_ipv4].empty? }
+nodes.sort_by! { |n| n.name }
+nodes.each do |node| %><%= 
+  "%-15s 300     IN A     %s\n" % [node.name.gsub(/^[a-zA-Z0-9]+-/, ""), 
+                                   node[:cloud][:public_ipv4]] %><%   
+end
+%>

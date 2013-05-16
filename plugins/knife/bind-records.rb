@@ -38,34 +38,50 @@ require 'net/ssh'
 module Clearwater
   class BindRecordManager
     # Options may optionally be specified at create time and overwritten for each record created.
-    def initialize(root_domain, options = {})
-      @options = options
-      @options[:root_domain] = root_domain
+    def initialize(domain, contact)
+      @options = {}
+      @options[:domain] = domain
+      @options[:contact] = contact
     end
 
     # Converge on the specified zone record entry
-    def create_or_update_zone(zone)
+    def create_or_update_records(dns_records, nodes)
       puts @zone_template
       ssh_options = { keys: ["/home/felix/.ssh/dogfood-cw-keypair.pem"] }
       Net::SSH.start(bind_server_ip, "ubuntu", ssh_options) do |ssh|
-        create_or_update_conf_files(ssh, zone)
+        create_or_update_conf_files(ssh)
+        create_or_update_zone_descriptions(ssh, dns_records, nodes)
+        Chef::Log.info "Reloading rndc on BIND server"
+        ssh.exec "sudo rndc reload"
       end
     end
 
-    def create_or_update_conf_files(ssh, zone)
+    def create_or_update_conf_files(ssh)
       ["internal", "external"].each do |location|
-        zone_data = ssh.scp.download! zone_file(location)
-        definition = zone_definition zone, location
+        zone_data = ssh.scp.download!  "/etc/bind/named.conf.#{location}-zones"
+        definition = zone_definition location
         regex = Regexp.new definition
         if regex.match zone_data
-          Chef::Log.info "#{location.capitalize} DNS zone for #{zone}.#{@options[:root_domain]} already exists"
+          Chef::Log.info "#{location.capitalize} DNS zone for #{@options[:domain]} already exists"
         else
-          Chef::Log.info "Creating #{location} DNS zone for #{zone}.#{@options[:root_domain]}"
+          Chef::Log.info "Creating #{location} DNS zone for #{@options[:domain]}"
           zone_data += definition
           # scp cannot copy directly to /etc/bind, so use a temp file
-          ssh.scp.upload! StringIO.new(zone_data), "tmp_zone_file"
-          ssh.exec "sudo mv tmp_zone_file #{zone_file(location)}"
+          ssh.scp.upload! StringIO.new(zone_data), "tmp_#{location}"
+          ssh.exec "sudo mv tmp_#{location} /etc/bind/named.conf.#{location}-zones"
         end
+      end
+    end
+
+    def create_or_update_zone_descriptions(ssh, dns_records, nodes)
+      ["internal", "external"].each do |location|
+        Chef::Log.info "Updating #{location} DNS zone file for #{@options[:domain]}"
+        template_file = "#{File.dirname(__FILE__)}/templates/bind/#{location}.erb"
+        template = ERB.new File.read(template_file)
+        zone_file_data = template.result(binding)
+        # scp cannot copy directly to /var/cache/bind/zones so use a temp file
+        ssh.scp.upload! StringIO.new(zone_file_data), "tmp_#{location}"
+        ssh.exec "sudo mv tmp_#{location} /var/cache/bind/zones/#{location}.#{@options[:domain]}"
       end
     end
 
@@ -75,12 +91,9 @@ module Clearwater
       @bind_server_ip
     end
 
-    def zone_definition(zone, location)
-      "zone \"#{zone}\.#{@options[:root_domain]}\" IN \{ type master; file \"zones\/#{location}\.#{zone}\.#{@options[:root_domain]}\"; \};\n"
-    end
-
-    def zone_file(location)
-      "/etc/bind/named.conf.#{location}-zones"
+    def zone_definition(location)
+# ERB?
+      "zone \"#{@options[:domain]}\" IN \{ type master; file \"zones\/#{location}\.#{@options[:domain]}\"; \};\n"
     end
   end
 end

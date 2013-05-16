@@ -43,11 +43,15 @@ module ClearwaterKnifePlugins
       require 'fog'
       require 'nokogiri'
       require_relative 'bind-records'
+      require_relative 'clearwater-dns-records'
     end
 
     def run
-      bind_manager = Clearwater::BindRecordManager.new(attributes["root_domain"])
-      bind_manager.create_or_update_zone(env.name)
+      nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
+      domain = "#{env.name}.#{attributes["root_domain"]}"
+      contact = "cw-ngv-admin.metaswitch.com"
+      bind_manager = Clearwater::BindRecordManager.new(domain, contact)
+      bind_manager.create_or_update_records(dns_records, nodes)
     end
   end
 end
