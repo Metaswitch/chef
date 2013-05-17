@@ -37,23 +37,23 @@ require 'net/ssh'
 
 module Clearwater
   class BindRecordManager
-    def initialize(domain)
+    def initialize(domain, attributes)
       @domain = domain
+      @ssh_key = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
     end
 
     # Converge on the specified zone record entry
     def create_or_update_records(dns_records, nodes)
-      puts @zone_template
-      ssh_options = { keys: ["/home/felix/.ssh/dogfood-cw-keypair.pem"] }
+      ssh_options = { keys: @ssh_key }
       Net::SSH.start(bind_server_ip, "ubuntu", ssh_options) do |ssh|
-        create_or_update_conf_files(ssh)
-        create_or_update_zone_descriptions(ssh, dns_records, nodes)
+        create_or_update_zone_root_files(ssh)
+        create_or_update_zone_description_files(ssh, dns_records, nodes)
         Chef::Log.info "Reloading rndc on BIND server"
         ssh.exec "sudo rndc reload"
       end
     end
 
-    def create_or_update_conf_files(ssh)
+    def create_or_update_zone_root_files(ssh)
       ["internal", "external"].each do |location|
         zone_data = ssh.scp.download!  "/etc/bind/named.conf.#{location}-zones"
         definition = zone_definition location
@@ -68,7 +68,7 @@ module Clearwater
       end
     end
 
-    def create_or_update_zone_descriptions(ssh, dns_records, nodes)
+    def create_or_update_zone_description_files(ssh, dns_records, nodes)
       ["internal", "external"].each do |location|
         Chef::Log.info "Updating #{location} DNS zone file for #{@domain}"
         template_file = "#{File.dirname(__FILE__)}/templates/bind/#{location}.erb"
@@ -100,7 +100,7 @@ module Clearwater
     end
 
     def zone_definition(location)
-      "zone \"#{@domain}\" IN \{ type master; file \"zones\/#{location}\.#{@domain}\"; \};\n"
+      "zone \"#{@domain}\" IN { type master; file \"zones/#{location}.#{@domain}\"; };\n"
     end
   end
 end

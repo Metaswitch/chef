@@ -53,7 +53,7 @@ module ClearwaterKnifePlugins
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
       domain = "#{env.name}.#{attributes["root_domain"]}"
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
-      bind_manager = Clearwater::BindRecordManager.new(domain)
+      bind_manager = Clearwater::BindRecordManager.new(domain, attributes)
       # Create NS record with route 53, pointing all queries for subdomain at 
       # our BIND server
       record_manager.create_or_update_record(nil, {
