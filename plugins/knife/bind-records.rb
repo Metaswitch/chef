@@ -38,10 +38,9 @@ require 'net/ssh'
 module Clearwater
   class BindRecordManager
     # Options may optionally be specified at create time and overwritten for each record created.
-    def initialize(domain, contact)
+    def initialize(domain)
       @options = {}
       @options[:domain] = domain
-      @options[:contact] = contact
     end
 
     # Converge on the specified zone record entry
@@ -89,6 +88,12 @@ module Clearwater
       @bind_server_ip ||= Chef::Config[:knife][:bind_server_ip]
       raise "Couldn't load BIND server IP, please configure knife[:bind_server_ip]" unless @bind_server_ip
       @bind_server_ip
+    end
+
+    def bind_server_contact
+      @bind_server_contact ||= Chef::Config[:knife][:bind_server_contact]
+      raise "Couldn't load BIND server contact, please configure knife[:bind_server_contact]" unless @bind_server_contact
+      @bind_server_contact
     end
 
     def zone_definition(location)
