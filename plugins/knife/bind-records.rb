@@ -65,9 +65,7 @@ module Clearwater
         else
           Chef::Log.info "Creating #{location} DNS zone for #{@options[:domain]}"
           zone_data += definition
-          # scp cannot copy directly to /etc/bind, so use a temp file
-          ssh.scp.upload! StringIO.new(zone_data), "tmp_#{location}"
-          ssh.exec "sudo mv tmp_#{location} /etc/bind/named.conf.#{location}-zones"
+          upload_to_file ssh, zone_data, "/etc/bind/named.conf.#{location}-zones"
         end
       end
     end
@@ -78,10 +76,17 @@ module Clearwater
         template_file = "#{File.dirname(__FILE__)}/templates/bind/#{location}.erb"
         template = ERB.new File.read(template_file)
         zone_file_data = template.result(binding)
-        # scp cannot copy directly to /var/cache/bind/zones so use a temp file
-        ssh.scp.upload! StringIO.new(zone_file_data), "tmp_#{location}"
-        ssh.exec "sudo mv tmp_#{location} /var/cache/bind/zones/#{location}.#{@options[:domain]}"
+        upload_to_file ssh, zone_file_data, "/var/cache/bind/zones/#{location}.#{@options[:domain]}"
       end
+    end
+
+    def upload_to_file(ssh, data, remote_file)
+        # scp cannot copy directly to protected locations so use a temp file
+        tmp_file = "tmp_#{remote_file.split("/").last}"
+        ssh.scp.upload! StringIO.new(data), tmp_file
+        ssh.exec "sudo mv #{tmp_file} #{remote_file}"
+        ssh.exec "sudo chown root:bind #{remote_file}"
+        ssh.exec "sudo chmod 644 #{remote_file}"
     end
 
     def bind_server_ip
