@@ -1,12 +1,12 @@
 $TTL 1h
-@ IN SOA <%= @options[:domain] %>. <%= bind_server_contact %>. (
+@ IN SOA <%= @domain %>. <%= bind_server_contact %>. (
                                                         2009010910 ;serial
                                                         3600 ;refresh
                                                         3600 ;retry
                                                         3600 ;expire
                                                         3600 ;minimum TTL
 )
-@                       IN NS    ns1.<%= @options[:domain] %>.
+@                       IN NS    ns1.<%= @domain %>.
 ns1             3600    IN A     <%= bind_server_ip %>
 <% 
 dns_records.each do |name, config|

@@ -37,10 +37,8 @@ require 'net/ssh'
 
 module Clearwater
   class BindRecordManager
-    # Options may optionally be specified at create time and overwritten for each record created.
     def initialize(domain)
-      @options = {}
-      @options[:domain] = domain
+      @domain = domain
     end
 
     # Converge on the specified zone record entry
@@ -61,9 +59,9 @@ module Clearwater
         definition = zone_definition location
         regex = Regexp.new definition
         if regex.match zone_data
-          Chef::Log.info "#{location.capitalize} DNS zone for #{@options[:domain]} already exists"
+          Chef::Log.info "#{location.capitalize} DNS zone for #{@domain} already exists"
         else
-          Chef::Log.info "Creating #{location} DNS zone for #{@options[:domain]}"
+          Chef::Log.info "Creating #{location} DNS zone for #{@domain}"
           zone_data += definition
           upload_to_file ssh, zone_data, "/etc/bind/named.conf.#{location}-zones"
         end
@@ -72,11 +70,11 @@ module Clearwater
 
     def create_or_update_zone_descriptions(ssh, dns_records, nodes)
       ["internal", "external"].each do |location|
-        Chef::Log.info "Updating #{location} DNS zone file for #{@options[:domain]}"
+        Chef::Log.info "Updating #{location} DNS zone file for #{@domain}"
         template_file = "#{File.dirname(__FILE__)}/templates/bind/#{location}.erb"
         template = ERB.new File.read(template_file)
         zone_file_data = template.result(binding)
-        upload_to_file ssh, zone_file_data, "/var/cache/bind/zones/#{location}.#{@options[:domain]}"
+        upload_to_file ssh, zone_file_data, "/var/cache/bind/zones/#{location}.#{@domain}"
       end
     end
 
@@ -102,8 +100,7 @@ module Clearwater
     end
 
     def zone_definition(location)
-# ERB?
-      "zone \"#{@options[:domain]}\" IN \{ type master; file \"zones\/#{location}\.#{@options[:domain]}\"; \};\n"
+      "zone \"#{@domain}\" IN \{ type master; file \"zones\/#{location}\.#{@domain}\"; \};\n"
     end
   end
 end
