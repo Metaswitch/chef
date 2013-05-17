@@ -53,10 +53,12 @@ module ClearwaterKnifePlugins
       require_relative 'knife-security-groups-create'
       require_relative 'knife-dnszone-create'
       require_relative 'knife-dns-records-create'
+      require_relative 'knife-bind-records-create'
       require_relative 'dns-records'
       BoxCreate.load_deps
       DeploymentClean.load_deps
       DnsRecordsCreate.load_deps
+      BindRecordsCreate.load_deps
     end
 
     %w{bono homestead homer sprout}.each do |node|
@@ -363,12 +365,21 @@ module ClearwaterKnifePlugins
       set_progress 95
 
       # Setup DNS records defined above
-      Chef::Log.info "Creating DNS records..."
-      dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split) 
-      dns_create.config[:verbosity] = config[:verbosity]
-      Chef::Config[:verbosity] = config[:verbosity]
-      dns_create.run
-      status["DNS"][:status] = "Done"
+      if config[:cloud] == :openstack
+        Chef::Log.info "Creating BIND records..."
+        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split) 
+        bind_create.config[:verbosity] = config[:verbosity]
+        Chef::Config[:verbosity] = config[:verbosity]
+        bind_create.run
+        status["DNS"][:status] = "Done"
+      else
+        Chef::Log.info "Creating DNS records..."
+        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split) 
+        dns_create.config[:verbosity] = config[:verbosity]
+        Chef::Config[:verbosity] = config[:verbosity]
+        dns_create.run
+        status["DNS"][:status] = "Done"
+      end
       set_progress 100
     end
 
