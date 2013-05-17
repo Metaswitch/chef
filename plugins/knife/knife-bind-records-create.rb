@@ -51,21 +51,28 @@ module ClearwaterKnifePlugins
 
     def run
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
-      domain = "#{env.name}.#{attributes["root_domain"]}"
+      domain = if attributes["use_subdomain"]
+                 "#{env.name}.#{attributes["root_domain"]}"
+               else
+                 "#{attributes["root_domain"]}"
+               end
+      bind_server_ip = Chef::Config[:knife][:bind_server_ip]
+      raise "Couldn't load BIND server IP, please configure knife[:bind_server_ip]" unless bind_server_ip
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
       bind_manager = Clearwater::BindRecordManager.new(domain, attributes)
-      # Create NS record with route 53, pointing all queries for subdomain at 
-      # our BIND server
+
+      # Create NS record with route 53, pointing all queries for this deployment at 
+      # the BIND server
       record_manager.create_or_update_record(nil, {
-        prefix: env.name,
+        prefix: attributes["use_subdomain"] ? env.name : nil,
         type: "NS",
-        value: "ns-#{env.name}.#{attributes["root_domain"]}",
+        value: "ns-#{domain}",
         ttl: 300
       })
-      record_manager.create_or_update_record("ns-#{env.name}", {
+      record_manager.create_or_update_record(attributes["use_subdomain"] ? "ns-#{env.name}" : nil, {
         prefix: nil,
         type: "A",
-        value: "75.55.105.143",
+        value: bind_server_ip,
         ttl: 300
       })
       # Configure records in BIND server
