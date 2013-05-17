@@ -9,12 +9,11 @@ $TTL 1h
 @                       IN NS    ns1.<%= @domain %>.
 ns1             3600    IN A     <%= bind_server_ip %>
 <% 
-dns_records.select! { |k, v| ["", "ellis"].include? k }
-dns_records.each do |name, config|
-  config[:value].each_with_index do |ip, i| %><%= 
+["", "ellis"].each do |name|
+  dns_records[name][:value].each_with_index do |ip, i| %><%= 
     "%-15s 300     IN %-5s %s\n" % [i == 0 ? (name.empty? ? "@" : name) : "", 
-                                      config[:type], 
-                                      ip] %><%   
+                                    dns_records[name][:type], 
+                                    ip] %><%   
   end
 end 
 nodes.select! { |n| n[:cloud][:public_ipv4] and not n[:cloud][:public_ipv4].empty? }
