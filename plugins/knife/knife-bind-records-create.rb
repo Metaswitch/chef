@@ -1,4 +1,4 @@
-# @file knife-bindzone-create.rb
+# @file knife-bind-records-create.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -32,17 +32,20 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require_relative 'knife-clearwater-utils'
+
 module ClearwaterKnifePlugins
-  class BindzoneCreate < Chef::Knife
+  class BindRecordsCreate < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
 
-    banner "bindzone create -E ENV"
+    banner "knife bind records create -E ENV"
 
     deps do
       require 'chef'
       require 'fog'
       require 'nokogiri'
       require_relative 'bind-records'
+      require_relative 'dns-records'
       require_relative 'clearwater-dns-records'
     end
 
@@ -50,7 +53,23 @@ module ClearwaterKnifePlugins
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
       domain = "#{env.name}.#{attributes["root_domain"]}"
       contact = "cw-ngv-admin.metaswitch.com"
+      record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
       bind_manager = Clearwater::BindRecordManager.new(domain, contact)
+      # Create NS record with route 53, pointing all queries for subdomain at 
+      # our BIND server
+      record_manager.create_or_update_record(nil, {
+        prefix: env.name,
+        type: "NS",
+        value: "ns-#{env.name}.#{attributes["root_domain"]}",
+        ttl: 300
+      })
+      record_manager.create_or_update_record("ns-#{env.name}", {
+        prefix: nil,
+        type: "A",
+        value: "75.55.105.143",
+        ttl: 300
+      })
+      # Configure records in BIND server
       bind_manager.create_or_update_records(dns_records, nodes)
     end
   end
