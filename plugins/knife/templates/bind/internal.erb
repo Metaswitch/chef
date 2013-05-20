@@ -7,7 +7,7 @@ $TTL 1h
                                                         3600 ;minimum TTL
 )
 @                       IN NS    ns1.<%= @domain %>.
-ns1             3600    IN A     <%= bind_server_ip %>
+ns1             3600    IN A     <%= bind_server_private_ip %>
 <% 
 dns_records.each do |name, config|
   config[:value].each_with_index do |ip, i| %><%= 

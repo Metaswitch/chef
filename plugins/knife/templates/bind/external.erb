@@ -7,7 +7,7 @@ $TTL 1h
                                                         3600 ;minimum TTL
 )
 @                       IN NS    ns1.<%= @domain %>.
-ns1             3600    IN A     <%= bind_server_ip %>
+ns1             3600    IN A     <%= bind_server_public_ip %>
 <% 
 ["", "ellis"].each do |name|
   dns_records[name][:value].each_with_index do |ip, i| %><%= 
@@ -16,9 +16,9 @@ ns1             3600    IN A     <%= bind_server_ip %>
                                     ip] %><%   
   end
 end 
-nodes.select! { |n| n[:cloud][:public_ipv4] and not n[:cloud][:public_ipv4].empty? }
-nodes.sort_by! { |n| n.name }
-nodes.each do |node| %><%= 
+public_nodes = nodes.select { |n| n[:cloud][:public_ipv4] and not n[:cloud][:public_ipv4].empty? }
+public_nodes.sort_by! { |n| n.name }
+public_nodes.each do |node| %><%= 
   "%-15s 300     IN A     %s\n" % [node.name.gsub(/^[a-zA-Z0-9]+-/, ""), 
                                    node[:cloud][:public_ipv4]] %><%   
 end

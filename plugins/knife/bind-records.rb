@@ -44,13 +44,17 @@ module Clearwater
 
     # Converge on the specified zone record entry
     def create_or_update_records(dns_records, nodes)
+      # First create config in BIND server
       ssh_options = { keys: @ssh_key }
-      Net::SSH.start(bind_server_ip, "ubuntu", ssh_options) do |ssh|
+      Net::SSH.start(bind_server_private_ip, "ubuntu", ssh_options) do |ssh|
         create_or_update_zone_root_files(ssh)
         create_or_update_zone_description_files(ssh, dns_records, nodes)
         Chef::Log.info "Reloading rndc on BIND server"
         ssh.exec "sudo rndc reload"
       end
+
+      # Configure nodes to point at BIND server
+      nodes.each { |node| point_node_at_bind_server node }
     end
 
     def create_or_update_zone_root_files(ssh)
@@ -78,18 +82,43 @@ module Clearwater
       end
     end
 
-    def upload_to_file(ssh, data, remote_file)
-        # scp cannot copy directly to protected locations so use a temp file
-        ssh.scp.upload! StringIO.new(data), "tmp"
-        ssh.exec! "sudo mv tmp #{remote_file}"
-        ssh.exec! "sudo chown root:bind #{remote_file}"
-        ssh.exec! "sudo chmod 644 #{remote_file}"
+    def point_node_at_bind_server(node)
+      ssh_options = { keys: @ssh_key }
+      Net::SSH.start(node[:cloud][:local_ipv4], "ubuntu", ssh_options) do |ssh|
+        Chef::Log.info "Pointing #{node.name} at BIND server..."
+        dhcp_conf = ssh.scp.download! "/etc/dhcp/dhclient.conf"
+        supersede_line = "\nsupersede domain-name-servers #{bind_server_private_ip};"
+        regex = Regexp.new supersede_line
+        if regex.match dhcp_conf
+          Chef::Log.info "DHCP already configured to point at BIND server"
+        else
+          Chef::Log.info "Configuring DHCP to point at BIND server"
+          dhcp_conf += supersede_line
+          upload_to_file ssh, dhcp_conf, "/etc/dhcp/dhclient.conf"
+          Chef::Log.info "Rebooting..."
+          ssh.exec! "sudo reboot"
+        end
+      end
     end
 
-    def bind_server_ip
-      @bind_server_ip ||= Chef::Config[:knife][:bind_server_ip]
-      raise "Couldn't load BIND server IP, please configure knife[:bind_server_ip]" unless @bind_server_ip
-      @bind_server_ip
+    def upload_to_file(ssh, data, remote_file)
+      # scp cannot copy directly to protected locations so use a temp file
+      ssh.scp.upload! StringIO.new(data), "tmp"
+      ssh.exec! "sudo mv tmp #{remote_file}"
+      ssh.exec! "sudo chown root:bind #{remote_file}"
+      ssh.exec! "sudo chmod 644 #{remote_file}"
+    end
+
+    def bind_server_public_ip
+      @bind_server_public_ip ||= Chef::Config[:knife][:bind_server_public_ip]
+      raise "Couldn't load BIND server IP, please configure knife[:bind_server_public_ip]" unless @bind_server_public_ip
+      @bind_server_public_ip
+    end
+
+    def bind_server_private_ip
+      @bind_server_private_ip ||= Chef::Config[:knife][:bind_server_private_ip]
+      raise "Couldn't load BIND server IP, please configure knife[:bind_server_private_ip]" unless @bind_server_private_ip
+      @bind_server_private_ip
     end
 
     def bind_server_contact

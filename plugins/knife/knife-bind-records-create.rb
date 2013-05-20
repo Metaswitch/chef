@@ -56,8 +56,8 @@ module ClearwaterKnifePlugins
                else
                  "#{attributes["root_domain"]}"
                end
-      bind_server_ip = Chef::Config[:knife][:bind_server_ip]
-      raise "Couldn't load BIND server IP, please configure knife[:bind_server_ip]" unless bind_server_ip
+      bind_server_public_ip = Chef::Config[:knife][:bind_server_public_ip]
+      raise "Couldn't load BIND server IP, please configure knife[:bind_server_public_ip]" unless bind_server_public_ip
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
       bind_manager = Clearwater::BindRecordManager.new(domain, attributes)
 
@@ -72,7 +72,7 @@ module ClearwaterKnifePlugins
       record_manager.create_or_update_record(attributes["use_subdomain"] ? "ns-#{env.name}" : nil, {
         prefix: nil,
         type: "A",
-        value: bind_server_ip,
+        value: bind_server_public_ip,
         ttl: 300
       })
       # Configure records in BIND server
