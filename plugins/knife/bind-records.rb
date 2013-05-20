@@ -80,11 +80,10 @@ module Clearwater
 
     def upload_to_file(ssh, data, remote_file)
         # scp cannot copy directly to protected locations so use a temp file
-        tmp_file = "tmp_#{remote_file.split("/").last}"
-        ssh.scp.upload! StringIO.new(data), tmp_file
-        ssh.exec "sudo mv #{tmp_file} #{remote_file}"
-        ssh.exec "sudo chown root:bind #{remote_file}"
-        ssh.exec "sudo chmod 644 #{remote_file}"
+        ssh.scp.upload! StringIO.new(data), "tmp"
+        ssh.exec! "sudo mv tmp #{remote_file}"
+        ssh.exec! "sudo chown root:bind #{remote_file}"
+        ssh.exec! "sudo chmod 644 #{remote_file}"
     end
 
     def bind_server_ip

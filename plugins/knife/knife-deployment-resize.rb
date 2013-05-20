@@ -365,7 +365,7 @@ module ClearwaterKnifePlugins
       set_progress 95
 
       # Setup DNS records defined above
-      if config[:cloud] == :openstack
+      if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
         bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split) 
         bind_create.config[:verbosity] = config[:verbosity]
