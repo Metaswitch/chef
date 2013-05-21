@@ -222,22 +222,29 @@ end
 # TODO - Remove this file once ohai is updated beyond version 6.16.0
 # We need to do this as openstack doesn't correctly populate the :cloud hash
 # on older systems
-meta = Ohai::Mixin::Ec2Metadata.new
-if meta.can_metadata_connect?("169.254.169.254",80) and node[:cloud].local_ipv4.nil?
-  metadata = meta.fetch_metadata
-  keys = node[:cloud].keys
-  keys.each { |k| node.automatic[:cloud][k] = metadata[k] }
-  node.save
+patch_up = ruby_block "patch_up_metadata" do
+  block do
+    meta = Ohai::Mixin::Ec2Metadata.new
+    if meta.can_metadata_connect?("169.254.169.254", 80)
+      metadata = meta.fetch_metadata
+      keys = node[:cloud].keys
+      keys.each { |k| node.automatic[:cloud][k] = metadata[k] unless metadata[k].nil? }
+      node.save
+    end
+
+    # Patch up openstack systems
+    unless node[:openstack].nil?
+      env = node.name.split("-").first
+      dns_name = node.name.split("#{env}-").last
+      node.automatic[:cloud][:provider] = "openstack" unless node[:cloud][:provider]
+      node.automatic[:cloud][:public_hostname] = "#{dns_name}.#{env}.cw-ngv.com" # Always wrong
+      if node[:openstack_patch]
+        node.automatic[:openstack][:instance_id] = node[:openstack_patch][:instance_id] unless node[:openstack][:instance_id]
+      end
+      node.save
+    end
+  end
+  action :nothing
 end
 
-# Patch up openstack systems
-unless node[:openstack].nil?
-  env = node.name.split("-").first
-  dns_name = node.name.split("#{env}-").last
-  node.automatic[:cloud][:provider] = "openstack" unless node[:cloud][:provider]
-  node.automatic[:cloud][:public_hostname] = "#{dns_name}.#{env}.cw-ngv.com" # Always wrong
-  if node[:openstack_patch]
-    node.automatic[:openstack][:instance_id] = node[:openstack_patch][:instance_id] unless node[:openstack][:instance_id]
-  end
-  node.save
-end
+patch_up.run_action(:create)

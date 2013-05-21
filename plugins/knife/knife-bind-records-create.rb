@@ -1,4 +1,4 @@
-# @file dns.rb
+# @file knife-bind-records-create.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -32,56 +32,51 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "bind9" do
-  action [:install]
-  options "--force-yes"
-end
+require_relative 'knife-clearwater-utils'
 
-# Copy the config on.  Some files are static, and so use cookbook_file (and
-# come from the files/ directory).  Other files are dynamic, and so use
-# template (and come from the templates/ directory).
-cookbook_file "/etc/bind/named.conf" do
-  mode "0644"
-  source "dns/named.conf"
-  owner "root"
-  group "bind"
-end
+module ClearwaterKnifePlugins
+  class BindRecordsCreate < Chef::Knife
+    include ClearwaterKnifePlugins::ClearwaterUtils
 
-template "/etc/bind/named.conf.internal-view" do
-  mode "0644"
-  source "dns/named.conf.internal-view.erb"
-  variables node: node
-  owner "root"
-  group "bind"
-end
+    banner "knife bind records create -E ENV"
 
-cookbook_file "/etc/bind/named.conf.external-view" do
-  mode "0644"
-  source "dns/named.conf.external-view"
-  owner "root"
-  group "bind"
-end
+    deps do
+      require 'chef'
+      require 'fog'
+      require 'nokogiri'
+      require_relative 'bind-records'
+      require_relative 'dns-records'
+      require_relative 'clearwater-dns-records'
+    end
 
-cookbook_file "/etc/bind/named.conf.internal-zones" do
-  mode "0644"
-  source "dns/named.conf.internal-zones"
-  owner "root"
-  group "bind"
-end
+    def run
+      nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
+      domain = if attributes["use_subdomain"]
+                 "#{env.name}.#{attributes["root_domain"]}"
+               else
+                 "#{attributes["root_domain"]}"
+               end
+      bind_server_public_ip = Chef::Config[:knife][:bind_server_public_ip]
+      raise "Couldn't load BIND server IP, please configure knife[:bind_server_public_ip]" unless bind_server_public_ip
+      record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
+      bind_manager = Clearwater::BindRecordManager.new(domain, attributes)
 
-cookbook_file "/etc/bind/named.conf.external-zones" do
-  mode "0644"
-  source "dns/named.conf.external-zones"
-  owner "root"
-  group "bind"
-end
-
-directory "/var/cache/bind/zones" do
-  owner "bind"
-  group "bind"
-  action :create
-end
-
-service "bind9" do
-  action :restart
+      # Create NS record with route 53, pointing all queries for this deployment at 
+      # the BIND server
+      record_manager.create_or_update_record(nil, {
+        prefix: attributes["use_subdomain"] ? env.name : nil,
+        type: "NS",
+        value: "ns-#{domain}",
+        ttl: 300
+      })
+      record_manager.create_or_update_record(attributes["use_subdomain"] ? "ns-#{env.name}" : nil, {
+        prefix: nil,
+        type: "A",
+        value: bind_server_public_ip,
+        ttl: 300
+      })
+      # Configure records in BIND server
+      bind_manager.create_or_update_records(dns_records, nodes)
+    end
+  end
 end
