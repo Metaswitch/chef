@@ -37,12 +37,22 @@ require 'net/ssh'
 
 module Clearwater
   class BindRecordManager
+    # Initializer
+    #
+    # @param domain [String] root domain to create records in
+    # @param attributes [Hash{String => String}] Chef attributes, used for
+    #   accessing the configured ssh keypair
     def initialize(domain, attributes)
       @domain = domain
-      @ssh_key = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
+      @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
     end
 
-    # Converge on the specified zone record entry
+    # Configures a BIND server with the specified records and creates
+    # individual records for nodes
+    #
+    # @param dns_records [Hash{String => String, Array<String>}] the DNS records.
+    #   See clearwater-dns-records.rb for details
+    # @param nodes [Array<Node>] an array of Chef nodes to create BIND entries for
     def create_or_update_records(dns_records, nodes)
       # First create config in BIND server
       ssh_options = { keys: @ssh_key }
@@ -57,6 +67,7 @@ module Clearwater
       nodes.each { |node| point_node_at_bind_server node }
     end
 
+    private
     def create_or_update_zone_root_files(ssh)
       ["internal", "external"].each do |location|
         zone_data = ssh.scp.download!  "/etc/bind/named.conf.#{location}-zones"
