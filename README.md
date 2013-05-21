@@ -24,3 +24,4 @@ Knife provides commands for updating the config on the Chef server. Typically yo
 
 For details on more knife commands run `knife --help` and consult the [documentation](http://docs.opscode.com/knife.html)
 
+Also, see the [knife cheatsheet](http://docs.opscode.com/_images/qr_knife_web.png)
