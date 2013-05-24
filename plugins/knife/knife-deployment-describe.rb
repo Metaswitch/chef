@@ -104,7 +104,7 @@ module ClearwaterKnifePlugins
     
     def package_lookup
       {
-        "bono" => ["bono", "restund"],
+        "bono" => ["bono", "restund", "sprout-libs"],
         "clearwater-infrastructure" => ["clearwater-infrastructure"],
         "ellis" => ["ellis"],
         "homer" => ["homer"],
