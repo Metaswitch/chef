@@ -71,7 +71,6 @@ module ClearwaterKnifePlugins
     def describe_node(node, versions)
       hostname = node[:cloud][:public_hostname]
       puts "Packages on #{node.name}:"
-      # puts "Roles: #{node.roles.join ","}"
       ssh_options = { keys: @ssh_key }
       Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
         node.roles.each do |role|
