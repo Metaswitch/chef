@@ -66,6 +66,8 @@ module ClearwaterKnifePlugins
       nodes.sort_by(&:name).each { |n| describe_node n, versions }
     end
     
+    private
+
     def describe_node(node, versions)
       hostname = node[:cloud][:public_hostname]
       puts "Packages on #{node.name}:"
