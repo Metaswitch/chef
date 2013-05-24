@@ -72,28 +72,32 @@ module ClearwaterKnifePlugins
       hostname = node[:cloud][:public_hostname]
       puts "Packages on #{node.name}:"
       ssh_options = { keys: @ssh_key }
-      Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
-        node.roles.each do |role|
-          if package_lookup.keys.include? role
-            package_lookup[role].each do |package_name|
-              raw_dkpg_output = ssh.exec! "dpkg -l #{package_name}"
-              match_data = /#{package_name}\s+([0-9\.-]+)/.match raw_dkpg_output
-              if match_data.nil?
-                puts "No package version found"
-              else
-                version = match_data[1]
-                versions.each_with_index do |v, i|
-                  if v[package_name] == version
-                    version = RedGreen::Color.color(i, version)
+      begin
+        Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+          node.roles.each do |role|
+            if package_lookup.keys.include? role
+              package_lookup[role].each do |package_name|
+                raw_dkpg_output = ssh.exec! "dpkg -l #{package_name}"
+                match_data = /#{package_name}\s+([0-9\.-]+)/.match raw_dkpg_output
+                if match_data.nil?
+                  puts "No package version found"
+                else
+                  version = match_data[1]
+                  versions.each_with_index do |v, i|
+                    if v[package_name] == version
+                      version = RedGreen::Color.color(i, version)
+                    end
                   end
+                  format_str = "%-30s " + ("%s " * (1 + versions.length))
+                  colored_versions = versions.each_with_index.map { |v, i| RedGreen::Color.color(i, v[package_name]) }
+                  puts format_str % ([package_name, version] + colored_versions)
                 end
-                format_str = "%-30s " + ("%s " * (1 + versions.length))
-                colored_versions = versions.each_with_index.map { |v, i| RedGreen::Color.color(i, v[package_name]) }
-                puts format_str % ([package_name, version] + colored_versions)
               end
             end
           end
         end
+      rescue Errno::EHOSTUNREACH
+        Chef::Log.error "#{node.name} is unreachable"
       end
       puts "\n"
     end
