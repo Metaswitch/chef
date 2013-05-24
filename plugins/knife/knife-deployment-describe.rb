@@ -63,7 +63,7 @@ module ClearwaterKnifePlugins
         repos.each_with_index { |repo, i| puts RedGreen::Color.color(i, repo) }
       end
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
-      nodes.each { |n| describe_node n, versions }
+      nodes.sort_by(&:name).each { |n| describe_node n, versions }
     end
     
     def describe_node(node, versions)
