@@ -74,7 +74,14 @@ module Clearwater
     }
 
     @@default_image = {
-      ec2: "ami-3d4ff254",
+      ec2: "ami-3d4ff254", # us-east-1
+      #ec2: "ami-fe002cbb", # us-west-1
+      #ec2: "ami-70f96e40", # us-west-2
+      #ec2: "ami-ce7b6fba", # eu-west-1
+      #ec2: "ami-64084736", # ap-southeast-1
+      #ec2: "ami-fe6ceeff", # ap-northeast-1
+      #ec2: "ami-04ea7a3e", # ap-southeast-2
+      #ec2: "ami-a3da00be", # sa-east-1
       openstack: "5da88e4f-418f-4c5f-b148-b625071f20e6", # dfw
       #openstack: "03a48e99-2824-40d8-a0aa-2a819b676d9e", # iad
       rackspace: "9dccea61-59f1-4f78-84ce-3d139c4dd40b"
