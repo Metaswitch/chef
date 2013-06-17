@@ -101,9 +101,9 @@ default_attributes "clearwater" => {
   "ellis_cookie_key" => Chef::Config[:knife][:ellis_cookie_key],
 
   # Secret keys for Homer and Homestead. Set to a secure value.
-  "homer_cookie_key" => Chef::Config[:knife][:homer_cookie_key],
-  "homestead_cookie_key" => Chef::Config[:knife][:homestead_cookie_key],
-  "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key],
+  "homer_cookie_key" => Chef::Config[:knife][:homer_cookie_key] || '4<HqJaa5wi]EjSEq4^vpm#oCWp#$HJ#>exzD7bAa',
+  "homestead_cookie_key" => Chef::Config[:knife][:homestead_cookie_key] || '4<HqJaa5wi]EjSEq4^vpm#oCWp#$HJ#>exzD7bAa',
+  "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key] || '2lB6HWYd1cvuGbAdey9cFL5bSWDzxHOsYyPLYOxV3Bs',
 
   # Cassandra hostname for both homer and homestead.
   "cassandra_hostname" => "localhost",
