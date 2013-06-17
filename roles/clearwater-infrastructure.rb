@@ -103,10 +103,10 @@ default_attributes "clearwater" => {
   "homer_cookie_key" => Chef::Config[:knife][:homer_cookie_key],
   "homestead_cookie_key" => Chef::Config[:knife][:homestead_cookie_key],
   "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key],
-  "cassandra_hostname" => Chef::Config[:knife][:cassandra_hostname],
-  "hss_hostname" => Chef::Config[:knife][:hss_hostname],
-  "hss_port" => Chef::Config[:knife][:hss_port],
-  "hss_enabled" => Chef::Config[:knife][:hss_enabled],
+  "cassandra_hostname" => "localhost",
+  "hss_hostname" => "localhost",
+  "hss_port" => 3868,
+  "hss_enabled" => 0,
 
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
