@@ -99,6 +99,14 @@ default_attributes "clearwater" => {
   # Ellis cookie key. Used to prevent spoofing of Ellis cookies. Set
   # to a secure value.
   "ellis_cookie_key" => Chef::Config[:knife][:ellis_cookie_key],
+  
+  "homer_cookie_key" => Chef::Config[:knife][:homer_cookie_key],
+  "homestead_cookie_key" => Chef::Config[:knife][:homestead_cookie_key],
+  "homestead_password_encryption_key" => Chef::Config[:knife][:ellis_password_encryption_key],
+  "cassandra_hostname" => Chef::Config[:knife][:cassandra_hostname],
+  "hss_hostname" => Chef::Config[:knife][:hss_hostname],
+  "hss_port" => Chef::Config[:knife][:hss_port],
+  "hss_enabled" => Chef::Config[:knife][:hss_enabled],
 
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
