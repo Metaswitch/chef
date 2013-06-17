@@ -23,8 +23,17 @@ smtp_username=<%= @node[:clearwater][:smtp_username] %>
 smtp_password=<%= @node[:clearwater][:smtp_password] %>
 email_recovery_sender=<%= @node[:clearwater][:email_sender] %>
 
+# HSS configuration
+hss_enabled=<%= @node[:clearwater][:hss_enabled] %>
+hss_hostname=<%= @node[:clearwater][:hss_hostname] %>
+hss_port=<%= @node[:clearwater][:hss_port] %>
+cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
+
 # Keys
 signup_key=<%= @node[:clearwater][:signup_key] %>
 turn_workaround=<%= @node[:clearwater][:turn_workaround] %>
 ellis_api_key=<%= @node[:clearwater][:ellis_api_key] %>
 ellis_cookie_key=<%= @node[:clearwater][:ellis_cookie_key] %>
+homer_cookie_key=<%= @node[:clearwater][:homer_cookie_key] %>
+homestead_cookie_key=<%= @node[:clearwater][:homestead_cookie_key] %>
+homestead_password_encryption_key=<%= @node[:clearwater][:homestead_password_encryption_key] %>
