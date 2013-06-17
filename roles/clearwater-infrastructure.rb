@@ -112,8 +112,8 @@ default_attributes "clearwater" => {
   "hss_hostname" => "0.0.0.0",
   "hss_port" => 3868,
 
-  # Set to 1 to enable integration with an external HSS.
-  "hss_enabled" => 0,
+  # Set to "True" to enable integration with an external HSS.
+  "hss_enabled" => "False",
 
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
