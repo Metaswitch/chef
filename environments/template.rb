@@ -11,7 +11,7 @@ override_attributes "clearwater" => {
   "keypair_dir" => "/home/ubuntu/.chef/",
   "pstn_number_count" => 0,
   "hss_enabled" => 0,
-  "hss_hostname" => "localhost",
+  "hss_hostname" => "0.0.0.0",
   "hss_port" => 3868,
   "cassandra_hostname" => "localhost",
 }

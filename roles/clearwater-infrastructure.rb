@@ -99,13 +99,20 @@ default_attributes "clearwater" => {
   # Ellis cookie key. Used to prevent spoofing of Ellis cookies. Set
   # to a secure value.
   "ellis_cookie_key" => Chef::Config[:knife][:ellis_cookie_key],
-  
+
+  # Secret keys for Homer and Homestead. Set to a secure value.
   "homer_cookie_key" => Chef::Config[:knife][:homer_cookie_key],
   "homestead_cookie_key" => Chef::Config[:knife][:homestead_cookie_key],
   "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key],
+
+  # Cassandra hostname for both homer and homestead.
   "cassandra_hostname" => "localhost",
-  "hss_hostname" => "localhost",
+
+  # HSS configuration details. Only used when hss_enabled is 1.
+  "hss_hostname" => "0.0.0.0",
   "hss_port" => 3868,
+
+  # Set to 1 to enable integration with an external HSS.
   "hss_enabled" => 0,
 
   # SMTP credentials as supplied by your email provider.
