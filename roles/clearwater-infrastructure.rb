@@ -108,12 +108,12 @@ default_attributes "clearwater" => {
   # Cassandra hostname for both homer and homestead.
   "cassandra_hostname" => "localhost",
 
-  # HSS configuration details. Only used when hss_enabled is 1.
-  "hss_hostname" => "0.0.0.0",
-  "hss_port" => 3868,
-
   # Set to "True" to enable integration with an external HSS.
   "hss_enabled" => "False",
+
+  # HSS configuration details. Only used when hss_enabled is "True".
+  "hss_hostname" => "0.0.0.0",
+  "hss_port" => 3868,
 
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
