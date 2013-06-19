@@ -24,9 +24,10 @@ smtp_password=<%= @node[:clearwater][:smtp_password] %>
 email_recovery_sender=<%= @node[:clearwater][:email_sender] %>
 
 # HSS configuration
-hss_enabled=<%= @node[:clearwater][:hss_enabled] %>
 hss_hostname=<%= @node[:clearwater][:hss_hostname] %>
 hss_port=<%= @node[:clearwater][:hss_port] %>
+
+# Database configuration
 cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 
 # Keys
