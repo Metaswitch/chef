@@ -59,10 +59,10 @@ if node.run_list.include? "role[sprout]"
 end
 
 # Support clustering for homer and homestead
-if node.roles.include? "cassandra" 
+if node.roles.include? "cassandra"
   node_type = if node.run_list.include? "role[homer]"
                 "homer"
-              elsif node.run_list.include? "role[homestead]"  
+              elsif node.run_list.include? "role[homestead]"
                 "homestead"
               end
   cluster_name = node_type.capitalize + "Cluster"
@@ -147,12 +147,12 @@ if node.roles.include? "cassandra"
 
         # Create the KeySpace and table(s), don't care if they already exist.
         #
-        # For all of these requests, it's possible that the creating a 
+        # For all of these requests, it's possible that the creating a
         # keyspace/table might take so long that the thrift client times out.
-        # This seems to happen a lot when Cassandra has just booted, probably 
-        # it's still settling down or garbage collecting.  In any case, on a 
-        # transport exception we'll simply sleep for a second and retry.  The 
-        # interesting case is an InvalidRequest which means that the 
+        # This seems to happen a lot when Cassandra has just booted, probably
+        # it's still settling down or garbage collecting.  In any case, on a
+        # transport exception we'll simply sleep for a second and retry.  The
+        # interesting case is an InvalidRequest which means that the
         # keyspace/table already exists and we should stop trying to create it.
         begin
           db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
@@ -179,12 +179,30 @@ if node.roles.include? "cassandra"
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
-          rescue CassandraCQL::Error::InvalidRequestException 
+          rescue CassandraCQL::Error::InvalidRequestException
             # Pass
           end
 
           begin
             db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text)")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException
+            # Pass
+          end
+
+          begin
+            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY)")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException
+            # Pass
+          end
+
+          begin
+            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY)")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -213,6 +231,6 @@ if node.roles.include? "cassandra"
     action :run
   end
 end
-          
+
 # Now we're clustered
 tag('clustered')
