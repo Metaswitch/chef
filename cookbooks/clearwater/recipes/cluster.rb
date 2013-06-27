@@ -69,11 +69,15 @@ if node.roles.include? "cassandra"
 
   # Work out the other nodes in the cluster
   cluster_nodes = search(:node, "role:#{node_type} AND chef_environment:#{node.chef_environment}")
-  cluster_ips = cluster_nodes.map { |n| n.cloud.local_ipv4 }
-  cluster_ips.sort!
+
+  # Sort into "Cassandra order", where each node bisects the largest space
+  # between previously inserted nodes.  If you do the sums you'll see that
+  # this equates to ordering by the reverse of the binary representation of
+  # the 0-indexed node index.
+  cluster_nodes.sort_by! { |n| (n.clearwater.index - 1).to_s(2).reverse }
 
   # Calculate our token by taking an even chunk of the token space
-  index = cluster_ips.index(node.cloud.local_ipv4)
+  index = cluster_ips.index(node)
   token = (index * 2**127) / cluster_ips.length
 
   # Create the Cassandra config file
