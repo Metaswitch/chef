@@ -3,6 +3,8 @@ Clearwater Chef
 
 This repository is for Chef recipes for Clearwater. It is based off of the template provided by opscode here: https://github.com/opscode/chef-repo
 
+Project Clearwater is an open-source IMS core, developed by [Metaswitch Networks](http://www.metaswitch.com) and released under the [GNU GPLv3](http://www.projectclearwater.org/download/license/). You can find more information about it on [our website](http://www.projectclearwater.org/) or [our wiki](https://github.com/Metaswitch/clearwater-docs/wiki).
+
 For instructions on how to use Chef with Clearwater, see:
 
 * [Installing a Chef client](https://github.com/Metaswitch/clearwater-docs/wiki/Installing-a-Chef-client)
