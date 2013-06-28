@@ -175,9 +175,33 @@ end
 def repo_security_group_rules
   [
     # HTTP
-    { ip_protocol: :tcp, min: 80, max: 80, group: "base" },
+    { ip_protocol: :tcp, min: 80, max: 80, cidr_ip: "0.0.0.0/0" },
     # SSH
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
+  ]
+end
+
+def internal_sip_security_group_rules
+  [
+    # Internal SIP (TCP only)
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+  ]
+end
+
+def plivo_security_group_rules
+  [
+    # RTP - bono does not proxy the media stream to application servers
+    { ip_protocol: :udp, min: 32768, max: 65535, cidr_ip: "0.0.0.0/0" },
+  ]
+end
+
+def sipp_security_group_rules
+  [
+    # External SIP (UDP and TCP)
+    { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
+    { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
+    # Statistics interface
+    { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
   ]
 end
 
@@ -196,5 +220,8 @@ def clearwater_security_groups
     "cacti" => cacti_security_group_rules,
     "mmonit" => mmonit_security_group_rules,
     "perimeta" => perimeta_security_group_rules,
+    "internal-sip" => internal_sip_security_group_rules,
+    "plivo" => plivo_security_group_rules,
+    "sipp" => sipp_security_group_rules,
   }
 end

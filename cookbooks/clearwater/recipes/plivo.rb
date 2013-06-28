@@ -1,4 +1,4 @@
-# @file knife-box-create.rb
+# @file plivo.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -32,65 +32,67 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-require_relative 'knife-clearwater-utils'
-require_relative 'boxes'
+execute "install-freeswitch" do
+  cwd "/root"
+  command "[ -d /usr/local/freeswitch ] || ( wget --no-check-certificate https://github.com/plivo/plivoframework/raw/master/freeswitch/install.sh && bash install.sh )"
+  user "root"
+end
 
-module ClearwaterKnifePlugins
-  class BoxCreate < Chef::Knife
-    include ClearwaterKnifePlugins::ClearwaterUtils
+execute "install-plivo" do
+  cwd "/root"
+  command "[ -d /usr/local/plivo ] || ( wget --no-check-certificate https://github.com/plivo/plivoframework/raw/master/scripts/plivo_install.sh && bash plivo_install.sh /usr/local/plivo )"
+  user "root"
+end
 
-    deps do
-      require 'chef'
-      require 'fog'
-    end
+template "/usr/local/freeswitch/conf/vars.xml" do
+  mode "0644"
+  source "plivo/vars.xml.erb"
+  variables node: node
+  owner "root"
+  group "root"
+end
 
-    banner "box create ROLE_NAME"
+template "/usr/local/freeswitch/conf/sip_profiles/external.xml" do
+  mode "0644"
+  source "plivo/external.xml.erb"
+  variables node: node
+  owner "root"
+  group "root"
+end
 
-    option :index,
-      :long => "--index INDEX",
-      :description => "Index of node to create, will be appended to the node name",
-      :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--index must be an integer"; exit 2 end }
+template "/usr/local/freeswitch/conf/sip_profiles/internal.xml" do
+  mode "0644"
+  source "plivo/internal.xml.erb"
+  variables node: node
+  owner "root"
+  group "root"
+end
 
-    option :cloud,
-      :long => "--cloud CLOUD",
-      :default => "ec2",
-      :description => "Cloud to create box in. Currently support: #{Clearwater::BoxManager.supported_clouds.join ', '}",
-      :proc => (Proc.new do |arg|
-        unless Clearwater::BoxManager.supported_clouds.include? arg.to_sym
-          Chef::Log.error "#{arg} is not a supported cloud"
-          exit 2
-        end
-      end)
+cookbook_file "/usr/local/freeswitch/conf/autoload_configs/switch.conf.xml" do
+  mode "0644"
+  source "plivo/switch.conf.xml"
+  owner "root"
+  group "root"
+end
 
-    def run()
-      unless name_args.size == 1
-        ui.fatal "You need to supply a box role name"
-        show_usage
-        exit 1
-      end
-      role = name_args.first
+cookbook_file "/etc/init.d/freeswitch" do
+  mode "0755"
+  source "plivo/freeswitch.init.d"
+  owner "root"
+  group "root"
+end
 
-      unless Clearwater::BoxManager.supported_roles.include? role
-        ui.fatal "#{role} is not a supported box role"
-        exit 1
-      end
+cookbook_file "/usr/local/plivo/etc/plivo/default.conf" do
+  mode "0644"
+  source "plivo/default.conf"
+  owner "root"
+  group "root"
+end
 
-      flavor_overrides = {
-        bono: nil, # or bono: "m1.large" etc...
-        ellis: nil,
-        homestead: nil,
-        homer: nil,
-        sprout: nil,
-        ibcf: nil,
-        dns: nil,
-        sipp: nil,
-        enum: nil,
-        cacti: nil,
-        plivo: nil,
-      }
+service "freeswitch" do
+  action :start
+end
 
-      box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
-      box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym]})
-    end
-  end
+service "plivo" do
+  action :start
 end
