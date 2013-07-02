@@ -61,10 +61,10 @@ module ClearwaterKnifePlugins
       BindRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
-             default: node == "ibcf" ? 0 : 1,
+             default: (["ibcf", "sipp"].include? node) ? 0 : 1,
              description: "Number of #{node} nodes to launch",
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
@@ -195,7 +195,7 @@ module ClearwaterKnifePlugins
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       victims.select! { |v| not box_list.include? v.name }
 
@@ -222,7 +222,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp}.each do |node|
         result[node.to_sym] = find_nodes(roles: "clearwater-infrastructure", role: node).length
       end
       return result
@@ -310,7 +310,8 @@ module ClearwaterKnifePlugins
                      ibcf: config[:ibcf_count],
                      homestead: config[:homestead_count],
                      homer: config[:homer_count],
-                     sprout: config[:sprout_count] }
+                     sprout: config[:sprout_count],
+                     sipp: config[:sipp_count] }
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
@@ -397,7 +398,7 @@ module ClearwaterKnifePlugins
         Thread.current[:status][item] = {:status => "Pending"}
       end
 
-      ["bono", "ellis", "homer", "homestead", "sprout"].each do |node|
+      ["bono", "ellis", "homer", "homestead", "sprout", "sipp"].each do |node|
         Thread.current[:status]["Nodes"][node] =
           {:status => "Pending", :count => config["#{node}_count".to_sym]}
       end
