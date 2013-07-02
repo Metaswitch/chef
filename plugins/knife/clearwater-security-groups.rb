@@ -71,9 +71,11 @@ def bono_security_group_rules
     { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
     # SIP/Websockets
     { ip_protocol: :tcp, min: 5062, max: 5062, cidr_ip: "0.0.0.0/0" },
-    # Internal SIP (TCP only)
+    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
     # Statistics interface
     { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     # RTP
@@ -88,9 +90,11 @@ end
 def sprout_security_group_rules
   ipsec_security_group_rules +
     [
-      # SIP from bono and Perimeta
+      # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+      # deployments are migrated to using internal-sip security groups.
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
+      { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
       # Memcached from other sprout nodes
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       { ip_protocol: :udp, min: 11211, max: 11211, group: "sprout" },
@@ -166,18 +170,56 @@ def perimeta_security_group_rules
   [
     # Global SIP
     { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
-    # SIP from bono/sprout
+    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
   ]
 end
 
 def repo_security_group_rules
   [
     # HTTP
-    { ip_protocol: :tcp, min: 80, max: 80, group: "base" },
+    { ip_protocol: :tcp, min: 80, max: 80, cidr_ip: "0.0.0.0/0" },
     # SSH
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
+  ]
+end
+
+# The internal-sip security group should be used for any nodes that need to
+# communicate internally via SIP.  bono, sprout, perimeta and any application
+# servers should all be members of this group, and this would avoid having to
+# touch bono, sprout and perimeta's security groups every time we add another
+# node type.  Unfortunately, it's hard to add new security groups to existing
+# nodes, so for now this security group must also contain explicit rules for
+# bono, sprout and perimeta.  Hopefully at some stage we'll be able to retire
+# these legacy rules.
+def internal_sip_security_group_rules
+  [
+    # Internal SIP (TCP only)
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+    # Internal SIP (TCP only) - legacy rules
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
+  ]
+end
+
+def plivo_security_group_rules
+  [
+    # RTP - bono does not proxy the media stream to application servers
+    { ip_protocol: :udp, min: 32768, max: 65535, cidr_ip: "0.0.0.0/0" },
+  ]
+end
+
+def sipp_security_group_rules
+  [
+    # External SIP (UDP and TCP)
+    { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
+    { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
+    # Statistics interface
+    { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
   ]
 end
 
@@ -196,5 +238,8 @@ def clearwater_security_groups
     "cacti" => cacti_security_group_rules,
     "mmonit" => mmonit_security_group_rules,
     "perimeta" => perimeta_security_group_rules,
+    "internal-sip" => internal_sip_security_group_rules,
+    "plivo" => plivo_security_group_rules,
+    "sipp" => sipp_security_group_rules,
   }
 end
