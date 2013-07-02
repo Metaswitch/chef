@@ -71,7 +71,8 @@ def bono_security_group_rules
     { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
     # SIP/Websockets
     { ip_protocol: :tcp, min: 5062, max: 5062, cidr_ip: "0.0.0.0/0" },
-    # Internal SIP (TCP only)
+    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
@@ -89,7 +90,8 @@ end
 def sprout_security_group_rules
   ipsec_security_group_rules +
     [
-      # SIP from bono, Perimeta and the internal SIP group
+      # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+      # deployments are migrated to using internal-sip security groups.
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
@@ -168,7 +170,8 @@ def perimeta_security_group_rules
   [
     # Global SIP
     { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
-    # SIP from bono/sprout
+    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },

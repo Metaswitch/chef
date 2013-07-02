@@ -32,16 +32,27 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-execute "install-freeswitch" do
-  cwd "/root"
-  command "[ -d /usr/local/freeswitch ] || ( wget --no-check-certificate https://github.com/plivo/plivoframework/raw/master/freeswitch/install.sh && bash install.sh )"
-  user "root"
+execute "#{Chef::Config[:file_cache_path]}/install.sh" do
+  action :nothing
 end
 
-execute "install-plivo" do
-  cwd "/root"
-  command "[ -d /usr/local/plivo ] || ( wget --no-check-certificate https://github.com/plivo/plivoframework/raw/master/scripts/plivo_install.sh && bash plivo_install.sh /usr/local/plivo )"
-  user "root"
+remote_file "#{Chef::Config[:file_cache_path]}/install.sh" do
+  source "https://github.com/plivo/plivoframework/raw/master/freeswitch/install.sh"
+  mode "0755"
+  not_if { ::Dir.exists? "/usr/local/freeswitch" }
+  notifies :run, "execute[#{Chef::Config[:file_cache_path]}/install.sh]", :immediately
+end
+
+execute "#{Chef::Config[:file_cache_path]}/plivo_install.sh" do
+  command "#{Chef::Config[:file_cache_path]}/plivo_install.sh /usr/local/plivo"
+  action :nothing
+end
+
+remote_file "#{Chef::Config[:file_cache_path]}/plivo_install.sh" do
+  source "https://github.com/plivo/plivoframework/raw/master/scripts/plivo_install.sh"
+  mode "0755"
+  not_if { ::Dir.exists? "/usr/local/plivo" }
+  notifies :run, "execute[#{Chef::Config[:file_cache_path]}/plivo_install.sh]", :immediately
 end
 
 template "/usr/local/freeswitch/conf/vars.xml" do
