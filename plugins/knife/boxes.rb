@@ -53,16 +53,17 @@ module Clearwater
     ]
 
     @@supported_boxes = [
-        {:name => "bono", :security_groups => ["base", "bono"], :public_ip => true},
+        {:name => "bono", :security_groups => ["base", "internal-sip", "bono"], :public_ip => true},
         {:name => "ellis", :security_groups => ["base", "ellis"], :public_ip => true},
         {:name => "homestead", :security_groups => ["base", "homestead"]},
         {:name => "homer", :security_groups => ["base", "homer"]},
-        {:name => "sprout", :security_groups => ["base", "sprout"]},
-        {:name => "ibcf", :security_groups => ["base", "ibcf", "bono"]},
+        {:name => "sprout", :security_groups => ["base", "internal-sip", "sprout"]},
+        {:name => "ibcf", :security_groups => ["base", "internal-sip", "ibcf", "bono"]},
         {:name => "dns", :security_groups => ["base", "dns"], :public_ip => true},
         {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
-        {:name => "sipp", :security_groups => ["base", "bono"], :public_ip => true},
-        {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true}
+        {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},
+        {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true},
+        {:name => "plivo", :security_groups => ["base", "internal-sip", "plivo"], :public_ip => true},
       ]
 
     @@supported_roles = @@supported_boxes.map { |r| r[:name] }
