@@ -74,11 +74,11 @@ if node.roles.include? "cassandra"
   # between previously inserted nodes.  If you do the sums you'll see that
   # this equates to ordering by the reverse of the binary representation of
   # the 0-indexed node index.
-  cluster_nodes.sort_by! { |n| (n.clearwater.index - 1).to_s(2).reverse }
+  cluster_nodes.sort_by! { |n| (n[:clearwater][:index] - 1).to_s(2).reverse }
 
   # Calculate our token by taking an even chunk of the token space
-  index = cluster_ips.index(node)
-  token = (index * 2**127) / cluster_ips.length
+  index = cluster_nodes.index { |n| n.name == node.name }
+  token = (index * 2**127) / cluster_nodes.length
 
   # Create the Cassandra config file
   template "/etc/cassandra/cassandra.yaml" do
@@ -88,7 +88,7 @@ if node.roles.include? "cassandra"
     group "root"
     variables cluster_name: cluster_name,
               token: token,
-              seeds: cluster_ips,
+              seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
               node: node
   end
 
@@ -215,6 +215,10 @@ if node.roles.include? "cassandra"
           end
         end
       end
+
+      # To prevent conflicts during clustering, only homestead-1 or homer-1
+      # will ever attempt to create Keyspaces.
+      only_if { node.clearwater.index == 1 }
       action :run
     end
 
