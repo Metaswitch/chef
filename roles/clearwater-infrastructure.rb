@@ -121,11 +121,6 @@ default_attributes "clearwater" => {
   # must be validated or email sending will fail.
   "email_sender"    => Chef::Config[:knife][:email_sender],
 
-  # MMonit server credentials, if any.
-  "mmonit_server"   => Chef::Config[:knife][:mmonit_server],
-  "mmonit_username" => Chef::Config[:knife][:mmonit_username],
-  "mmonit_password" => Chef::Config[:knife][:mmonit_password],
-
   # DNS server configuration - internal subnet to forward requests from and
   # DNS forwarder to use when doing so.
   "dns_internal_subnet" => "10.0.0.0/8",
