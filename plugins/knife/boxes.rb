@@ -64,6 +64,7 @@ module Clearwater
         {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},
         {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true},
         {:name => "plivo", :security_groups => ["base", "internal-sip", "plivo"], :public_ip => true},
+        {:name => "openimscorehss", :security_groups => ["base", "hss"]},
       ]
 
     @@supported_roles = @@supported_boxes.map { |r| r[:name] }

@@ -223,6 +223,13 @@ def sipp_security_group_rules
   ]
 end
 
+def hss_security_group_rules
+  [
+    # Diameter from homestead
+    { ip_protocol: :tcp, min: 3868, max: 3868, group: "homestead" },
+  ]
+end
+
 def clearwater_security_groups
   {
     "base" => base_security_group_rules,
@@ -241,5 +248,6 @@ def clearwater_security_groups
     "internal-sip" => internal_sip_security_group_rules,
     "plivo" => plivo_security_group_rules,
     "sipp" => sipp_security_group_rules,
+    "hss" => hss_security_group_rules,
   }
 end
