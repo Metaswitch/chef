@@ -32,72 +32,20 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "subversion" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "mysql-server" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "libmysqlclient-dev" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "libxml2" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "libxml2-dev" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "bind9" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "flex" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "bison" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "libcurl4-openssl-dev" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "openjdk-7-jre-headless" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "openjdk-7-jdk" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "ant" do
-  action [:install]
-  options "--force-yes"
+%w{subversion mysql-server libmysqlclient-dev libxml2 libxml2-dev bind9 flex bison libcurl4-openssl-dev openjdk-7-jre-headless openjdk-7-jdk ant}.each do |p|
+  package p do
+    action [:install]
+    options "--force-yes"
+  end
 end
 
 directory "/opt/OpenIMSCore" do
 end
 
-execute "svn" do
-  cwd "/opt/OpenIMSCore"
-  command "svn checkout http://svn.berlios.de/svnroot/repos/openimscore/FHoSS/trunk FHoSS"
+subversion "OpenIMSCore HSS" do
+  repository "http://svn.berlios.de/svnroot/repos/openimscore/FHoSS/trunk FHoSS"
+  destination "/opt/OpenIMSCore"
+  action :sync
 end
 
 execute "mysql" do
