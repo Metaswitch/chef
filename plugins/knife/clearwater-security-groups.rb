@@ -98,7 +98,10 @@ def internal_sip_security_group_rules
 end
 
 def bono_security_group_rules
-  bono_internal_sip_security_group_rules + bono_external_security_group_rules
+  # DEPRECATED: Internal SIP (TCP only) - use of the
+  # internal_sip_security_group_rules should be removed once all
+  # deployments are migrated to using internal-sip security groups.
+  internal_sip_security_group_rules + bono_external_security_group_rules
 end
 
 def ibcf_security_group_rules
@@ -108,7 +111,7 @@ end
 def sprout_security_group_rules
   ipsec_security_group_rules +
     [
-      # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+      # DEPRECATED: Internal SIP (TCP only) - these should be removed once all
       # deployments are migrated to using internal-sip security groups.
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
@@ -188,7 +191,7 @@ def perimeta_security_group_rules
   [
     # Global SIP
     { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
-    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # DEPRECATED: Internal SIP (TCP only) - these should be removed once all
     # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
@@ -227,7 +230,6 @@ def hss_security_group_rules
     # Diameter from homestead
     { ip_protocol: :tcp, min: 3868, max: 3868, group: "homestead" },
   ]
-end
 
 def cw_aio_security_group_rules
   bono_external_security_group_rules + ellis_security_group_rules
