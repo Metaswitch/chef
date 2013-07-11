@@ -218,7 +218,7 @@ if node.roles.include? "cassandra"
 
       # To prevent conflicts during clustering, only homestead-1 or homer-1
       # will ever attempt to create Keyspaces.
-      only_if { node.clearwater.index == 1 }
+      only_if { node[:clearwater][:index] == 1 }
       action :run
     end
 
