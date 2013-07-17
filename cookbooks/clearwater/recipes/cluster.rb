@@ -47,7 +47,7 @@ end
 if node.run_list.include? "role[sprout]"
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
-  sprouts.map! { |s| s.cloud.local_ipv4 }
+  sprouts.map! { |s| s.cloud.public_hostname }
 
   template "/etc/clearwater/cluster_settings" do
     source "cluster/cluster_settings.sprout.erb"
