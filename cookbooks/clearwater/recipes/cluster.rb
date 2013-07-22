@@ -47,7 +47,7 @@ end
 if node.run_list.include? "role[sprout]"
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
-  sprouts.map! { |s| s.cloud.local_ipv4 }
+  sprouts.map! { |s| s.cloud.public_hostname }
 
   template "/etc/clearwater/cluster_settings" do
     source "cluster/cluster_settings.sprout.erb"
@@ -218,7 +218,7 @@ if node.roles.include? "cassandra"
 
       # To prevent conflicts during clustering, only homestead-1 or homer-1
       # will ever attempt to create Keyspaces.
-      only_if { node.clearwater.index == 1 }
+      only_if { node[:clearwater][:index] == 1 }
       action :run
     end
 
