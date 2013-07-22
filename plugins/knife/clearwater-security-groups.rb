@@ -230,6 +230,7 @@ def hss_security_group_rules
     # Diameter from homestead
     { ip_protocol: :tcp, min: 3868, max: 3868, group: "homestead" },
   ]
+end
 
 def cw_aio_security_group_rules
   bono_external_security_group_rules + ellis_security_group_rules
