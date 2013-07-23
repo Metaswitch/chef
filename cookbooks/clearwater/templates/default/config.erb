@@ -1,9 +1,9 @@
 # Deployment definitions
 home_domain=<%= @domain %>
-sprout_hostname=sprout.<%= @domain %>
-hs_hostname=hs.<%= @domain %>:8888
+sprout_hostname=<%= @sprout %>
+hs_hostname=<%= @hs %>
 garden_hostname=localhost
-xdms_hostname=homer.<%= @domain %>:7888
+xdms_hostname=<%= @homer %>
 splunk_hostname=<%= @node[:clearwater][:splunk_server] || "0.0.0.0" %>
 <% if [:mmonit_server, :mmonit_username, :mmonit_password].all? { |k| @node[:clearwater].has_key? k } %>
 mmonit_hostname=<%= @node[:clearwater][:mmonit_server] %>
@@ -13,6 +13,7 @@ mmonit_password=<%= @node[:clearwater][:mmonit_password] %>
 sas_server=<%= @sas %>
 enum_server=<%= @enum %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
+<% if @node.roles.include? "cw_aio" %>cw_aio=True<% end %>
 
 # Local IP configuration
 local_ip=<%= @node[:cloud][:local_ipv4] %>
