@@ -13,7 +13,6 @@ mmonit_password=<%= @node[:clearwater][:mmonit_password] %>
 sas_server=<%= @sas %>
 enum_server=<%= @enum %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
-<% if @node.roles.include? "cw_aio" %>cw_aio=True<% end %>
 
 # Local IP configuration
 local_ip=<%= @node[:cloud][:local_ipv4] %>
