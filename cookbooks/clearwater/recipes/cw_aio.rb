@@ -32,7 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "clearwater-auto-config" do
+package "clearwater-auto-config-aws" do
   action [:install]
   options "--force-yes"
 end
