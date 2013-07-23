@@ -97,13 +97,34 @@ rescue
   enum = "127.0.0.1"
 end
 
-template "/etc/clearwater/config" do
-  mode "0644"
-  source "config.erb"
-  variables domain: domain,
-            node: node,
-            sas: sas,
-            enum: enum
+if node.roles.include? "cw_aio"
+  template "/etc/clearwater/config" do
+    mode "0644"
+    source "config.erb"
+    variables domain: "example.com",
+              node: node,
+              sprout: "localhost",
+              hs: "localhost:8888",
+              homer: "localhost:7888",
+              sas: sas,
+              enum: enum
+  end
+  package "clearwater-auto-config" do
+    action [:install]
+    options "--force-yes"
+  end
+else
+  template "/etc/clearwater/config" do
+    mode "0644"
+    source "config.erb"
+    variables domain: domain,
+              node: node,
+              sprout: "sprout." + domain,
+              hs: "hs." + domain + ":8888",
+              homer: "homer." + domain + ":7888",
+              sas: sas,
+              enum: enum
+  end
 end
 
 package "clearwater-infrastructure" do

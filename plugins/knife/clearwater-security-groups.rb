@@ -61,7 +61,7 @@ def ipsec_security_group_rules
   ]
 end
 
-def bono_security_group_rules
+def bono_external_security_group_rules
   [
     # STUN
     { ip_protocol: :tcp, min: 3478, max: 3478, cidr_ip: "0.0.0.0/0" },
@@ -71,16 +71,37 @@ def bono_security_group_rules
     { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
     # SIP/Websockets
     { ip_protocol: :tcp, min: 5062, max: 5062, cidr_ip: "0.0.0.0/0" },
-    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
-    # deployments are migrated to using internal-sip security groups.
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
     # Statistics interface
     { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     # RTP
     { ip_protocol: :udp, min: 32768, max: 65535, cidr_ip: "0.0.0.0/0" },
   ]
+end
+
+# The internal-sip security group should be used for any nodes that need to
+# communicate internally via SIP.  bono, sprout, perimeta and any application
+# servers should all be members of this group, and this would avoid having to
+# touch bono, sprout and perimeta's security groups every time we add another
+# node type.  Unfortunately, it's hard to add new security groups to existing
+# nodes, so for now this security group must also contain explicit rules for
+# bono, sprout and perimeta.  Hopefully at some stage we'll be able to retire
+# these legacy rules.
+def internal_sip_security_group_rules
+  [
+    # Internal SIP (TCP only)
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+    # Internal SIP (TCP only) - legacy rules
+    { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
+  ]
+end
+
+def bono_security_group_rules
+  # DEPRECATED: Internal SIP (TCP only) - use of the
+  # internal_sip_security_group_rules should be removed once all
+  # deployments are migrated to using internal-sip security groups.
+  internal_sip_security_group_rules + bono_external_security_group_rules
 end
 
 def ibcf_security_group_rules
@@ -90,11 +111,11 @@ end
 def sprout_security_group_rules
   ipsec_security_group_rules +
     [
-      # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+      # DEPRECATED: Internal SIP (TCP only) - these should be removed once all
       # deployments are migrated to using internal-sip security groups.
-      { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
+      { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
-      { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+      { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
       # Memcached from other sprout nodes
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       { ip_protocol: :udp, min: 11211, max: 11211, group: "sprout" },
@@ -170,7 +191,7 @@ def perimeta_security_group_rules
   [
     # Global SIP
     { ip_protocol: :tcp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
-    # DEPRECTATED: Internal SIP (TCP only) - these should be removed once all
+    # DEPRECATED: Internal SIP (TCP only) - these should be removed once all
     # deployments are migrated to using internal-sip security groups.
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
@@ -184,25 +205,6 @@ def repo_security_group_rules
     { ip_protocol: :tcp, min: 80, max: 80, cidr_ip: "0.0.0.0/0" },
     # SSH
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
-  ]
-end
-
-# The internal-sip security group should be used for any nodes that need to
-# communicate internally via SIP.  bono, sprout, perimeta and any application
-# servers should all be members of this group, and this would avoid having to
-# touch bono, sprout and perimeta's security groups every time we add another
-# node type.  Unfortunately, it's hard to add new security groups to existing
-# nodes, so for now this security group must also contain explicit rules for
-# bono, sprout and perimeta.  Hopefully at some stage we'll be able to retire
-# these legacy rules.
-def internal_sip_security_group_rules
-  [
-    # Internal SIP (TCP only)
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
-    # Internal SIP (TCP only) - legacy rules
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
   ]
 end
 
@@ -230,6 +232,10 @@ def hss_security_group_rules
   ]
 end
 
+def cw_aio_security_group_rules
+  bono_external_security_group_rules + ellis_security_group_rules
+end
+
 def clearwater_security_groups
   {
     "base" => base_security_group_rules,
@@ -249,5 +255,6 @@ def clearwater_security_groups
     "plivo" => plivo_security_group_rules,
     "sipp" => sipp_security_group_rules,
     "hss" => hss_security_group_rules,
+    "cw_aio" => cw_aio_security_group_rules,
   }
 end
