@@ -91,7 +91,7 @@ def internal_sip_security_group_rules
     # Internal SIP (TCP only)
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
     # Internal SIP (TCP only) - legacy rules
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
+    { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
   ]
@@ -113,9 +113,9 @@ def sprout_security_group_rules
     [
       # DEPRECATED: Internal SIP (TCP only) - these should be removed once all
       # deployments are migrated to using internal-sip security groups.
-      { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
+      { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
       { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
-      { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+      { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
       # Memcached from other sprout nodes
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       { ip_protocol: :udp, min: 11211, max: 11211, group: "sprout" },
