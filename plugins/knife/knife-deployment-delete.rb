@@ -59,8 +59,11 @@ module ClearwaterKnifePlugins
       ui.msg "Will destroy:"
       ui.msg " - Cluster DNS entries"
       ui.msg " - Box-specific DNS entries"
-      find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
-                .each { |n| ui.msg " - #{n.name}" }
+      victims = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and
+                                        not n.roles.include? "cw_aio" }
+                          .map { |n| n.name }
+      victims.each { |n| ui.msg " - #{n}" }
+
       fail "Exiting on user request" unless continue?
 
       Chef::Log.info "Deleting cluster DNS records..."
@@ -70,12 +73,15 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Deleting node DNS entries..."
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
       dns_manager.delete_node_records(nodes)
-
+      
       Chef::Log.info "Deleting server instances..."
-      box_delete = BoxDelete.new("-E #{env.name}".split)
-      box_delete.config[:yes] = true
-      box_delete.config[:verbosity] = config[:verbosity]
-      box_delete.run(true)
+      victims.each do |v|
+        box_delete = BoxDelete.new("-E #{env.name}".split)
+        box_delete.name_args = [v]
+        box_delete.config[:yes] = true
+        box_delete.config[:verbosity] = config[:verbosity]
+        box_delete.run(true)
+      end
 
       Chef::Log.warn "Not deleting security groups.  To trigger deletion, run:"
       Chef::Log.warn " - knife security groups delete -E #{env.name}"
