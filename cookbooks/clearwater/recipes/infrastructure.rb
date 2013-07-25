@@ -109,7 +109,7 @@ if node.roles.include? "cw_aio"
               sas: sas,
               enum: enum
   end
-  package "clearwater-auto-config" do
+  package "clearwater-auto-config-aws" do
     action [:install]
     options "--force-yes"
   end
