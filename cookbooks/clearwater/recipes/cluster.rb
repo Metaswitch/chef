@@ -76,9 +76,14 @@ if node.roles.include? "cassandra"
   # the 0-indexed node index.
   cluster_nodes.sort_by! { |n| (n[:clearwater][:index] - 1).to_s(2).reverse }
 
-  # Calculate our token by taking an even chunk of the token space
+  # Calculate our token by taking an even chunk of the token space.
+  #
+  # As of the "Lock, Stock and Two Smoking Barrels" release, the ordering policy
+  # changed.  Unfortunately this means that upgrade fails from releases before then
+  # to releases after (since `nodetool move` rejects moves to taken tokens).  To
+  # resolve this, we shuffle every node 1 token step round the ring.
   index = cluster_nodes.index { |n| n.name == node.name }
-  token = (index * 2**127) / cluster_nodes.length
+  token = ((index * 2**127) / cluster_nodes.length) + 1
 
   # Create the Cassandra config file
   template "/etc/cassandra/cassandra.yaml" do
