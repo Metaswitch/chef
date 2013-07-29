@@ -93,6 +93,7 @@ def internal_sip_security_group_rules
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
     # Internal SIP (TCP only) - legacy rules
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
+    { ip_protocol: :tcp, min: 5054, max: 5054, group: "sprout" },
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "perimeta" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
     { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
