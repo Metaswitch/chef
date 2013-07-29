@@ -49,12 +49,14 @@ if node.run_list.include? "role[sprout]"
                    "role:sprout AND chef_environment:#{node.chef_environment}")
   sprouts.map! { |s| s.cloud.public_hostname }
 
-  template "/etc/clearwater/cluster_settings" do
-    source "cluster/cluster_settings.sprout.erb"
+  template "/var/lib/infinispan/configuration/clustered.xml" do
+    source "cluster/infinispan/clustered.xml.erb"
     mode 0440
     owner "root"
     group "root"
-    variables nodes: sprouts
+    variables nodes: sprouts,
+              local_ip: node[:cloud][:local_ip],
+              public_ip: node[:cloud][:public_ip]
   end
 end
 
