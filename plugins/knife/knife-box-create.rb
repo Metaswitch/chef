@@ -34,6 +34,7 @@
 
 require_relative 'knife-clearwater-utils'
 require_relative 'boxes'
+require_relative 'knife-box-delete'
 
 module ClearwaterKnifePlugins
   class BoxCreate < Chef::Knife
@@ -58,6 +59,17 @@ module ClearwaterKnifePlugins
       :proc => (Proc.new do |arg|
         unless Clearwater::BoxManager.supported_clouds.include? arg.to_sym
           Chef::Log.error "#{arg} is not a supported cloud"
+          exit 2
+        end
+      end)
+
+    option :image_name,
+      :long => "--image_name IMAGE_NAME",
+      :default => "Clearwater AMI",
+      :description => "Name to use when creating an EC2 AMI",
+      :proc => (Proc.new do |arg|
+        unless arg =~ /^[A-Za-z0-9,\/_() -]{3,128}$/
+          Chef::Log.error "Image name must be between 3 and 128 characters long, and may contain letters, numbers, spaces, '(', ')', '.', '-', '/' and '_'"
           exit 2
         end
       end)
@@ -88,11 +100,43 @@ module ClearwaterKnifePlugins
         cacti: nil,
         plivo: nil,
         openimscorehss: nil,
-        cw_aio: nil
+        cw_aio: nil,
+        cw_ami: nil
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
-      box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym]})
+      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym]})
+      instance_id = new_box.id
+
+      if role == "cw_ami"
+        ec2_conn = Fog::Compute::AWS.new
+        ec2_conn.stop_instances(instance_id)
+        print "\nStopping the instance in preparation for making an AMI"
+        Fog.wait_for do
+          print "."
+          ec2_conn.describe_instances('instance-id' => instance_id).body["reservationSet"].first["instancesSet"].first["instanceState"]["name"] == "stopped"
+        end
+        puts "done"
+
+        result = ec2_conn.create_image(instance_id, config[:image_name], "Clearwater AMI description")
+        print "Creating the AMI"
+        image_id = result.body["imageId"]
+
+        Fog.wait_for (timeout=1800) do
+          print "."
+          ec2_conn.describe_images('ImageId' => image_id).body['imagesSet'].first['imageState'] == "available"
+        end
+        puts "done"
+        puts "\nAMI #{image_id} is available"
+
+        puts "\nTerminating the instance"
+        box_delete = BoxDelete.new("-E #{env.name}".split)
+        box_delete.name_args=["#{new_box.tags["Name"]}"]
+        box_delete.config[:yes] = true
+        box_delete.config[:verbosity] = config[:verbosity]
+        box_delete.run(true)
+      end
+
     end
   end
 end
