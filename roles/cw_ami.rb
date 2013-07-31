@@ -36,6 +36,5 @@ name "cw_ami"
 description "cw_ami role"
 run_list [
   "role[cw_aio]",
-#  "role[clearwater-infrastructure]",
   "recipe[clearwater::cw_ami]"
 ]

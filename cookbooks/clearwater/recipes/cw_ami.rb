@@ -40,7 +40,7 @@
 # Change Permit Root Login
 bash "change_permit_root_login" do
   user "root"
-  code "sed -e 's/PermitRootLogin yes/PermitRootLogin without-password/g' < /etc/ssh/sshd_config >/etc/ssh/temp.out"
+  code "sed -i -e 's/PermitRootLogin yes/PermitRootLogin without-password/g' /etc/ssh/sshd_config"
 end
 
 # Remove SSH key pairs
