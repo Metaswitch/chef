@@ -197,6 +197,8 @@ module ClearwaterKnifePlugins
       # Only delete nodes with roles contained in this whitelist
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
+      # Don't delete any AIO/AMI nodes
+      victims.delete_if { |v| v.roles.include? "cw_aio" }
       victims.select! { |v| not box_list.include? v.name }
 
       return if victims.empty?
@@ -229,8 +231,9 @@ module ClearwaterKnifePlugins
     end
 
     def confirm_changes(old, new)
-      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
-                            .map { |n| n.name }
+      # Don't touch any AIO or AMI nodes
+      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
+                                      not n.roles.include? "cw_aio" }
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end

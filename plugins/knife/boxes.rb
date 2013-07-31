@@ -54,6 +54,7 @@ module Clearwater
 
     @@supported_boxes = [
         {:name => "cw_aio", :security_groups => ["base", "cw_aio"], :public_ip => true},
+        {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "bono", :security_groups => ["base", "internal-sip", "bono"], :public_ip => true},
         {:name => "ellis", :security_groups => ["base", "ellis"], :public_ip => true},
         {:name => "homestead", :security_groups => ["base", "homestead"]},
@@ -164,6 +165,7 @@ module Clearwater
 
       # Finally, create box
       knife_create.run
+      return knife_create.server
     end
 
     private
