@@ -234,6 +234,7 @@ module ClearwaterKnifePlugins
       # Don't touch any AIO or AMI nodes
       old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
                                       not n.roles.include? "cw_aio" }
+                            .map { |n| n.name }
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
