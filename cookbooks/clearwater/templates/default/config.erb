@@ -2,7 +2,6 @@
 home_domain=<%= @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
-garden_hostname=localhost
 xdms_hostname=<%= @homer %>
 splunk_hostname=<%= @node[:clearwater][:splunk_server] || "0.0.0.0" %>
 <% if [:mmonit_server, :mmonit_username, :mmonit_password].all? { |k| @node[:clearwater].has_key? k } %>
