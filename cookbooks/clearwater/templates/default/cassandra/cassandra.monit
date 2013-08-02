@@ -7,5 +7,5 @@ check process cassandra pidfile /var/run/cassandra.pid
   stop program = "/etc/init.d/cassandra stop"
   if failed host localhost port 9160 type TCP 
     with timeout 15 seconds
-    for 3 times within 3 cycles
+    for 6 times within 6 cycles
     then restart
