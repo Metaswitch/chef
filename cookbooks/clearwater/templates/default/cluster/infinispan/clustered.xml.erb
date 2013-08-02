@@ -1,4 +1,6 @@
-="urn:jboss:domain:1.4">
+<?xml version='1.0' encoding='UTF-8'?>
+
+<server xmlns="urn:jboss:domain:1.4">
     <extensions>
         <extension module="org.infinispan.server.endpoint"/>
         <extension module="org.jboss.as.clustering.infinispan"/>
@@ -138,11 +140,15 @@
             </stack>
             <stack name="tcp">
                 <transport type="TCP" socket-binding="jgroups-tcp"/>
+                <protocol type="PDC">
+                   <property name="cache_dir">/tmp/jgroups</property>
+                </protocol>
                 <protocol type="TCPPING">
                    <property name="timeout">3000</property>
-                   <property name="initial_hosts"><%= @sprouts.map { |s| "#{s}[7800]"}.join ',' %></property>
-                   <property name="port_range">1</property>
-                   <property name="num_initial_members">1</property>
+                   <property name="initial_hosts"><%= (@nodes + [@local_ip]).map { |s| "#{s}[7800]"}.join ',' %></property>
+                   <property name="port_range">0</property>
+                   <property name="num_initial_members"><%= @nodes.length + 1 %></property>
+                   <property name="use_disk_cache">true</property>
                 </protocol>
                 <protocol type="MERGE2">
                    <property name="max_interval">30000</property>
@@ -235,7 +241,7 @@
             <inet-address value="${jboss.bind.address:127.0.0.1}"/>
         </interface>
         <interface name="public">
-            <inet-address value="${jboss.bind.address:<%= @public_ip %>}"/>
+            <inet-address value="${jboss.bind.address:<%= @local_ip %>}"/>
         </interface>
     </interfaces>
     <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">

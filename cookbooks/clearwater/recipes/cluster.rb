@@ -43,20 +43,46 @@ chef_gem "cassandra-cql" do
   source "https://rubygems.org"
 end
 
-# Clustering for Sprout nodes
+# Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
+  sprouts.delete_if { |n| n.name == node.name }
   sprouts.map! { |s| s.cloud.public_hostname }
 
   template "/var/lib/infinispan/configuration/clustered.xml" do
     source "cluster/infinispan/clustered.xml.erb"
-    mode 0440
-    owner "root"
-    group "root"
+    mode 0640
+    owner "infinispan"
+    group "infinispan"
     variables nodes: sprouts,
-              local_ip: node[:cloud][:local_ip],
-              public_ip: node[:cloud][:public_ip]
+              local_ip: node[:cloud][:local_ipv4]
+  end
+ 
+  # Use netcat to connect to the other cluster nodes.  This works around latency
+  # we've seen in testing for the first attempt to traverse an SG.
+  sprouts.each do |s|
+    execute "poke[#{s}]" do
+      command "nc #{s} 7800 -z"
+      not_if { node.attribute? "clustered" }
+    end
+  end
+   
+  # Restart infinispan the first time we cluster.  We do this by stopping
+  # the service and allowing monit to restart it.
+  service "clearwater-infinispan" do
+    pattern "clustered.sh"
+    action "stop"
+    notifies :create, "ruby_block[set_clustered]", :immediately
+    not_if { node.attribute? "clustered" }
+  end
+
+  ruby_block "set_clustered" do
+    block do
+      node.set["clustered"] = true
+      node.save
+    end
+    action :nothing
   end
 end
 
