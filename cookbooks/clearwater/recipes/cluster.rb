@@ -203,7 +203,7 @@ if node.roles.include? "cassandra"
         db.execute("USE #{node_type}")
         if node_type == "homer"
           begin
-            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text)")
+            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -212,7 +212,7 @@ if node.roles.include? "cassandra"
           end
         elsif node_type == "homestead"
           begin
-            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text)")
+            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -221,7 +221,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text)")
+            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -230,7 +230,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY)")
+            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -239,7 +239,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY)")
+            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
