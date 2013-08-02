@@ -36,16 +36,33 @@ require 'chef/knife'
 
 module ClearwaterKnifePlugins
   module ClusterBoxes
+    # Trigger clustering of the nodes of a given type.
+    #
+    # For perfomance reasons, this only uses chef-client on devices that
+    # **need** to be told about the re-clustering.  In general this will
+    # always include new nodes, but might (e.g. for cassandra clusters)
+    # include existing nodes.
+    #
+    # @param role [String] Nodes of this role will be clustered.
     def cluster_boxes(role, cloud)
       if ["homer", "homestead", "sprout"].include? role
         add_cluster_role(role)
-        trigger_chef_client(role, cloud)
-        rolling_restart(role, cloud)
+        if role == "sprout"
+          query = query_string(true, role: role)
+          query += " AND NOT tags:clustered"
+          return if search(:node, query).empty?
+          trigger_chef_client(cloud, query)
+        else
+          trigger_chef_client(cloud, query_string(true, role: role))
+        end
       else
         fail "Clustering of #{role} nodes not supported"
       end
     end
 
+    # Adds the cluster role to all nodes of a given role.
+    #
+    # @param role [String] The role to apply this change to
     def add_cluster_role(role)
       nodes = find_nodes(role: role)
       nodes.each do |s|
@@ -53,6 +70,30 @@ module ClearwaterKnifePlugins
         s.save
       end
     end
-
+    
+    # Trigger `chef-client` on all nodes in the local environment that match
+    # the given `query_string`.
+    #
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param query_string [String] A Chef-format query string to match on.
+    def trigger_chef_client(cloud, query_string)
+      Chef::Knife::Ssh.load_deps
+      knife_ssh = Chef::Knife::Ssh.new
+      knife_ssh.merge_configs
+      knife_ssh.config[:ssh_user] = 'ubuntu'
+      if cloud == :openstack
+        # Guard against boxes which do not have a public hostname
+        knife_ssh.config[:attribute] = 'ipaddress'
+      end
+      knife_ssh.config[:identity_file] = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
+      knife_ssh.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      knife_ssh.config[:on_error] = :raise
+      knife_ssh.name_args = [
+        query_string,
+        "sudo chef-client"
+      ]
+      knife_ssh.run
+    end
   end
 end
