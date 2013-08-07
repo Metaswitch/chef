@@ -64,6 +64,8 @@ if node.run_list.include? "role[sprout]"
   sprouts.each do |s|
     execute "poke[#{s}]" do
       command "nc #{s} 7800 -z"
+      returns [0,1] # If the remote is not listening on the correct port,
+                    # we'll get 1 as the response code.
       not_if { node.attribute? "clustered" }
     end
   end
