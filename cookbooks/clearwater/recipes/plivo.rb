@@ -32,6 +32,11 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+package "libevent-dev" do
+  action [:install]
+  options "--force-yes"
+end
+
 execute "#{Chef::Config[:file_cache_path]}/install.sh" do
   action :nothing
 end
@@ -43,6 +48,15 @@ remote_file "#{Chef::Config[:file_cache_path]}/install.sh" do
   notifies :run, "execute[#{Chef::Config[:file_cache_path]}/install.sh]", :immediately
 end
 
+# This is a massive hack.  It looks as thought plivo now only installs below /usr/plivo, but
+# we want it to be below /usr/local/plivo so first install it under /usr/plivo and then
+# reinstall it below /usr/plivo.
+execute "#{Chef::Config[:file_cache_path]}/plivo_install.sh_usr_plivo" do
+  command "#{Chef::Config[:file_cache_path]}/plivo_install.sh /usr/plivo"
+  action :nothing
+  notifies :run, "execute[#{Chef::Config[:file_cache_path]}/plivo_install.sh]", :immediately
+end
+
 execute "#{Chef::Config[:file_cache_path]}/plivo_install.sh" do
   command "#{Chef::Config[:file_cache_path]}/plivo_install.sh /usr/local/plivo"
   action :nothing
@@ -52,7 +66,7 @@ remote_file "#{Chef::Config[:file_cache_path]}/plivo_install.sh" do
   source "https://github.com/plivo/plivoframework/raw/master/scripts/plivo_install.sh"
   mode "0755"
   not_if { ::Dir.exists? "/usr/local/plivo" }
-  notifies :run, "execute[#{Chef::Config[:file_cache_path]}/plivo_install.sh]", :immediately
+  notifies :run, "execute[#{Chef::Config[:file_cache_path]}/plivo_install.sh_usr_plivo]", :immediately
 end
 
 template "/usr/local/freeswitch/conf/vars.xml" do
