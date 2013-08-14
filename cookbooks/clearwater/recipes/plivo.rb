@@ -34,7 +34,6 @@
 
 package "libevent-dev" do
   action [:install]
-  options "--force-yes"
 end
 
 execute "#{Chef::Config[:file_cache_path]}/install.sh" do
@@ -50,7 +49,7 @@ end
 
 # This is a massive hack.  It looks as thought plivo now only installs below /usr/plivo, but
 # we want it to be below /usr/local/plivo so first install it under /usr/plivo and then
-# reinstall it below /usr/plivo.
+# reinstall it below /usr/local/plivo.
 execute "#{Chef::Config[:file_cache_path]}/plivo_install.sh_usr_plivo" do
   command "#{Chef::Config[:file_cache_path]}/plivo_install.sh /usr/plivo"
   action :nothing
