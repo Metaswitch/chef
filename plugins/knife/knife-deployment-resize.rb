@@ -234,6 +234,7 @@ module ClearwaterKnifePlugins
       # Don't touch any AIO or AMI nodes
       old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
                                       not n.roles.include? "cw_aio" }
+                            .map { |n| n.name }
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
@@ -251,27 +252,6 @@ module ClearwaterKnifePlugins
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end
-      end
-
-      @to_be_clustered = []
-      service_interruption = false
-      subscribers_lost = false
-      unless old[:sprout] == new[:sprout]
-        service_interruption = true
-        @to_be_clustered << :sprout
-      end
-
-      [:homer, :homestead].each do |n|
-        unless old[n] == new[n]
-          @to_be_clustered << n
-        end
-      end
-      
-      if service_interruption or subscribers_lost
-        ui.msg "This resize will require re-clustering the following nodes types:"
-        @to_be_clustered.each { |c| ui.msg " - #{c.to_s}" }
-        ui.msg "This is a destructive operation:"
-        ui.msg " - Service will be interrupted" if service_interruption
       end
 
       fail "Exiting on user request" unless continue?

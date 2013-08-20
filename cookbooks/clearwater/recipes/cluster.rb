@@ -43,18 +43,48 @@ chef_gem "cassandra-cql" do
   source "https://rubygems.org"
 end
 
-# Clustering for Sprout nodes
+# Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
+  sprouts.delete_if { |n| n.name == node.name }
   sprouts.map! { |s| s.cloud.public_hostname }
 
-  template "/etc/clearwater/cluster_settings" do
-    source "cluster/cluster_settings.sprout.erb"
-    mode 0440
-    owner "root"
-    group "root"
-    variables nodes: sprouts
+  template "/var/lib/infinispan/configuration/clustered.xml" do
+    source "cluster/infinispan/clustered.xml.erb"
+    mode 0640
+    owner "infinispan"
+    group "infinispan"
+    variables nodes: sprouts,
+              local_ip: node[:cloud][:local_ipv4]
+  end
+ 
+  # Use netcat to connect to the other cluster nodes.  This works around latency
+  # we've seen in testing for the first attempt to traverse an SG.
+  sprouts.each do |s|
+    execute "poke[#{s}]" do
+      command "nc #{s} 7800 -z"
+      returns [0,1] # If the remote is not listening on the correct port,
+                    # we'll get 1 as the response code.
+      not_if { node.attribute? "clustered" }
+    end
+  end
+   
+  # Restart infinispan the first time we cluster.  We do this by stopping
+  # the service and allowing monit to restart it.
+  service "clearwater-infinispan" do
+    pattern "clustered.sh"
+    action "stop"
+    notifies :create, "ruby_block[set_clustered]", :immediately
+    not_if { node.attribute? "clustered" }
+  end
+
+  ruby_block "set_clustered" do
+    block do
+      node.set["clustered"] = true
+      node.save
+    end
+    action :nothing
   end
 end
 
@@ -175,7 +205,7 @@ if node.roles.include? "cassandra"
         db.execute("USE #{node_type}")
         if node_type == "homer"
           begin
-            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text)")
+            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -184,7 +214,7 @@ if node.roles.include? "cassandra"
           end
         elsif node_type == "homestead"
           begin
-            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text)")
+            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -193,7 +223,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text)")
+            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -202,7 +232,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY)")
+            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
@@ -211,7 +241,7 @@ if node.roles.include? "cassandra"
           end
 
           begin
-            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY)")
+            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry

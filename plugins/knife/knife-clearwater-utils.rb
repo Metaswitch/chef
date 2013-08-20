@@ -103,44 +103,5 @@ module ClearwaterKnifePlugins
       end
     end
 
-    def trigger_chef_client(role, cloud)
-      Chef::Knife::Ssh.load_deps
-      knife_ssh = Chef::Knife::Ssh.new
-      knife_ssh.merge_configs
-      knife_ssh.config[:ssh_user] = 'ubuntu'
-      if cloud == :openstack
-        # Guard against boxes which do not have a public hostname
-        knife_ssh.config[:attribute] = 'ipaddress'
-      end
-      knife_ssh.config[:identity_file] = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
-      knife_ssh.config[:verbosity] = config[:verbosity]
-      Chef::Config[:verbosity] = config[:verbosity]
-      knife_ssh.config[:on_error] = :raise
-      knife_ssh.name_args = [
-        query_string(true, role: role),        
-        "sudo chef-client"
-      ]
-      knife_ssh.run
-    end
-
-    def rolling_restart(role, cloud)
-      Chef::Knife::Ssh.load_deps
-      knife_ssh = Chef::Knife::Ssh.new
-      knife_ssh.merge_configs
-      knife_ssh.config[:ssh_user] = 'ubuntu'
-      if cloud == :openstack
-        # Guard against boxes which do not have a public hostname
-        knife_ssh.config[:attribute] = 'ipaddress'
-      end
-      knife_ssh.config[:identity_file] = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
-      knife_ssh.config[:verbosity] = config[:verbosity]
-      Chef::Config[:verbosity] = config[:verbosity]
-      knife_ssh.config[:on_error] = :raise
-      knife_ssh.name_args = [
-        query_string(true, role: role),        
-        "sudo monit restart #{role}"
-      ]
-      knife_ssh.run
-    end
   end
 end
