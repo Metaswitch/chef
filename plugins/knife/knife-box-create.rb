@@ -100,8 +100,8 @@ module ClearwaterKnifePlugins
         cacti: nil,
         plivo: nil,
         openimscorehss: nil,
-        cw_aio: "m1.medium",
-        cw_ami: "m1.medium"
+        cw_aio: nil,
+        cw_ami: nil
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
