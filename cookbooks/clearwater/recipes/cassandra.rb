@@ -37,9 +37,14 @@ package "python-cql" do
   options "--force-yes"
 end
 
+package "cassandra" do
+  version "1.1.9"
+  options "--force-yes"
+end
+
 package "dsc1.1" do
   action [:install]
-  version "1.1.9-1 cassandra=1.1.9"
+  version "1.1.9-1"
   options "--force-yes"
 end
 
