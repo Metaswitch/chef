@@ -118,7 +118,7 @@ if node.roles.include? "cassandra"
   # Create the Cassandra config file
   template "/etc/cassandra/cassandra.yaml" do
     source "cassandra/cassandra.yaml.erb"
-    mode 0440
+    mode "0644"
     owner "root"
     group "root"
     variables cluster_name: cluster_name,
@@ -155,7 +155,7 @@ if node.roles.include? "cassandra"
 
     directory "/var/lib/cassandra" do
       action :create
-      mode "0700"
+      mode "0755"
       owner "cassandra"
       group "cassandra"
     end
