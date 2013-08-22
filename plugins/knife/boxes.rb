@@ -78,17 +78,25 @@ module Clearwater
     }
 
     @@default_image = {
-      ec2: "ami-3d4ff254", # us-east-1
-      #ec2: "ami-fe002cbb", # us-west-1
-      #ec2: "ami-70f96e40", # us-west-2
-      #ec2: "ami-ce7b6fba", # eu-west-1
-      #ec2: "ami-64084736", # ap-southeast-1
-      #ec2: "ami-fe6ceeff", # ap-northeast-1
-      #ec2: "ami-04ea7a3e", # ap-southeast-2
-      #ec2: "ami-a3da00be", # sa-east-1
-      openstack: "5da88e4f-418f-4c5f-b148-b625071f20e6", # dfw
-      #openstack: "03a48e99-2824-40d8-a0aa-2a819b676d9e", # iad
-      rackspace: "9dccea61-59f1-4f78-84ce-3d139c4dd40b"
+      ec2: {
+        "us-east-1" => "ami-3d4ff254",
+        "us-west-1" => "ami-fe002cbb",
+        "us-west-2" => "ami-70f96e40",
+        "eu-west-1" => "ami-ce7b6fba",
+        "ap-southeast-1" => "ami-64084736",
+        "ap-northeast-1" => "ami-fe6ceeff",
+        "ap-southeast-2" => "ami-04ea7a3e",
+        "sa-east-1" => "ami-a3da00be",
+        default: "ami-3d4ff254"
+      },
+      openstack: {
+        "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
+        "iad" => "03a48e99-2824-40d8-a0aa-2a819b676d9e",
+        default: "5da88e4f-418f-4c5f-b148-b625071f20e6"
+      },
+      rackspace: {
+        default: "9dccea61-59f1-4f78-84ce-3d139c4dd40b"
+      }
     }
 
     def self.supported_clouds
@@ -127,10 +135,12 @@ module Clearwater
 
       # Box description
       knife_create.config[:flavor] = (options[:flavor] or @@default_flavor[@cloud])
-      knife_create.config[:image] = (options[:image] or @@default_image[@cloud])
+      knife_create.config[:image] = (options[:image] or
+                                     @@default_image[@cloud][@attributes["region"]] or
+                                     @@default_image[@cloud][:default])
       # Work around issue in knife-ec2 parameters validation
       # Have submitted patch: https://github.com/felixpalmer/knife-ec2
-      Chef::Config[:knife][:image] = (options[:image] or @@default_image[@cloud])
+      Chef::Config[:knife][:image] = knife_create.config[:image]
 
       # Cloud specific config
       if @cloud == :ec2
