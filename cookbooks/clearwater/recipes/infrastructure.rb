@@ -42,13 +42,14 @@ template "/etc/apt/sources.list.d/clearwater.list" do
     hostname: node[:clearwater][:repo_server],
     repos: ["binary/"]
   })
+  notifies :run, "execute[apt-key-clearwater]", :immediately
 end
 
 # Fetch the key for the Clearwater repository server
 execute "apt-key-clearwater" do
   user "root"
   command "curl -L http://repo.cw-ngv.com/repo_key | sudo apt-key add -"
-  action :run
+  action :nothing
 end
 
 # Tell apt about the Cassandra repository server.
@@ -59,17 +60,22 @@ template "/etc/apt/sources.list.d/cassandra.list" do
     hostname: "http://debian.datastax.com/community",
     repos: ["stable", "main"]
   })
+  notifies :run, "execute[apt-key-cassandra]", :immediately
 end
 
 # Fetch the key for the Cassandra repository server
-execute "curl" do
+execute "apt-key-cassandra" do
   user "root"
   command "curl -L http://debian.datastax.com/debian/repo_key | sudo apt-key add -"
-  action :run
+  action :nothing
 end
 
 # Make sure all packages are up to date (note this uses an external cookbook, in cookbooks/apt)
-execute "apt-get update"
+execute "apt-get update" do
+  action :nothing
+  subscribes :run, "execute[apt-key-clearwater]", :immediately
+  subscribes :run, "execute[apt-key-cassandra]", :immediately
+end
 
 # Setup the clearwater config file
 directory "/etc/clearwater" do
@@ -130,10 +136,6 @@ end
 package "clearwater-infrastructure" do
   action [:install]
   options "--force-yes"
-end
-
-service "clearwater-infrastructure" do
-  action :restart
 end
 
 if node[:clearwater][:package_update_minutes]
