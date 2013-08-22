@@ -82,6 +82,7 @@ module ClearwaterKnifePlugins
         knife_delete.config[:purge] = true
         knife_delete.config[:chef_node_name] = node.name
         knife_delete.config[:yes] = yes_allowed and config[:yes]
+        knife_delete.config[:region] = attributes["region"]
         knife_delete.name_args = [ instance_id ]
         knife_delete.run
       end.empty?
