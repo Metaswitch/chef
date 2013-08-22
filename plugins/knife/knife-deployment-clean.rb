@@ -110,6 +110,7 @@ module ClearwaterKnifePlugins
           knife_ec2_delete.config[:chef_node_name] = box_name
         end
         knife_ec2_delete.config[:yes] = yes_allowed and config[:yes]
+        knife_ec2_delete.config[:region] = attributes["region"]
         knife_ec2_delete.name_args = [ server.id ]
         knife_ec2_delete.run
       end
