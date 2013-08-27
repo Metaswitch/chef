@@ -50,7 +50,7 @@ if node.run_list.include? "role[sprout]"
   sprouts.delete_if { |n| n.name == node.name }
   sprouts.map! { |s| s.cloud.public_hostname }
 
-  if Pathname("/var/lib/infinispan/configuration/clustered.xml").exists?
+  if Pathname("/var/lib/infinispan/configuration/clustered.xml").exist?
     # Update cluster configuration for Infinispan Server 5.3
     template "/var/lib/infinispan/configuration/clustered.xml" do
       source "cluster/infinispan/clustered.xml.erb"
@@ -62,7 +62,7 @@ if node.run_list.include? "role[sprout]"
     end
   end
 
-  if Pathname("/var/lib/infinispan/etc/clearwater/jgroups-tcpping.xml").exists?
+  if Pathname("/var/lib/infinispan/etc/clearwater/jgroups-tcpping.xml").exist?
     # Update cluster configuration for Infinispan 5.2
     template "/var/lib/infinispan/etc/clearwater/jgroups-tcpping.xml" do
       source "cluster/infinispan/jgroups-tcpping.xml.erb"
