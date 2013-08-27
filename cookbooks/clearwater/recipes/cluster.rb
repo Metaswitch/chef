@@ -50,15 +50,30 @@ if node.run_list.include? "role[sprout]"
   sprouts.delete_if { |n| n.name == node.name }
   sprouts.map! { |s| s.cloud.public_hostname }
 
-  template "/var/lib/infinispan/configuration/clustered.xml" do
-    source "cluster/infinispan/clustered.xml.erb"
-    mode 0640
-    owner "infinispan"
-    group "infinispan"
-    variables nodes: sprouts,
-              local_ip: node[:cloud][:local_ipv4]
+  if Pathname("/var/lib/infinispan/configuration/clustered.xml").exists?
+    # Update cluster configuration for Infinispan Server 5.3
+    template "/var/lib/infinispan/configuration/clustered.xml" do
+      source "cluster/infinispan/clustered.xml.erb"
+      mode 0640
+      owner "infinispan"
+      group "infinispan"
+      variables nodes: sprouts,
+                local_ip: node[:cloud][:local_ipv4]
+    end
   end
- 
+
+  if Pathname("/var/lib/infinispan/etc/clearwater/jgroups-tcpping.xml").exists?
+    # Update cluster configuration for Infinispan 5.2
+    template "/var/lib/infinispan/etc/clearwater/jgroups-tcpping.xml" do
+      source "cluster/infinispan/jgroups-tcpping.xml.erb"
+      mode 0640
+      owner "infinispan"
+      group "infinispan"
+      variables nodes: sprouts,
+                local_ip: node[:cloud][:local_ipv4]
+    end
+  end
+
   # Use netcat to connect to the other cluster nodes.  This works around latency
   # we've seen in testing for the first attempt to traverse an SG.
   sprouts.each do |s|
@@ -69,7 +84,7 @@ if node.run_list.include? "role[sprout]"
       not_if { node.attribute? "clustered" }
     end
   end
-   
+
   # Restart infinispan the first time we cluster.  We do this by stopping
   # the service and allowing monit to restart it.
   service "clearwater-infinispan" do
