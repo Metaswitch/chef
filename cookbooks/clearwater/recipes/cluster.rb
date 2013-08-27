@@ -88,7 +88,16 @@ if node.run_list.include? "role[sprout]"
   # Restart infinispan the first time we cluster.  We do this by stopping
   # the service and allowing monit to restart it.
   service "clearwater-infinispan" do
+    # Restart Infinispan 5.3
     pattern "clustered.sh"
+    action "stop"
+    notifies :create, "ruby_block[set_clustered]", :immediately
+    not_if { node.attribute? "clustered" }
+  end
+
+  service "clearwater-infinispan" do
+    # Restart Infinispan 5.2
+    pattern "runMemcached.sh"
     action "stop"
     notifies :create, "ruby_block[set_clustered]", :immediately
     not_if { node.attribute? "clustered" }
