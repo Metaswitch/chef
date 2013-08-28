@@ -4,7 +4,7 @@
     <TCP bind_port="7800" />
     <TCPPING timeout="3000"
              initial_hosts="<%= (@nodes + [@local_ip]).map { |s| "#{s}[7800]"}.join ',' %>"
-             port_range="1"
+             port_range="0"
              num_initial_members="<%= @nodes.length + 1%>"/>
     <VERIFY_SUSPECT timeout="1500"  />
     <pbcast.NAKACK use_mcast_xmit="false"
