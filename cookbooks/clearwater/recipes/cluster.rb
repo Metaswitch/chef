@@ -193,55 +193,25 @@ if node.roles.include? "cassandra"
         # transport exception we'll simply sleep for a second and retry.  The
         # interesting case is an InvalidRequest which means that the
         # keyspace/table already exists and we should stop trying to create it.
-        begin
-          db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
-        rescue CassandraCQL::Thrift::Client::TransportException => e
-          sleep 1
-          retry
-        rescue CassandraCQL::Error::InvalidRequestException
-          # Pass
+        if node_type == "homer"
+          cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homer",
+                      "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
+        elsif node_type == "homestead"
+          cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homestead_cache",
+                      "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text, initial_filter_criteria_xml text) WITH read_repair_chance = 1.0",
+                      "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homestead_provisioning",
+                      "CREATE TABLE irs (irs_id uuid PRIMARY KEY,  ims_subscription_xml text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE public (public_id text PRIMARY KEY, associated_irs uuid) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
         end
 
-        db.execute("USE #{node_type}")
-        if node_type == "homer"
+        cql_cmds.each do |cql_cmd|
           begin
-            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-        elsif node_type == "homestead"
-          begin
-            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
+            db.execute(cql_cmd)
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
