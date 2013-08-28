@@ -38,3 +38,8 @@ run_list [
   "role[cw_aio]",
   "recipe[clearwater::cw_ami]"
 ]
+
+override_attributes "clearwater" => {
+  "signup_key" => "secret"
+}
+
