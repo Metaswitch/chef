@@ -118,11 +118,11 @@ module ClearwaterKnifePlugins
         end
         puts "done"
 
-        result = ec2_conn.create_image(instance_id, config[:image_name], "Clearwater AMI description")
+        result = ec2_conn.create_image(instance_id, config[:image_name], "This AMI contains a Project Clearwater all-in-one node running on Ubuntu 12.04.2")
         print "Creating the AMI"
         image_id = result.body["imageId"]
 
-        Fog.wait_for (timeout=1800) do
+        Fog.wait_for(1800, 5) do
           print "."
           ec2_conn.describe_images('ImageId' => image_id).body['imagesSet'].first['imageState'] == "available"
         end
