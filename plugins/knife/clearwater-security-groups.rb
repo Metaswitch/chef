@@ -90,14 +90,11 @@ def internal_sip_security_group_rules
   [
     # Internal SIP (TCP only)
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "internal-sip" },
+    { ip_protocol: :tcp, min: 5058, max: 5058, cidr_ip: "0.0.0.0/0" },
     # Internal SIP (TCP only) - legacy rules
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "sprout" },
     { ip_protocol: :tcp, min: 5054, max: 5054, group: "perimeta" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "bono" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "sprout" },
-    { ip_protocol: :tcp, min: 5058, max: 5058, group: "perimeta" },
   ]
 end
 
@@ -122,6 +119,8 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
       # Infinispan cluster discovery and replication
       { ip_protocol: :tcp, min: 7800, max: 7800, group: "sprout" },
+      # memcached interface
+      { ip_protocol: :tcp, min: 11211, max: 11211, cidr_ip: "0.0.0.0/0" },
       # Statistics interface
       { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     ]
@@ -135,8 +134,8 @@ def homestead_security_group_rules
       { ip_protocol: :tcp, min: 8888, max: 8888, group: "bono" },
       { ip_protocol: :tcp, min: 8888, max: 8888, group: "ellis" },
       # Cassandra
-      { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
-      { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
+      { ip_protocol: :tcp, min: 7000, max: 7000, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 9160, max: 9160, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
@@ -146,8 +145,8 @@ def homer_security_group_rules
       { ip_protocol: :tcp, min: 7888, max: 7888, group: "sprout" },
       { ip_protocol: :tcp, min: 7888, max: 7888, group: "ellis" },
       # Cassandra
-      { ip_protocol: :tcp, min: 7000, max: 7000, group: "homer" },
-      { ip_protocol: :tcp, min: 9160, max: 9160, group: "homer" },
+      { ip_protocol: :tcp, min: 7000, max: 7000, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 9160, max: 9160, cidr_ip: "0.0.0.0/0" },
     ]
 end
 

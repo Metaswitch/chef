@@ -1,0 +1,3 @@
+<% @gr_cluster_nodes.each do |node| %>
+<%=node.cloud.public_ipv4%>=<%=node.chef_environment%>:rack1
+<% end %>

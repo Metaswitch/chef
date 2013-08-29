@@ -86,6 +86,31 @@ if node.run_list.include? "role[sprout]"
     end
     action :nothing
   end
+
+  gr_environments = node[:clearwater][:gr_environments] or []
+  other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
+  remote_memstores = if not other_gr_environments.empty?
+                       search(:node, "role:sprout AND chef_environment:#{other_gr_environments[0]}")
+                     else
+                       []
+                     end
+  remote_memstore = if not remote_memstores.empty?
+                      remote_memstores[(node[:clearwater][:index] - 1) % remote_memstores.length].cloud.public_ipv4
+                    else
+                      ""
+                    end
+  template "/etc/clearwater/cluster_settings" do
+    source "cluster/cluster_settings.erb"
+    mode 0644
+    owner "root"
+    group "root"
+    variables node: node,
+              remote_memstore: remote_memstore
+  end
+
+  service "sprout" do
+    action "restart"
+  end
 end
 
 # Support clustering for homer and homestead
@@ -97,7 +122,15 @@ if node.roles.include? "cassandra"
               end
   cluster_name = node_type.capitalize + "Cluster"
 
-  # Work out the other nodes in the cluster
+  # Work out the other nodes in the geo-redundant cluster - we'll list all these
+  # nodes as seeds.
+  gr_environments = node[:clearwater][:gr_environments] or [node.chef_environment]
+  gr_index = gr_environments.index(node.chef_environment)
+  gr_environment_search = gr_environments.map { |e| "chef_environment:" + e }.join(" OR ")
+  gr_cluster_nodes = search(:node, "role:#{node_type} AND (#{gr_environment_search})")
+
+  # Work out the other nodes in the local cluster - we'll calculate the token ID
+  # based on these.
   cluster_nodes = search(:node, "role:#{node_type} AND chef_environment:#{node.chef_environment}")
 
   # Sort into "Cassandra order", where each node bisects the largest space
@@ -111,11 +144,12 @@ if node.roles.include? "cassandra"
   # As of the "Lock, Stock and Two Smoking Barrels" release, the ordering policy
   # changed.  Unfortunately this means that upgrade fails from releases before then
   # to releases after (since `nodetool move` rejects moves to taken tokens).  To
-  # resolve this, we shuffle every node 1 token step round the ring.
+  # resolve this, we shuffle every node 1 token step round the ring.  Further, we
+  # shuffle round by the geo-redundant site index, to avoid conflicts between sites.
   index = cluster_nodes.index { |n| n.name == node.name }
-  token = ((index * 2**127) / cluster_nodes.length) + 1
+  token = ((index * 2**127) / cluster_nodes.length) + 1 + gr_index
 
-  # Create the Cassandra config file
+  # Create the Cassandra config and topology files
   template "/etc/cassandra/cassandra.yaml" do
     source "cassandra/cassandra.yaml.erb"
     mode "0644"
@@ -123,8 +157,15 @@ if node.roles.include? "cassandra"
     group "root"
     variables cluster_name: cluster_name,
               token: token,
-              seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
+              seeds: gr_cluster_nodes.map { |n| n.cloud.public_ipv4 },
               node: node
+  end
+  template "/etc/cassandra/cassandra-topology.properties" do
+    source "cassandra/cassandra-topology.properties.erb"
+    mode "0644"
+    owner "root"
+    group "root"
+    variables gr_cluster_nodes: gr_cluster_nodes
   end
 
   if tagged?('clustered')
@@ -193,55 +234,25 @@ if node.roles.include? "cassandra"
         # transport exception we'll simply sleep for a second and retry.  The
         # interesting case is an InvalidRequest which means that the
         # keyspace/table already exists and we should stop trying to create it.
-        begin
-          db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
-        rescue CassandraCQL::Thrift::Client::TransportException => e
-          sleep 1
-          retry
-        rescue CassandraCQL::Error::InvalidRequestException
-          # Pass
+        if node_type == "homer"
+          cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homer",
+                      "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
+        elsif node_type == "homestead"
+          cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homestead_cache",
+                      "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text, initial_filter_criteria_xml text) WITH read_repair_chance = 1.0",
+                      "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                      "USE homestead_provisioning",
+                      "CREATE TABLE irs (irs_id uuid PRIMARY KEY,  ims_subscription_xml text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE public (public_id text PRIMARY KEY, associated_irs uuid) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
         end
 
-        db.execute("USE #{node_type}")
-        if node_type == "homer"
+        cql_cmds.each do |cql_cmd|
           begin
-            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-        elsif node_type == "homestead"
-          begin
-            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
+            db.execute(cql_cmd)
           rescue CassandraCQL::Thrift::Client::TransportException => e
             sleep 1
             retry
