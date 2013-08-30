@@ -94,18 +94,13 @@ if node.run_list.include? "role[sprout]"
                      else
                        []
                      end
-  remote_memstore = if not remote_memstores.empty?
-                      remote_memstores[(node[:clearwater][:index] - 1) % remote_memstores.length].cloud.public_ipv4
-                    else
-                      ""
-                    end
   template "/etc/clearwater/cluster_settings" do
     source "cluster/cluster_settings.erb"
     mode 0644
     owner "root"
     group "root"
-    variables node: node,
-              remote_memstore: remote_memstore
+    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
+              remote_memstores: remote_memstores
   end
 
   service "sprout" do
