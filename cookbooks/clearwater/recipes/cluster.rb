@@ -58,7 +58,7 @@ if node.run_list.include? "role[sprout]"
     variables nodes: sprouts,
               local_ip: node[:cloud][:local_ipv4]
   end
- 
+
   # Use netcat to connect to the other cluster nodes.  This works around latency
   # we've seen in testing for the first attempt to traverse an SG.
   sprouts.each do |s|
@@ -69,7 +69,7 @@ if node.run_list.include? "role[sprout]"
       not_if { node.attribute? "clustered" }
     end
   end
-   
+
   # Restart infinispan the first time we cluster.  We do this by stopping
   # the service and allowing monit to restart it.
   service "clearwater-infinispan" do
@@ -77,6 +77,14 @@ if node.run_list.include? "role[sprout]"
     action "stop"
     notifies :create, "ruby_block[set_clustered]", :immediately
     not_if { node.attribute? "clustered" }
+  end
+
+  template "/etc/clearwater/cluster_settings" do
+    source "cluster/cluster_settings.erb"
+    mode 0644
+    owner "root"
+    group "root"
+    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
   end
 
   ruby_block "set_clustered" do
