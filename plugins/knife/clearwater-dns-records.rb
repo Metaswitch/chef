@@ -44,16 +44,19 @@ def dns_records
     "sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_nodes(role: "sprout")),
+      :ttl   => "60"
     },
 
     "hs" => {
       :type  => "A",
       :value => ipv4s_local(find_nodes(role: "homestead")),
+      :ttl   => "60"
     },
 
     "homer" => {
-      :type => "A",
+      :type  => "A",
       :value => ipv4s_local(find_nodes(role: "homer")),
+      :ttl   => "60"
     },
 
     "ellis" => {
