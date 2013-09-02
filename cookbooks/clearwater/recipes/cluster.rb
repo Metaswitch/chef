@@ -84,7 +84,7 @@ if node.run_list.include? "role[sprout]"
     mode 0644
     owner "root"
     group "root"
-    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
+    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}")
   end
 
   ruby_block "set_clustered" do
