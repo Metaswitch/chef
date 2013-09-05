@@ -99,6 +99,7 @@ if node.roles.include? "cassandra"
 
   # Work out the other nodes in the cluster
   cluster_nodes = search(:node, "role:#{node_type} AND chef_environment:#{node.chef_environment}")
+  cluster_seeds = cluster_nodes.sort_by { |n| n[:clearwater][:index] }.take 2
 
   # Sort into "Cassandra order", where each node bisects the largest space
   # between previously inserted nodes.  If you do the sums you'll see that
@@ -123,7 +124,7 @@ if node.roles.include? "cassandra"
     group "root"
     variables cluster_name: cluster_name,
               token: token,
-              seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
+              seeds: cluster_seeds.map { |n| n.cloud.local_ipv4 },
               node: node
   end
 
