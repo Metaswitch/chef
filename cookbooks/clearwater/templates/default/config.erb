@@ -10,7 +10,7 @@ mmonit_username=<%= @node[:clearwater][:mmonit_username] %>
 mmonit_password=<%= @node[:clearwater][:mmonit_password] %>
 <% end %>
 sas_server=<%= @sas %>
-enum_server=<%= @enum %>
+<% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
 
 # Local IP configuration

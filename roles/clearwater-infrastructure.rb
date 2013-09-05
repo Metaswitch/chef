@@ -75,7 +75,7 @@ default_attributes "clearwater" => {
   "splunk_server" => "0.0.0.0",
 
   # ENUM server to use.  To use the default (public) servers, specify "localhost".
-  "enum_server" => "localhost",
+  "enum_server" => nil,
 
   #
   # The following values should be set in knife.rb; we copy them into
