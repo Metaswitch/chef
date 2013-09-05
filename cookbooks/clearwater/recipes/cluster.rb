@@ -43,19 +43,77 @@ chef_gem "cassandra-cql" do
   source "https://rubygems.org"
 end
 
+
+# Statically defined vbucket maps
+primary_vb_map = [
+  [],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,1,1,1,1],
+  [0,0,2,2,1,1,2,1],
+  [0,0,2,2,1,1,3,3],
+  [0,4,2,2,1,1,3,3],
+  [0,4,2,2,1,5,3,3],
+  [0,4,2,6,1,5,3,3],
+  [0,4,2,6,1,5,3,7]
+]
+
+secondary_vb_map = [
+  [],
+  [0,0,0,0,0,0,0,0],
+  [1,1,1,1,0,0,0,0],
+  [1,2,1,1,2,2,0,0],
+  [3,3,1,1,2,2,0,0],
+  [3,3,1,1,2,2,4,0],
+  [3,3,1,5,2,2,4,0],
+  [3,3,1,5,6,2,4,0],
+  [3,7,1,5,6,2,4,0]
+]
+
+
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
+
+  # Get the full list of sprout nodes, in index order.
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
-  sprouts.delete_if { |n| n.name == node.name }
-  sprouts.map! { |s| s.cloud.public_hostname }
+  sprouts.sort_by! { |n| n[:clearwater][:index] }
+
+  # Strip this down to the list of already merged sprouts.
+  merged = sprouts.find_all { |s| s[:merged] }
+
+  if merged.size == sprouts.size
+    # Cluster is stable, so use primary and secondary vbuckets maps as normal
+    vbucket1 = primary_vb_map[sprouts.size]
+    vbucket2 = secondary_vb_map[sprouts.size]
+  else
+    # Cluster is growing, so use secondary vbucket map for merged group of
+    # servers and primary vbucket map for full list of servers.
+    vbucket1 = secondary_vb_map[merged.size]
+    vbucket2 = primary_vb_map[sprouts.size]
+
+    if merged.size == 1
+      # Special case growing from one node to avoid loss of redundancy, by
+      # changing any zeros in the vbucket2 map to the value from the
+      # corresponding secondary map.  You'll need a degree in Ruby to understand
+      # why this code has this effect.
+      vbucket2 = vbucket2.zip(secondary_vb_map[sprouts.size]).map { |a,b| a == 0 ? b : a }
+    end
+  end
 
   template "/etc/clearwater/cluster_settings" do
     source "cluster/cluster_settings.erb"
     mode 0644
     owner "root"
     group "root"
-    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}")
+    notifies :reload, "service[sprout]", :immediately
+    variables servers: sprouts,
+              vbucket1: vbucket1,
+              vbucket2: vbucket2
+  end
+
+  service "sprout" do
+    supports :reload => true
+    action :nothing
   end
 
   ruby_block "set_clustered" do

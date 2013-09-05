@@ -33,11 +33,13 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
+require_relative 'cluster-boxes'
 require_relative 'boxes'
 
 module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::ClusterBoxes
 
     banner "knife deployment resize -E ENV"
 
@@ -97,6 +99,10 @@ module ClearwaterKnifePlugins
           exit 2
         end
       end)
+
+    option :finish,
+      :long => "--finish",
+      :description => "Finishes a previously started resize operation."
 
     # Auto-scaling parameters
     #
@@ -210,7 +216,7 @@ module ClearwaterKnifePlugins
 
     def calculate_boxes_to_create(env, nodes)
       current_nodes = find_nodes(roles: "clearwater-infrastructure")
-     
+
       result = nodes.select do |node|
         not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:index]) }
       end
@@ -232,7 +238,7 @@ module ClearwaterKnifePlugins
 
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
-      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
+      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and
                                       not n.roles.include? "cw_aio" }
                             .map { |n| n.name }
       new_names = create_cluster(new).map do |n|
@@ -269,6 +275,24 @@ module ClearwaterKnifePlugins
 
     def run
       Chef::Log.info "Creating deployment in environment: #{config[:environment]}"
+
+      # This is a bit of a hack for now, and will probably be removed when we
+      # migrate this function to sprout and make it happen automatically.
+      # Should probably check other parameters aren't specified if it's
+      # left in for any time.
+      if config[:finish]
+        # Finishing an earlier started resize.  Mark all the sprouts as "merged"
+        # and recluster them.
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.each do |s|
+          s.set["merged"] = true
+          s.save
+        end
+
+        cluster_boxes("sprout", config[:cloud].to_sym)
+
+        return
+      end
 
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
@@ -322,6 +346,16 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
+      # If spinning up a new sprout cluster, mark the nodes as "joined" so
+      # we don't have to go through the growth step.
+      if old_counts[:sprout] == 0
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.each do |s|
+          s.set["merged"] = true
+          s.save
+        end
+      end
+
       # Cluster the nodes together if needed
       if old_counts != new_counts
         count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
@@ -329,12 +363,7 @@ module ClearwaterKnifePlugins
         %w{sprout homer homestead}.each do |node|
           if count_diffs[node.to_sym]
             Chef::Log.info " - #{node}"
-            box_cluster = BoxCluster.new("-E #{env.name}".split)
-            box_cluster.config[:verbosity] = config[:verbosity]
-            Chef::Config[:verbosity] = config[:verbosity]
-            box_cluster.config[:cloud] = config[:cloud]
-            box_cluster.name_args = [node]
-            box_cluster.run
+            cluster_boxes(node, config[:cloud].to_sym)
           end
         end
       end
@@ -352,14 +381,14 @@ module ClearwaterKnifePlugins
       # Setup DNS records defined above
       if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
-        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split) 
+        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split)
         bind_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         bind_create.run
         status["DNS"][:status] = "Done"
       else
         Chef::Log.info "Creating DNS records..."
-        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split) 
+        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split)
         dns_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         dns_create.run
@@ -394,13 +423,13 @@ module ClearwaterKnifePlugins
     def status
       Thread.current[:status]
     end
-    
+
     def abort_deployment
       msg = "Too many failures (#{config[:fail_limit]}), aborting...
       To clean up broken boxes in deployment, issue:
       knife deployment clean -E #{config[:environment]}
       To delete the deployment completely, issue:
-      knife deployment delete -E #{config[:environment]}" 
+      knife deployment delete -E #{config[:environment]}"
       fail msg
     end
   end

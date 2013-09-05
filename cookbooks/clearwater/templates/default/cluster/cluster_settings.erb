@@ -1,1 +1,3 @@
-memstore=<%= @memstores.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
+servers=<%= @servers.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
+vbuckets=<%= @vbucket1.join "," %>
+vbuckets=<%= @vbucket2.join "," %>
