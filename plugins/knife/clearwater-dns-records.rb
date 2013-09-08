@@ -39,6 +39,7 @@ def dns_records
     "" => {
       :type  => "A",
       :value => ipv4s(find_nodes(role: "bono")),
+      :ttl   => "60"
     },
 
     "sprout" => {
