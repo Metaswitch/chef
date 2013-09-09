@@ -46,14 +46,16 @@ module Clearwater
       options = @options.merge(options)
       options[:subdomain] = subdomain
 
-      Chef::Log.info "Updating DNS record for #{name(options)}"
+      Chef::Log.info "Updating DNS record for #{name(options)} options = #{options}"
 
       # Try to get the record
       record = find_by_name_and_type(options)
       if record.nil?
         create_record(options)
       else
-        if options[:value] and options[:value] != record.value
+        Chef::Log.debug "Found existing record, value = #{record.value}, ttl = #{record.ttl}"
+        if (options[:value] and options[:value] != record.value) or
+           (options[:ttl] and options[:ttl] != record.ttl)
           Chef::Log.info "Destroying incorrect record (#{record.value.join ", "}) for #{name(options)}"
           record.destroy
           create_record(options)
@@ -81,7 +83,7 @@ module Clearwater
         options[:value] = record[:value]
         options[:type] = record[:type]
         options[:prefix] = env_name if attributes["use_subdomain"]
-        options[:ttl] = attributes["dns_ttl"]
+        options[:ttl] = record[:ttl] || attributes["dns_ttl"].to_s
 
         create_or_update_record(record_name, options)
       end
@@ -101,7 +103,7 @@ module Clearwater
       nodes.each do |n|
         subdomain, options = calculate_options_from_node(n)
         options[:value] = [ n[:cloud][:public_ipv4] ]
-        options[:ttl] = attributes["dns_ttl"]
+        options[:ttl] = attributes["dns_ttl"].to_s
         create_or_update_record(subdomain, options)
       end
     end
