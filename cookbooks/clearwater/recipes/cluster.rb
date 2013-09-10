@@ -69,10 +69,6 @@ if node.run_list.include? "role[sprout]"
     variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
               remote_memstores: remote_memstores
   end
-
-  service "sprout" do
-    action "restart"
-  end
 end
 
 # Support clustering for homer and homestead
