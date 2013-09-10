@@ -43,6 +43,11 @@ chef_gem "cassandra-cql" do
   source "https://rubygems.org"
 end
 
+# Work out whether we're geographically-redundant.  In this case, we'll need to
+# configure things to use public IP addresses rather than local.
+gr_environments = node[:clearwater][:gr_environments] || [node.chef_environment]
+is_gr = (gr_environments.length > 1)
+
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
   sprouts = search(:node,
@@ -50,44 +55,6 @@ if node.run_list.include? "role[sprout]"
   sprouts.delete_if { |n| n.name == node.name }
   sprouts.map! { |s| s.cloud.public_hostname }
 
-  template "/var/lib/infinispan/configuration/clustered.xml" do
-    source "cluster/infinispan/clustered.xml.erb"
-    mode 0640
-    owner "infinispan"
-    group "infinispan"
-    variables nodes: sprouts,
-              local_ip: node[:cloud][:local_ipv4]
-  end
- 
-  # Use netcat to connect to the other cluster nodes.  This works around latency
-  # we've seen in testing for the first attempt to traverse an SG.
-  sprouts.each do |s|
-    execute "poke[#{s}]" do
-      command "nc #{s} 7800 -z"
-      returns [0,1] # If the remote is not listening on the correct port,
-                    # we'll get 1 as the response code.
-      not_if { node.attribute? "clustered" }
-    end
-  end
-   
-  # Restart infinispan the first time we cluster.  We do this by stopping
-  # the service and allowing monit to restart it.
-  service "clearwater-infinispan" do
-    pattern "clustered.sh"
-    action "stop"
-    notifies :create, "ruby_block[set_clustered]", :immediately
-    not_if { node.attribute? "clustered" }
-  end
-
-  ruby_block "set_clustered" do
-    block do
-      node.set["clustered"] = true
-      node.save
-    end
-    action :nothing
-  end
-
-  gr_environments = node[:clearwater][:gr_environments] or []
   other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
   remote_memstores = if not other_gr_environments.empty?
                        search(:node, "role:sprout AND chef_environment:#{other_gr_environments[0]}")
@@ -119,7 +86,6 @@ if node.roles.include? "cassandra"
 
   # Work out the other nodes in the geo-redundant cluster - we'll list all these
   # nodes as seeds.
-  gr_environments = node[:clearwater][:gr_environments] or [node.chef_environment]
   gr_index = gr_environments.index(node.chef_environment)
   gr_environment_search = gr_environments.map { |e| "chef_environment:" + e }.join(" OR ")
   gr_cluster_nodes = search(:node, "role:#{node_type} AND (#{gr_environment_search})")
@@ -152,15 +118,17 @@ if node.roles.include? "cassandra"
     group "root"
     variables cluster_name: cluster_name,
               token: token,
-              seeds: gr_cluster_nodes.map { |n| n.cloud.public_ipv4 },
-              node: node
+              seeds: gr_cluster_nodes.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 },
+              node: node,
+              is_gr: is_gr
   end
   template "/etc/cassandra/cassandra-topology.properties" do
     source "cassandra/cassandra-topology.properties.erb"
     mode "0644"
     owner "root"
     group "root"
-    variables gr_cluster_nodes: gr_cluster_nodes
+    variables gr_cluster_nodes: gr_cluster_nodes,
+              is_gr: is_gr
   end
 
   if tagged?('clustered')

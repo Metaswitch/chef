@@ -272,7 +272,7 @@ listen_address: "<%= @node[:cloud][:local_ipv4] %>"
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-broadcast_address: "<%= @node[:cloud][:public_ipv4] %>"
+broadcast_address: "<%= @is_gr ? @node[:cloud][:public_ipv4] : @node[:cloud][:local_ipv4] %>"
 
 # The address to bind the Thrift RPC service to -- clients connect
 # here. Unlike ListenAddress above, you *can* specify 0.0.0.0 here if
