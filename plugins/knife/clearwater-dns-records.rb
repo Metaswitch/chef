@@ -48,6 +48,12 @@ def dns_records
       :ttl   => "60"
     },
 
+    "bono" => {
+      :type  => "A",
+      :value => ipv4s_local(find_nodes(role: "bono")),
+      :ttl   => "60"
+    },
+
     "hs" => {
       :type  => "A",
       :value => ipv4s_local(find_nodes(role: "homestead")),
