@@ -58,7 +58,7 @@ if node.run_list.include? "role[sprout]"
     variables nodes: sprouts,
               local_ip: node[:cloud][:local_ipv4]
   end
- 
+
   # Use netcat to connect to the other cluster nodes.  This works around latency
   # we've seen in testing for the first attempt to traverse an SG.
   sprouts.each do |s|
@@ -69,7 +69,7 @@ if node.run_list.include? "role[sprout]"
       not_if { node.attribute? "clustered" }
     end
   end
-   
+
   # Restart infinispan the first time we cluster.  We do this by stopping
   # the service and allowing monit to restart it.
   service "clearwater-infinispan" do
@@ -201,11 +201,13 @@ if node.roles.include? "cassandra"
           cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
                       "USE homestead_cache",
                       "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text, initial_filter_criteria_xml text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
+
                       "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
                       "USE homestead_provisioning",
-                      "CREATE TABLE irs (irs_id uuid PRIMARY KEY,  ims_subscription_xml text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE public (public_id text PRIMARY KEY, associated_irs uuid) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE implicit_registration_sets (irs_id uuid PRIMARY KEY) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE service_profiles (sp_id uuid PRIMARY KEY,  initialfiltercriteria text, irs uuid) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, serviceprofile uuid) WITH read_repair_chance = 1.0",
                       "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
         end
 
