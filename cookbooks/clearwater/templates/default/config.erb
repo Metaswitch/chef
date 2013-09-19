@@ -1,5 +1,5 @@
 # Deployment definitions
-home_domain=<%= @domain %>
+home_domain=<%= @node[:clearwater][:gr_home_domain] or @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
 xdms_hostname=<%= @homer %>
