@@ -49,7 +49,9 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
+      nodes = find_nodes.select { |n|
+        (n.roles.include? "clearwater-infrastructure") \
+        and not (n[:clearwater].include? "quiescing")}
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
       # Create node records e.g. bono-1
       record_manager.create_node_records(nodes, attributes)

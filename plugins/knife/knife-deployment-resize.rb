@@ -191,14 +191,27 @@ module ClearwaterKnifePlugins
       abort_deployment if results.any? { |r| not r }
     end
 
-    def delete_extra_boxes(env, box_list)
-      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
+    def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       # Don't delete any AIO/AMI nodes
       victims.delete_if { |v| v.roles.include? "cw_aio" }
+      return victims
+    end
+
+    def in_stable_state?
+      transitioning_list = potential_deletions.select { |n|
+        n[:clearwater].include? "quiescing"}
+      puts transitioning_list
+      return transitioning_list.empty?
+    end
+
+    def delete_boxes(env, box_list)
+      victims = potential_deletions
+      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
+
       victims.select! { |v| not box_list.include? v.name }
 
       return if victims.empty?
@@ -210,7 +223,7 @@ module ClearwaterKnifePlugins
 
     def calculate_boxes_to_create(env, nodes)
       current_nodes = find_nodes(roles: "clearwater-infrastructure")
-     
+
       result = nodes.select do |node|
         not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:index]) }
       end
@@ -232,9 +245,7 @@ module ClearwaterKnifePlugins
 
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
-      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
-                                      not n.roles.include? "cw_aio" }
-                            .map { |n| n.name }
+      old_names = potential_deletions
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
@@ -288,13 +299,33 @@ module ClearwaterKnifePlugins
 
       # Enumerate current box counts so we can compare the desired list
       old_counts = get_current_counts
-      new_counts = { bono: config[:bono_count],
-                     ellis: 1,
-                     ibcf: config[:ibcf_count],
-                     homestead: config[:homestead_count],
-                     homer: config[:homer_count],
-                     sprout: config[:sprout_count],
-                     sipp: config[:sipp_count] }
+      new_counts = {
+        bono: config[:bono_count],
+        ellis: 1,
+        ibcf: config[:ibcf_count],
+        homestead: config[:homestead_count],
+        homer: config[:homer_count],
+        sprout: config[:sprout_count],
+        sipp: config[:sipp_count] }
+
+      if config[:finish]
+        if not config[:force]
+          check_nodes_quiesced
+        end
+        delete_quiesced_nodes
+        return
+      end
+
+
+      if not in_stable_state?
+        if old_counts == new_counts
+          unquiesce
+          return
+        else
+          puts 'Error - you need to call --finish first'
+          return
+        end
+      end
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
@@ -352,14 +383,14 @@ module ClearwaterKnifePlugins
       # Setup DNS records defined above
       if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
-        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split) 
+        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split)
         bind_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         bind_create.run
         status["DNS"][:status] = "Done"
       else
         Chef::Log.info "Creating DNS records..."
-        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split) 
+        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split)
         dns_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         dns_create.run
@@ -394,13 +425,13 @@ module ClearwaterKnifePlugins
     def status
       Thread.current[:status]
     end
-    
+
     def abort_deployment
       msg = "Too many failures (#{config[:fail_limit]}), aborting...
       To clean up broken boxes in deployment, issue:
       knife deployment clean -E #{config[:environment]}
       To delete the deployment completely, issue:
-      knife deployment delete -E #{config[:environment]}" 
+      knife deployment delete -E #{config[:environment]}"
       fail msg
     end
   end

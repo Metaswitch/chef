@@ -56,20 +56,20 @@ if node.run_list.include? "role[sprout]"
     owner "infinispan"
     group "infinispan"
     variables nodes: sprouts,
-              local_ip: node[:cloud][:local_ipv4]
+    local_ip: node[:cloud][:local_ipv4]
   end
- 
+
   # Use netcat to connect to the other cluster nodes.  This works around latency
   # we've seen in testing for the first attempt to traverse an SG.
   sprouts.each do |s|
     execute "poke[#{s}]" do
       command "nc #{s} 7800 -z"
       returns [0,1] # If the remote is not listening on the correct port,
-                    # we'll get 1 as the response code.
+      # we'll get 1 as the response code.
       not_if { node.attribute? "clustered" }
     end
   end
-   
+
   # Restart infinispan the first time we cluster.  We do this by stopping
   # the service and allowing monit to restart it.
   service "clearwater-infinispan" do
@@ -122,158 +122,159 @@ if node.roles.include? "cassandra"
     owner "root"
     group "root"
     variables cluster_name: cluster_name,
-              token: token,
-              seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
-              node: node
+    token: token,
+    seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
+    node: node
   end
 
-  if tagged?('clustered')
-    # Node is already in the cluster, just move to the correct token
-    execute "nodetool" do
-      command "nodetool move #{token}"
-      action :run
-      not_if { node.clearwater.cassandra.token == token rescue false }
-    end
-  else
-    # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
-    execute "monit" do
-      command "monit unmonitor cassandra"
-      user "root"
-      action :run
-    end
-
-    service "cassandra" do
-      pattern "jsvc.exec"
-      service_name "cassandra"
-      action :stop
-    end
-
-    directory "/var/lib/cassandra" do
-      recursive true
-      action :delete
-    end
-
-    directory "/var/lib/cassandra" do
-      action :create
-      mode "0755"
-      owner "cassandra"
-      group "cassandra"
-    end
-
-    service "cassandra" do
-      pattern "jsvc.exec"
-      service_name "cassandra"
-      action :start
-    end
-
-    # It's possible that we might need to create the keyspace now.
-    ruby_block "create keyspace and tables" do
-      block do
-        require 'cassandra-cql'
-
-        # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
-        db = nil
-        60.times do
-          begin
-            db = CassandraCQL::Database.new('127.0.0.1:9160')
-            break
-          rescue ThriftClient::NoServersAvailable
-            sleep 1
-          end
-        end
-
-        fail "Cassandra failed to start in the cluster" unless db
-
-        # Create the KeySpace and table(s), don't care if they already exist.
-        #
-        # For all of these requests, it's possible that the creating a
-        # keyspace/table might take so long that the thrift client times out.
-        # This seems to happen a lot when Cassandra has just booted, probably
-        # it's still settling down or garbage collecting.  In any case, on a
-        # transport exception we'll simply sleep for a second and retry.  The
-        # interesting case is an InvalidRequest which means that the
-        # keyspace/table already exists and we should stop trying to create it.
-        begin
-          db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
-        rescue CassandraCQL::Thrift::Client::TransportException => e
-          sleep 1
-          retry
-        rescue CassandraCQL::Error::InvalidRequestException
-          # Pass
-        end
-
-        db.execute("USE #{node_type}")
-        if node_type == "homer"
-          begin
-            db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-        elsif node_type == "homestead"
-          begin
-            db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-
-          begin
-            db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
-          end
-        end
+  if not tagged?('quiescing')
+    if tagged?('clustered')
+      # Node is already in the cluster, just move to the correct token
+      execute "nodetool" do
+        command "nodetool move #{token}"
+        action :run
+        not_if { node.clearwater.cassandra.token == token rescue false }
+      end
+    else
+      # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
+      execute "monit" do
+        command "monit unmonitor cassandra"
+        user "root"
+        action :run
       end
 
-      # To prevent conflicts during clustering, only homestead-1 or homer-1
-      # will ever attempt to create Keyspaces.
-      only_if { node[:clearwater][:index] == 1 }
-      action :run
+      service "cassandra" do
+        pattern "jsvc.exec"
+        service_name "cassandra"
+        action :stop
+      end
+
+      directory "/var/lib/cassandra" do
+        recursive true
+        action :delete
+      end
+
+      directory "/var/lib/cassandra" do
+        action :create
+        mode "0755"
+        owner "cassandra"
+        group "cassandra"
+      end
+
+      service "cassandra" do
+        pattern "jsvc.exec"
+        service_name "cassandra"
+        action :start
+      end
+
+      # It's possible that we might need to create the keyspace now.
+      ruby_block "create keyspace and tables" do
+        block do
+          require 'cassandra-cql'
+
+          # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
+          db = nil
+          60.times do
+            begin
+              db = CassandraCQL::Database.new('127.0.0.1:9160')
+              break
+            rescue ThriftClient::NoServersAvailable
+              sleep 1
+            end
+          end
+
+          fail "Cassandra failed to start in the cluster" unless db
+
+          # Create the KeySpace and table(s), don't care if they already exist.
+          #
+          # For all of these requests, it's possible that the creating a
+          # keyspace/table might take so long that the thrift client times out.
+          # This seems to happen a lot when Cassandra has just booted, probably
+          # it's still settling down or garbage collecting.  In any case, on a
+          # transport exception we'll simply sleep for a second and retry.  The
+          # interesting case is an InvalidRequest which means that the
+          # keyspace/table already exists and we should stop trying to create it.
+          begin
+            db.execute("CREATE KEYSPACE #{node_type} WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2")
+          rescue CassandraCQL::Thrift::Client::TransportException => e
+            sleep 1
+            retry
+          rescue CassandraCQL::Error::InvalidRequestException
+            # Pass
+          end
+
+          db.execute("USE #{node_type}")
+          if node_type == "homer"
+            begin
+              db.execute("CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
+          elsif node_type == "homestead"
+            begin
+              db.execute("CREATE TABLE filter_criteria (public_id text PRIMARY KEY, value text) WITH read_repair_chance = 1.0")
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
+
+            begin
+              db.execute("CREATE TABLE sip_digests (private_id text PRIMARY KEY, digest text) WITH read_repair_chance = 1.0")
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
+
+            begin
+              db.execute("CREATE TABLE public_ids (private_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
+
+            begin
+              db.execute("CREATE TABLE private_ids (public_id text PRIMARY KEY) WITH read_repair_chance = 1.0")
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
+          end
+        end
+
+        # To prevent conflicts during clustering, only homestead-1 or homer-1
+        # will ever attempt to create Keyspaces.
+        only_if { node[:clearwater][:index] == 1 }
+        action :run
+      end
+
+      # Re-enable monitoring
+      execute "monit" do
+        command "monit monitor cassandra"
+        user "root"
+        action :run
+      end
     end
 
-    # Re-enable monitoring
-    execute "monit" do
-      command "monit monitor cassandra"
-      user "root"
+    # Now we've migrated to our new token, remember it
+    ruby_block "save cluster details" do
+      block do
+        node.set[:clearwater][:cassandra][:cluster] = cluster_name
+        node.set[:clearwater][:cassandra][:token] = token
+      end
       action :run
     end
   end
 
-  # Now we've migrated to our new token, remember it
-  ruby_block "save cluster details" do
-    block do
-      node.set[:clearwater][:cassandra][:cluster] = cluster_name
-      node.set[:clearwater][:cassandra][:token] = token
-    end
-    action :run
-  end
-end
-
-# Now we're clustered
-tag('clustered')
+  # Now we're clustered
+  tag('clustered')
