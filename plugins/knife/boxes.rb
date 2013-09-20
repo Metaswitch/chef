@@ -222,3 +222,117 @@ class Chef::Knife::OpenstackServerCreate
     end
   end
 end
+
+def quiesce_box(box_name, env)
+  puts "quiesce_box #{box_name}"
+  # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
+  # that the role clearwater-infrastructure is present
+  find_nodes(name: box_name, roles: "clearwater-infrastructure", chef_environment: env).each do |node|
+    hostname = node.cloud.public_hostname
+    @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+    ssh_options = { keys: @ssh_key }
+    puts hostname
+
+    Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+      case node.run_list.first.name
+      when "sprout"
+        ssh.exec! "sudo monit unmonitor sprout"
+        ssh.exec! "sudo pkill -QUIT -f sprout"
+      when "bono"
+        ssh.exec! "sudo monit unmonitor bono"
+        ssh.exec! "sudo pkill -QUIT -f bono"
+      when "homer"
+        ssh.exec! "sudo monit stop homer"
+        ssh.exec! "sudo monit unmonitor cassandra"
+        ssh.exec! "nodetool decommission"
+      when "homestead"
+        ssh.exec! "sudo monit stop homestead"
+        ssh.exec! "sudo monit unmonitor cassandra"
+        ssh.exec! "nodetool decommission"
+      else
+        #just BoxDelete
+      end
+    end
+
+    node.set[:clearwater]['quiescing'] = "just now"
+
+    node.set[:clearwater].delete :cassandra
+    puts node[:tags]
+    node.set[:tags].delete "clustered"
+
+    node.save
+    puts node[:clearwater]['quiescing']
+
+  end.empty?
+
+end
+
+def box_ready_to_delete?(box_name, env)
+  puts "box_ready_to_delete? #{box_name}"
+  # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
+  # that the role clearwater-infrastructure is present
+
+  failures_list = []
+
+  find_nodes(name: box_name, roles: "clearwater-infrastructure", chef_environment: env).each do |node|
+    hostname = node.cloud.public_hostname
+    @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+    ssh_options = { keys: @ssh_key }
+    puts hostname
+    ssh_return = ""
+
+    Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+      case node.run_list.first.name
+      when "sprout"
+        ssh_return = ssh.exec! "sudo pgrep -lf sprout > /dev/null; echo $?"
+      when "bono"
+        ssh_return = ssh.exec! "sudo pgrep -lf bono > /dev/null; echo $?"
+#        ssh_return = ssh.exec! "/bin/true > /dev/null; echo $?"
+      when "homer"
+        ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+      when "homestead"
+        ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+      else
+        #just BoxDelete
+      end
+    end
+
+    return ssh_return.eql?("0\n")
+  end
+
+end
+
+def unquiesce_box(box_name, env)
+  puts "unquiesce_box #{box_name}"
+  # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
+  # that the role clearwater-infrastructure is present
+  find_nodes(name: box_name, roles: "clearwater-infrastructure", chef_environment: env).each do |node|
+    hostname = node.cloud.public_hostname
+    @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+    ssh_options = { keys: @ssh_key }
+    puts hostname
+
+    node.set[:clearwater].delete('quiescing')
+    node.save
+
+    Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+      case node.run_list.first.name
+      when "sprout"
+        ssh.exec! "sudo pkill -USR1 -f sprout"
+        ssh.exec! "sudo monit start sprout"
+      when "bono"
+        ssh.exec! "sudo pkill -USR1 -f bono"
+        ssh.exec! "sudo monit start bono"
+      when "homer"
+        puts ssh.exec! "sudo chef-client"
+        puts ssh.exec! "sudo monit start homer"
+      when "homestead"
+        ssh.exec! "sudo chef-client"
+        ssh.exec! "sudo monit start homestead"
+      else
+        #just BoxDelete
+      end
+    end
+
+  end.empty?
+end

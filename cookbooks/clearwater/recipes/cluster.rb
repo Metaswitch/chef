@@ -127,7 +127,7 @@ if node.roles.include? "cassandra"
     node: node
   end
 
-  if not tagged?('quiescing')
+  if not node[:clearwater].include? 'quiescing'
     if tagged?('clustered')
       # Node is already in the cluster, just move to the correct token
       execute "nodetool" do
