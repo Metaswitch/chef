@@ -34,35 +34,39 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+def find_active_nodes(role)
+  find_nodes(role: role).delete_if { |n| puts n[:clearwater]; n[:clearwater].include? "quiescing"}
+end
+
 def dns_records
   {
     "" => {
       :type  => "A",
-      :value => ipv4s(find_nodes(role: "bono")),
+      :value => ipv4s(find_active_nodes("bono")),
       :ttl   => "60"
     },
 
     "sprout" => {
       :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "sprout")),
+      :value => ipv4s_local(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
     "hs" => {
       :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "homestead")),
+      :value => ipv4s_local(find_active_nodes("homestead")),
       :ttl   => "60"
     },
 
     "homer" => {
       :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "homer")),
+      :value => ipv4s_local(find_active_nodes("homer")),
       :ttl   => "60"
     },
 
     "ellis" => {
       :type => "A",
-      :value => ipv4s(find_nodes(role: "ellis")),
+      :value => ipv4s(find_active_nodes("ellis")),
     },
 
     # "splunk" => {
