@@ -75,23 +75,26 @@ module ClearwaterKnifePlugins
       # Only delete nodes with roles contained in this whitelist
       whitelist = ["bono", "ellis", "homer", "homestead", "sprout"]
       servers = connection.servers.all
-      # Only care about running servers (Fog will also report recently terminated etc)
-      servers.select!{ |s| s.state == "running" }
+      # Only care about running servers (Fog will also report recently
+      # terminated etc)
       # Filter down to unnamed servers or those which have the correct name for our environment
       servers.select!{ |s| s.tags["Name"].nil? or s.tags["Name"].split("-").first == config[:environment] }
       # Filter using whitelist
       servers.select!{ |s| s.tags["Name"].nil? or whitelist.include? s.tags["Name"].split("-")[1] }
-      
+#      servers.map {|s| puts s.tags["Name"]; puts s.state}
+#      servers.select!{ |s| s.state != "terminated" }
+
+
       # Construct list of valid Chef nodes
       chef_nodes = find_nodes(name: "#{config[:environment]}-*")
       # Chef nodes that have no roles are also broken
       chef_nodes.select!{ |n| not n[:roles].nil? }
       chef_node_ids = chef_nodes.map{ |n| n[:ec2][:instance_id] }
       chef_node_names = chef_nodes.map{ |n| n.name }
-      
+
       # Filter out servers which are controlled by Chef from the server list
-      servers.select!{ |s| not chef_node_ids.include? s.id }
-      
+      servers.select!{ |s| (s.state == "running" and not chef_node_ids.include? s.id) or (s.state == "stopped")}
+
       # Delete any remaining servers
       Chef::Log.info "Will delete following broken servers: #{servers.map{ |s| s.tags["Name"] or "UNNAMED" }}" unless servers.empty?
       servers.each do |server|
@@ -106,6 +109,11 @@ module ClearwaterKnifePlugins
         # do not want to delete the client & node from Chef if they are valid
         unless chef_node_names.include? box_name or box_name.nil?
           Chef::Log.info "#{box_name} is not a valid Chef node, will attempt to purge client & node from Chef"
+          knife_ec2_delete.config[:purge] = true
+          knife_ec2_delete.config[:chef_node_name] = box_name
+        end
+        if server.state == "stopped"
+          Chef::Log.info "#{box_name} is stopped, will attempt to purge client & node from Chef"
           knife_ec2_delete.config[:purge] = true
           knife_ec2_delete.config[:chef_node_name] = box_name
         end

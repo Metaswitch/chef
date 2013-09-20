@@ -1,6 +1,5 @@
-#!/usr/bin/env ruby
+# @file knife-box-quiesce.rb
 
-# @file clearwater-dns-records.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -34,61 +33,42 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-def find_active_nodes(role)
-  find_nodes(role: role).delete_if { |n| n[:clearwater].include? "quiescing"}
-end
+require_relative 'knife-clearwater-utils'
 
-def dns_records
-  {
-    "" => {
-      :type  => "A",
-      :value => ipv4s(find_active_nodes("bono")),
-      :ttl   => "60"
-    },
+module ClearwaterKnifePlugins
+  class BoxQuiesceFinish < Chef::Knife
+    include ClearwaterKnifePlugins::ClearwaterUtils
 
-    "sprout" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
+    deps do
+      require 'chef'
+      require 'fog'
+    end
 
-    "hs" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
+    def run(yes_allowed = false)
+      name_glob = name_args.first
+      name_glob = "*" if name_glob == "" or name_glob.nil?
 
-    "homer" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
+      puts "Searching for node #{name_glob} in #{env}..."
+      # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
+      # that the role clearwater-infrastructure is present
+      puts "No such node" unless not find_nodes(name: name_glob, roles: "clearwater-infrastructure").each do |node|
+        node.default[:clearwater].delete('quiescing')
+        node.save
 
-    "ellis" => {
-      :type => "A",
-      :value => ipv4s(find_active_nodes("ellis")),
-    },
-
-    # "splunk" => {
-    #   :type => "CNAME",
-    #   :value => public_hostnames(find_nodes(role: "splunk")),
-    # },
-    #
-    # "mmonit" => {
-    #   :type => "CNAME",
-    #   :value => public_hostnames(find_nodes(role: "mmonit")),
-    # },
-  }
-end
-
-def ipv4s(boxes)
-  boxes.map {|n| n[:cloud][:public_ipv4]}
-end
-
-def ipv4s_local(boxes)
-  boxes.map {|n| n[:cloud][:local_ipv4]}
-end
-
-def public_hostnames(boxes)
-  boxes.map {|n| n[:cloud][:public_hostname] + "."}
+        case node.run_list.first.name
+        when "sprout"
+          puts "pgrep -f sprout or something"
+        when "bono"
+          puts "pgrep -f bono or something"
+        when "homer"
+          puts "nodetool netstats or something"
+        when "homestead"
+          puts "nodetool netstats or something"
+        else
+          puts "Can't finish quiescing an unquiescable node...'"
+          #just BoxDelete
+        end
+      end.empty?
+    end
+  end
 end

@@ -49,6 +49,9 @@ module ClearwaterKnifePlugins
       require 'chef/knife/client_delete'
       require_relative 'knife-box-create'
       require_relative 'knife-box-delete'
+      require_relative 'knife-box-quiesce'
+      require_relative 'knife-box-unquiesce'
+      require_relative 'knife-box-quiesce-finish'
       require_relative 'knife-deployment-clean'
       require_relative 'knife-security-groups-create'
       require_relative 'knife-dnszone-create'
@@ -97,6 +100,10 @@ module ClearwaterKnifePlugins
           exit 2
         end
       end)
+
+    option :finish,
+    :long => "--finish",
+    :description => "Finishes  a previously started resize operation."
 
     # Auto-scaling parameters
     #
@@ -168,6 +175,39 @@ module ClearwaterKnifePlugins
       end
     end
 
+    def quiesce_box(box_name, env)
+      puts "Quiescing #{box_name}"
+      box_quiesce = BoxQuiesce.new("-E #{env}".split)
+      box_quiesce.name_args = [box_name]
+      box_quiesce.config[:yes] = true
+      box_quiesce.config[:purge] = true
+      box_quiesce.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      box_quiesce.run(true)
+    end
+
+    def unquiesce_box(box_name, env)
+      puts "Unquiescing #{box_name}"
+      box_quiesce = BoxUnquiesce.new("-E #{env}".split)
+      box_quiesce.name_args = [box_name]
+      box_quiesce.config[:yes] = true
+      box_quiesce.config[:purge] = true
+      box_quiesce.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      box_quiesce.run(true)
+    end
+
+    def finish_quiesce_box(box_name, env)
+      puts "Finish quiescing #{box_name}"
+      box_quiesce = BoxQuiesceFinish.new("-E #{env}".split)
+      box_quiesce.name_args = [box_name]
+      box_quiesce.config[:yes] = true
+      box_quiesce.config[:purge] = true
+      box_quiesce.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      box_quiesce.run(true)
+    end
+
     def delete_box(box_name, env)
       box_delete = BoxDelete.new("-E #{env}".split)
       box_delete.name_args = [box_name]
@@ -191,6 +231,10 @@ module ClearwaterKnifePlugins
       abort_deployment if results.any? { |r| not r }
     end
 
+    def quiescing_nodes
+      return find_nodes(roles: "clearwater-infrastructure", quiescing: "*")
+    end
+
     def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
@@ -202,13 +246,12 @@ module ClearwaterKnifePlugins
     end
 
     def in_stable_state?
-      transitioning_list = potential_deletions.select { |n|
+      transitioning_list = find_nodes(roles: "clearwater-infrastructure").select { |n|
         n[:clearwater].include? "quiescing"}
-      puts transitioning_list
       return transitioning_list.empty?
     end
 
-    def delete_boxes(env, box_list)
+    def quiesce_extra_boxes(env, box_list)
       victims = potential_deletions
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
 
@@ -217,7 +260,23 @@ module ClearwaterKnifePlugins
       return if victims.empty?
 
       victims.each do |v|
-        delete_box(v.name, env)
+        quiesce_box(v.name, env)
+      end
+    end
+
+    def unquiesce_boxes(env)
+      victims = quiescing_nodes
+
+      victims.each do |v|
+        unquiesce_box(v.name, env)
+      end
+    end
+
+    def finish_quiescing_boxes(env)
+      victims = quiescing_nodes
+
+      victims.each do |v|
+        finish_quiesce_box(v.name, env)
       end
     end
 
@@ -245,7 +304,7 @@ module ClearwaterKnifePlugins
 
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
-      old_names = potential_deletions
+      old_names = potential_deletions.map {|v| v.name}
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
@@ -310,16 +369,19 @@ module ClearwaterKnifePlugins
 
       if config[:finish]
         if not config[:force]
-          check_nodes_quiesced
+          #check_nodes_quiesced
         end
-        delete_quiesced_nodes
+        puts "Finish quiescing boxes"
+        finish_quiescing_boxes(env)
         return
-      end
+      else
+        puts "Don't finish quiescing boxes"
+        end
 
 
       if not in_stable_state?
         if old_counts == new_counts
-          unquiesce
+          unquiesce_boxes(env)
           return
         else
           puts 'Error - you need to call --finish first'
@@ -338,7 +400,7 @@ module ClearwaterKnifePlugins
       launch_boxes(create_node_list)
       set_progress 50
 
-      delete_extra_boxes(env.name, node_list)
+      quiesce_extra_boxes(env.name, node_list)
       set_progress 60
 
       # Now that all the boxes are in place, cleanup any that failed
