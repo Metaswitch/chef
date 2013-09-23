@@ -349,11 +349,10 @@ module ClearwaterKnifePlugins
           end
 
         end
-        puts "Finish quiescing boxes"
+        Chef::Log.info "Deleting quiesced boxes..."
         delete_quiesced_boxes env
         return
       else
-        puts "Don't finish quiescing boxes"
         end
 
 
@@ -362,7 +361,7 @@ module ClearwaterKnifePlugins
           unquiesce_boxes(env)
           return
         else
-          puts 'Error - you need to call --finish first'
+          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can asee which boxes are quiescing with "knife box list -E env"'
           return
         end
       end
