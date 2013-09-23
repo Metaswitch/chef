@@ -291,7 +291,7 @@ module ClearwaterKnifePlugins
         end
       end
       unless victim_boxes.empty?
-        ui.msg "The following boxes will be quiesced:"
+        ui.msg "The following boxes will be quiesced (run 'knife deployment resize -E <env> --finish' afterwards to terminate them):"
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end

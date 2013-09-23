@@ -250,7 +250,7 @@ def quiesce_box(box_name, env)
       end
     end
 
-    node.set[:clearwater]['quiescing'] = "just now"
+    node.set[:clearwater]['quiescing'] = DateTime.now
 
     node.set[:clearwater].delete :cassandra
     node.set[:tags].delete "clustered"
