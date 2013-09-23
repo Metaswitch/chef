@@ -206,7 +206,7 @@ module ClearwaterKnifePlugins
     end
 
     def in_stable_state? env
-      transitioning_list = find_quiescing_nodes env
+      transitioning_list = find_quiescing_nodes(env)
       return transitioning_list.empty?
     end
 
@@ -337,7 +337,7 @@ module ClearwaterKnifePlugins
       end
 
 
-      if not in_stable_state?
+      if not in_stable_state? env
         if old_counts == new_counts
           unquiesce_boxes(env)
           return

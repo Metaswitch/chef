@@ -332,7 +332,7 @@ def find_incomplete_quiescing_nodes(env)
   # quiescing, but are not yet ready to be deleted (i.e. they are
   # stuill quiescing)
   # @param [String] env the Chef environment to use
-  find_quiescing_nodes.select do |v|
+  find_quiescing_nodes(env).select do |v|
     not box_ready_to_delete?(v.name, env)
   end
 end
