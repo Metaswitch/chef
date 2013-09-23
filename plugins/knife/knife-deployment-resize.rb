@@ -100,7 +100,11 @@ module ClearwaterKnifePlugins
 
     option :finish,
     :long => "--finish",
-    :description => "Finishes  a previously started resize operation."
+    :description => "Finishes a previously started resize operation."
+
+    option :force,
+    :long => "--force",
+    :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss. When used without --finish, destroys nodes immediately without requiring a separate --finish step."
 
     # Auto-scaling parameters
     #
@@ -416,7 +420,14 @@ module ClearwaterKnifePlugins
         dns_create.run
         status["DNS"][:status] = "Done"
       end
-      set_progress 100
+      set_progress 99
+
+      if config[:force]
+        # Destroy our quiescing boxes now rather than having a
+        # separate --finish step
+        delete_quiesced_boxes env
+      end
+
     end
 
     # Expands out hashes of boxes, e.g. {:bono => 3} becomes:
