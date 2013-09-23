@@ -195,10 +195,6 @@ module ClearwaterKnifePlugins
       abort_deployment if results.any? { |r| not r }
     end
 
-    def quiescing_nodes env
-      return find_nodes(roles: "clearwater-infrastructure", quiescing: "*", chef_environment: env)
-    end
-
     def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
@@ -209,9 +205,8 @@ module ClearwaterKnifePlugins
       return victims
     end
 
-    def in_stable_state?
-      transitioning_list = find_nodes(roles: "clearwater-infrastructure").select { |n|
-        n[:clearwater].include? "quiescing"}
+    def in_stable_state? env
+      transitioning_list = find_quiescing_nodes env
       return transitioning_list.empty?
     end
 
@@ -229,27 +224,14 @@ module ClearwaterKnifePlugins
     end
 
     def delete_quiesced_boxes(env)
-      victims = quiescing_nodes env
-      puts victims
-
-      victims.each do |v|
+      find_quiescing_nodes(env).each do |v|
         delete_box(v.name, env)
       end
     end
 
     def unquiesce_boxes(env)
-      victims = quiescing_nodes env
-
-      victims.each do |v|
+      find_quiescing_nodes(env).each do |v|
         unquiesce_box(v.name, env)
-      end
-    end
-
-    def unquiesced_nodes(env)
-      victims = quiescing_nodes env
-
-      victims.select do |v|
-        not box_ready_to_delete?(v.name, env)
       end
     end
 
@@ -342,7 +324,7 @@ module ClearwaterKnifePlugins
 
       if config[:finish]
         if not config[:force]
-          still_quiescing = unquiesced_nodes env
+          still_quiescing = find_incomplete_quiescing_nodes env
           unless still_quiescing.empty?
             puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
             return
@@ -352,8 +334,7 @@ module ClearwaterKnifePlugins
         Chef::Log.info "Deleting quiesced boxes..."
         delete_quiesced_boxes env
         return
-      else
-        end
+      end
 
 
       if not in_stable_state?
@@ -361,7 +342,7 @@ module ClearwaterKnifePlugins
           unquiesce_boxes(env)
           return
         else
-          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can asee which boxes are quiescing with "knife box list -E env"'
+          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
           return
         end
       end

@@ -34,9 +34,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-def find_active_nodes(role)
-  find_nodes(role: role).delete_if { |n| n[:clearwater].include? "quiescing"}
-end
+require_relative 'boxes'
 
 def dns_records
   {
@@ -68,16 +66,6 @@ def dns_records
       :type => "A",
       :value => ipv4s(find_active_nodes("ellis")),
     },
-
-    # "splunk" => {
-    #   :type => "CNAME",
-    #   :value => public_hostnames(find_nodes(role: "splunk")),
-    # },
-    #
-    # "mmonit" => {
-    #   :type => "CNAME",
-    #   :value => public_hostnames(find_nodes(role: "mmonit")),
-    # },
   }
 end
 

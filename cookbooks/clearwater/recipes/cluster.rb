@@ -56,7 +56,7 @@ if node.run_list.include? "role[sprout]"
     owner "infinispan"
     group "infinispan"
     variables nodes: sprouts,
-    local_ip: node[:cloud][:local_ipv4]
+              local_ip: node[:cloud][:local_ipv4]
   end
 
   # Use netcat to connect to the other cluster nodes.  This works around latency
@@ -64,8 +64,9 @@ if node.run_list.include? "role[sprout]"
   sprouts.each do |s|
     execute "poke[#{s}]" do
       command "nc #{s} 7800 -z"
-      returns [0,1] # If the remote is not listening on the correct port,
+      # If the remote is not listening on the correct port,
       # we'll get 1 as the response code.
+      returns [0,1]
       not_if { node.attribute? "clustered" }
     end
   end
@@ -122,9 +123,9 @@ if node.roles.include? "cassandra"
     owner "root"
     group "root"
     variables cluster_name: cluster_name,
-    token: token,
-    seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
-    node: node
+              token: token,
+              seeds: cluster_nodes.map { |n| n.cloud.local_ipv4 },
+              node: node
   end
 
   if not node[:clearwater].include? 'quiescing'
