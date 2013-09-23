@@ -1,3 +1,4 @@
 servers=<%= @servers.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
-vbuckets=<%= @vbucket1.join "," %>
-vbuckets=<%= @vbucket2.join "," %>
+<% if not @new_servers.empty? %>
+new_servers=<%= @new_servers.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
+<% end %>

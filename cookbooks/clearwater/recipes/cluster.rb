@@ -44,32 +44,6 @@ chef_gem "cassandra-cql" do
 end
 
 
-# Statically defined vbucket maps
-primary_vb_map = [
-  [],
-  [0,0,0,0,0,0,0,0],
-  [0,0,0,0,1,1,1,1],
-  [0,0,2,2,1,1,2,1],
-  [0,0,2,2,1,1,3,3],
-  [0,4,2,2,1,1,3,3],
-  [0,4,2,2,1,5,3,3],
-  [0,4,2,6,1,5,3,3],
-  [0,4,2,6,1,5,3,7]
-]
-
-secondary_vb_map = [
-  [],
-  [0,0,0,0,0,0,0,0],
-  [1,1,1,1,0,0,0,0],
-  [1,2,1,1,2,2,0,0],
-  [3,3,1,1,2,2,0,0],
-  [3,3,1,1,2,2,4,0],
-  [3,3,1,5,2,2,4,0],
-  [3,3,1,5,6,2,4,0],
-  [3,7,1,5,6,2,4,0]
-]
-
-
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
 
@@ -82,22 +56,14 @@ if node.run_list.include? "role[sprout]"
   merged = sprouts.find_all { |s| s[:merged] }
 
   if merged.size == sprouts.size
-    # Cluster is stable, so use primary and secondary vbuckets maps as normal
-    vbucket1 = primary_vb_map[sprouts.size]
-    vbucket2 = secondary_vb_map[sprouts.size]
+    # Cluster is stable, so just include the server list.
+    servers = sprouts
+    new_servers = []
   else
-    # Cluster is growing, so use secondary vbucket map for merged group of
-    # servers and primary vbucket map for full list of servers.
-    vbucket1 = secondary_vb_map[merged.size]
-    vbucket2 = primary_vb_map[sprouts.size]
-
-    if merged.size == 1
-      # Special case growing from one node to avoid loss of redundancy, by
-      # changing any zeros in the vbucket2 map to the value from the
-      # corresponding secondary map.  You'll need a degree in Ruby to understand
-      # why this code has this effect.
-      vbucket2 = vbucket2.zip(secondary_vb_map[sprouts.size]).map { |a,b| a == 0 ? b : a }
-    end
+    # Cluster is growing, so use the merged list as the servers list and the
+    # full list as the new servers list.
+    servers = merged
+    new_servers = sprouts
   end
 
   template "/etc/clearwater/cluster_settings" do
@@ -106,9 +72,8 @@ if node.run_list.include? "role[sprout]"
     owner "root"
     group "root"
     notifies :reload, "service[sprout]", :immediately
-    variables servers: sprouts,
-              vbucket1: vbucket1,
-              vbucket2: vbucket2
+    variables servers: servers,
+              new_servers: new_servers
   end
 
   service "sprout" do
