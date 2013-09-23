@@ -291,7 +291,7 @@ module ClearwaterKnifePlugins
         end
       end
       unless victim_boxes.empty?
-        ui.msg "The following boxes will be deleted:"
+        ui.msg "The following boxes will be quiesced:"
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end

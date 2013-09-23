@@ -224,14 +224,12 @@ class Chef::Knife::OpenstackServerCreate
 end
 
 def quiesce_box(box_name, env)
-  puts "quiesce_box #{box_name}"
   # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
   # that the role clearwater-infrastructure is present
   find_nodes(name: box_name, roles: "clearwater-infrastructure", chef_environment: env).each do |node|
     hostname = node.cloud.public_hostname
     @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
     ssh_options = { keys: @ssh_key }
-    puts hostname
 
     Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
       case node.run_list.first.name
@@ -257,18 +255,15 @@ def quiesce_box(box_name, env)
     node.set[:clearwater]['quiescing'] = "just now"
 
     node.set[:clearwater].delete :cassandra
-    puts node[:tags]
     node.set[:tags].delete "clustered"
 
     node.save
-    puts node[:clearwater]['quiescing']
 
   end.empty?
 
 end
 
 def box_ready_to_delete?(box_name, env)
-  puts "box_ready_to_delete? #{box_name}"
   # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
   # that the role clearwater-infrastructure is present
 
@@ -278,7 +273,6 @@ def box_ready_to_delete?(box_name, env)
     hostname = node.cloud.public_hostname
     @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
     ssh_options = { keys: @ssh_key }
-    puts hostname
     ssh_return = ""
 
     Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
@@ -303,14 +297,12 @@ def box_ready_to_delete?(box_name, env)
 end
 
 def unquiesce_box(box_name, env)
-  puts "unquiesce_box #{box_name}"
   # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
   # that the role clearwater-infrastructure is present
   find_nodes(name: box_name, roles: "clearwater-infrastructure", chef_environment: env).each do |node|
     hostname = node.cloud.public_hostname
     @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
     ssh_options = { keys: @ssh_key }
-    puts hostname
 
     node.set[:clearwater].delete('quiescing')
     node.save

@@ -278,3 +278,4 @@ if node.roles.include? "cassandra"
 
   # Now we're clustered
   tag('clustered')
+end
