@@ -198,6 +198,7 @@ class Chef::Knife::Ec2ServerCreate
     end
   end
 end
+
 require 'chef/knife/rackspace_server_create'
 class Chef::Knife::RackspaceServerCreate
   if not instance_methods.include? :old_bootstrap_for_node
@@ -210,6 +211,7 @@ class Chef::Knife::RackspaceServerCreate
     end
   end
 end
+
 require 'chef/knife/openstack_server_create'
 class Chef::Knife::OpenstackServerCreate
   if not instance_methods.include? :old_bootstrap_for_node
@@ -222,3 +224,122 @@ class Chef::Knife::OpenstackServerCreate
     end
   end
 end
+
+def quiesce_box(box_name, env)
+  # Runs SSH commands on box_name to quiesce it
+  # @param [String] box_name the name of the box to quiesce (e.g.
+  #   rkd-bono-1)
+  # @param [String] env the Chef environment to use
+  node = Chef::Node.load box_name
+  hostname = node.cloud.public_hostname
+  @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+  ssh_options = { keys: @ssh_key }
+
+  Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+    case node.run_list.first.name
+    when "sprout"
+      ssh.exec! "sudo monit unmonitor sprout"
+      ssh.exec! "sudo pkill -QUIT -f sprout"
+    when "bono"
+      ssh.exec! "sudo monit unmonitor bono"
+      ssh.exec! "sudo pkill -QUIT -f bono"
+    when "homer"
+      ssh.exec! "sudo monit stop homer"
+      ssh.exec! "sudo monit unmonitor cassandra"
+      ssh.exec! "nodetool decommission"
+    when "homestead"
+      ssh.exec! "sudo monit stop homestead"
+      ssh.exec! "sudo monit unmonitor cassandra"
+      ssh.exec! "nodetool decommission"
+    end
+  end
+
+  node.set[:clearwater]['quiescing'] = DateTime.now
+  node.set[:clearwater].delete :cassandra
+  node.set[:tags].delete "clustered"
+  node.save
+
+end
+
+def box_ready_to_delete?(box_name, env)
+  # Determines whether the box is fully quiesced
+  # @param (see #quiesce_box)
+  node = Chef::Node.load box_name
+  hostname = node.cloud.public_hostname
+  @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+  ssh_options = { keys: @ssh_key }
+  ssh_return = ""
+
+  Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+    case node.run_list.first.name
+    when "sprout"
+      ssh_return = ssh.exec! "sudo pgrep -lf sprout > /dev/null; echo $?"
+    when "bono"
+      ssh_return = ssh.exec! "sudo pgrep -lf bono > /dev/null; echo $?"
+    when "homer"
+      ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+    when "homestead"
+      ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+    else
+      # No quiescing activity for other sorts of boxes - just return true
+      return true
+    end
+  end
+
+  # Check that $? is 0 (i.e. the SSH command executed successfully)
+  return ssh_return.eql?("0\n")
+
+end
+
+def unquiesce_box(box_name, env)
+  # Unquiesces the box
+  # @param (see #quiesce_box)
+  node = Chef::Node.load box_name
+  hostname = node.cloud.public_hostname
+  @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+  ssh_options = { keys: @ssh_key }
+
+  node.set[:clearwater].delete('quiescing')
+  node.save
+
+  Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
+    case node.run_list.first.name
+    when "sprout"
+      ssh.exec! "sudo pkill -USR1 -f sprout"
+      ssh.exec! "sudo monit start sprout"
+    when "bono"
+      ssh.exec! "sudo pkill -USR1 -f bono"
+      ssh.exec! "sudo monit start bono"
+    when "homer"
+      puts ssh.exec! "sudo chef-client"
+      puts ssh.exec! "sudo monit start homer"
+    when "homestead"
+      ssh.exec! "sudo chef-client"
+      ssh.exec! "sudo monit start homestead"
+    end
+  end
+
+end
+
+def find_quiescing_nodes(env)
+  # Finds all nodes in env which are managed by Chef and which are quiescing
+  # @param [String] env the Chef environment to use
+  find_nodes(roles: "clearwater-infrastructure", chef_environment: env).select {|n| n[:clearwater].include? "quiescing"}
+end
+
+def find_incomplete_quiescing_nodes(env)
+  # Finds all nodes in env which are managed by Chef and are
+  # quiescing, but are not yet ready to be deleted (i.e. they are
+  # stuill quiescing)
+  # @param [String] env the Chef environment to use
+  find_quiescing_nodes(env).select do |v|
+    not box_ready_to_delete?(v.name, env)
+  end
+end
+
+def find_active_nodes(role)
+  # Finds all nodes in which have the given role and which are not quiescing
+  # @param [String] role the Chef role to search for
+  find_nodes(role: role).delete_if { |n| n[:clearwater].include? "quiescing"}
+end
+
