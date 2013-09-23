@@ -247,8 +247,6 @@ def quiesce_box(box_name, env)
         ssh.exec! "sudo monit stop homestead"
         ssh.exec! "sudo monit unmonitor cassandra"
         ssh.exec! "nodetool decommission"
-      else
-        #just BoxDelete
       end
     end
 
@@ -287,7 +285,8 @@ def box_ready_to_delete?(box_name, env)
       when "homestead"
         ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
       else
-        #just BoxDelete
+        # No quiescing activity for other sorts of boxes - just return true
+        return true
       end
     end
 
@@ -321,8 +320,6 @@ def unquiesce_box(box_name, env)
       when "homestead"
         ssh.exec! "sudo chef-client"
         ssh.exec! "sudo monit start homestead"
-      else
-        #just BoxDelete
       end
     end
 
