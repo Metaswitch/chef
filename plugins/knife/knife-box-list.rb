@@ -51,10 +51,14 @@ module ClearwaterKnifePlugins
       puts "Searching for node #{name_glob} in #{env}..."
       puts "No such node" if find_nodes(name: name_glob, roles: "clearwater-infrastructure").each do |node|
         if node[:ec2]
-          puts "Found node #{node.name} with instance-id #{node.ec2.instance_id} at #{node.cloud.public_hostname}"
+          print "Found node #{node.name} with instance-id "\
+                            "#{node.ec2.instance_id} at "\
+                            "#{node.cloud.public_hostname}"
         else
-          puts "Found node #{node.name} with hostname #{node.cloud.public_hostname} ip #{node.cloud.local_ipv4}"
+          print "Found node #{node.name} with hostname #{node.cloud.public_hostname} ip #{node.cloud.local_ipv4}"
         end
+        puts node[:clearwater].include?("quiescing") ? " (quiescing since #{node[:clearwater]['quiescing']})" : ""
+
       end.empty?
     end
   end
