@@ -310,7 +310,7 @@ module ClearwaterKnifePlugins
         # and recluster them.
         sprouts = find_nodes(roles: "sprout")
         sprouts.each do |s|
-          s.set["merged"] = true
+          s.set[:clearwater][:merged] = true
           s.save
         end
 
@@ -402,7 +402,7 @@ module ClearwaterKnifePlugins
       if old_counts[:sprout] == 0
         sprouts = find_nodes(roles: "sprout")
         sprouts.each do |s|
-          s.set["merged"] = true
+          s.set[:clearwater][:merged] = true
           s.save
         end
       end

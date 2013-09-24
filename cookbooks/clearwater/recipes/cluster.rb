@@ -54,8 +54,8 @@ if node.run_list.include? "role[sprout]"
 
   # Strip this down to the list of already merged sprouts and the list of
   # non-quiescing sprouts
-  merged = sprouts.find_all { |s| s[:merged] }
-  nonquiescing = sprouts.find_all { |s| not s[:quiescing] }
+  merged = sprouts.find_all { |s| s[:clearwater][:merged] }
+  nonquiescing = sprouts.find_all { |s| not s[:clearwater][:quiescing] }
 
   if merged.size == sprouts.size and nonquiescing.size == sprouts.size
     # Cluster is stable, so just include the server list.
