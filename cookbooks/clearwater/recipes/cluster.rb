@@ -43,41 +43,44 @@ chef_gem "cassandra-cql" do
   source "https://rubygems.org"
 end
 
+
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
+
+  # Get the full list of sprout nodes, in index order.
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
-  sprouts.delete_if { |n| n.name == node.name }
-  sprouts.map! { |s| s.cloud.public_hostname }
+  sprouts.sort_by! { |n| n[:clearwater][:index] }
 
-  template "/var/lib/infinispan/configuration/clustered.xml" do
-    source "cluster/infinispan/clustered.xml.erb"
-    mode 0640
-    owner "infinispan"
-    group "infinispan"
-    variables nodes: sprouts,
-              local_ip: node[:cloud][:local_ipv4]
+  # Strip this down to the list of already merged sprouts and the list of
+  # non-quiescing sprouts
+  merged = sprouts.find_all { |s| s[:clearwater][:merged] }
+  nonquiescing = sprouts.find_all { |s| not s[:clearwater][:quiescing] }
+
+  if merged.size == sprouts.size and nonquiescing.size == sprouts.size
+    # Cluster is stable, so just include the server list.
+    servers = sprouts
+    new_servers = []
+  else
+    # Cluster is growing or shrinking, so use the merged list as the servers
+    # list and the nonquiescing list as the new servers list.
+    servers = merged
+    new_servers = nonquiescing
   end
 
-  # Use netcat to connect to the other cluster nodes.  This works around latency
-  # we've seen in testing for the first attempt to traverse an SG.
-  sprouts.each do |s|
-    execute "poke[#{s}]" do
-      command "nc #{s} 7800 -z"
-      # If the remote is not listening on the correct port,
-      # we'll get 1 as the response code.
-      returns [0,1]
-      not_if { node.attribute? "clustered" }
-    end
+  template "/etc/clearwater/cluster_settings" do
+    source "cluster/cluster_settings.erb"
+    mode 0644
+    owner "root"
+    group "root"
+    notifies :reload, "service[sprout]", :immediately
+    variables servers: servers,
+              new_servers: new_servers
   end
 
-  # Restart infinispan the first time we cluster.  We do this by stopping
-  # the service and allowing monit to restart it.
-  service "clearwater-infinispan" do
-    pattern "clustered.sh"
-    action "stop"
-    notifies :create, "ruby_block[set_clustered]", :immediately
-    not_if { node.attribute? "clustered" }
+  service "sprout" do
+    supports :reload => true
+    action :nothing
   end
 
   ruby_block "set_clustered" do
