@@ -120,8 +120,8 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "perimeta" },
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
-      # Infinispan cluster discovery and replication
-      { ip_protocol: :tcp, min: 7800, max: 7800, group: "sprout" },
+      # Memcached interface
+      { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       # Statistics interface
       { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     ]

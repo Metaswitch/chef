@@ -33,11 +33,13 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
+require_relative 'cluster-boxes'
 require_relative 'boxes'
 
 module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::ClusterBoxes
 
     banner "knife deployment resize -E ENV"
 
@@ -99,12 +101,12 @@ module ClearwaterKnifePlugins
       end)
 
     option :finish,
-    :long => "--finish",
-    :description => "Finishes a previously started resize operation."
+      :long => "--finish",
+      :description => "Finishes a previously started resize operation."
 
     option :force,
-    :long => "--force",
-    :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss. When used without --finish, destroys nodes immediately without requiring a separate --finish step."
+      :long => "--force",
+      :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss. When used without --finish, destroys nodes immediately without requiring a separate --finish step."
 
     # Auto-scaling parameters
     #
@@ -299,6 +301,34 @@ module ClearwaterKnifePlugins
     def run
       Chef::Log.info "Creating deployment in environment: #{config[:environment]}"
 
+      if config[:finish]
+        # Finishing an earlier started resize.
+
+        # Mark all the sprouts as "merged" and recluster them.
+        # This is a bit of a hack for now, and will probably be removed when we
+        # migrate this function to sprout and make it happen automatically.
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.each do |s|
+          s.set[:clearwater][:merged] = true
+          s.save
+        end
+        cluster_boxes("sprout", config[:cloud].to_sym)
+
+        # Now check to see if any quiescing boxes have finished quiescing
+        if not config[:force]
+          still_quiescing = find_incomplete_quiescing_nodes env
+          unless still_quiescing.empty?
+            puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+            return
+          end
+
+        end
+        Chef::Log.info "Deleting quiesced boxes..."
+        delete_quiesced_boxes env
+
+        return
+      end
+
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
 
@@ -325,21 +355,6 @@ module ClearwaterKnifePlugins
         homer: config[:homer_count],
         sprout: config[:sprout_count],
         sipp: config[:sipp_count] }
-
-      if config[:finish]
-        if not config[:force]
-          still_quiescing = find_incomplete_quiescing_nodes env
-          unless still_quiescing.empty?
-            puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
-            return
-          end
-
-        end
-        Chef::Log.info "Deleting quiesced boxes..."
-        delete_quiesced_boxes env
-        return
-      end
-
 
       if not in_stable_state? env
         if old_counts == new_counts
@@ -377,6 +392,16 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
+      # If spinning up a new sprout cluster, mark the nodes as "joined" so
+      # we don't have to go through the growth step.
+      if old_counts[:sprout] == 0
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.each do |s|
+          s.set[:clearwater][:merged] = true
+          s.save
+        end
+      end
+
       # Cluster the nodes together if needed
       if old_counts != new_counts
         count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
@@ -384,12 +409,7 @@ module ClearwaterKnifePlugins
         %w{sprout homer homestead}.each do |node|
           if count_diffs[node.to_sym]
             Chef::Log.info " - #{node}"
-            box_cluster = BoxCluster.new("-E #{env.name}".split)
-            box_cluster.config[:verbosity] = config[:verbosity]
-            Chef::Config[:verbosity] = config[:verbosity]
-            box_cluster.config[:cloud] = config[:cloud]
-            box_cluster.name_args = [node]
-            box_cluster.run
+            cluster_boxes(node, config[:cloud].to_sym)
           end
         end
       end

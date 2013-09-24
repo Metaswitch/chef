@@ -38,23 +38,18 @@ module ClearwaterKnifePlugins
   module ClusterBoxes
     # Trigger clustering of the nodes of a given type.
     #
-    # For perfomance reasons, this only uses chef-client on devices that
+    # For perfomance reasons, we should only run chef-client on devices that
     # **need** to be told about the re-clustering.  In general this will
-    # always include new nodes, but might (e.g. for cassandra clusters)
-    # include existing nodes.
+    # always include new nodes, and currently includes all existing nodes
+    # for Cassandra based nodes like Homer and Homestead, and memcached
+    # based Sprout nodes.  For Infinispan based sprout nodes it would be
+    # possible to avoid re-clustering existing nodes.
     #
     # @param role [String] Nodes of this role will be clustered.
     def cluster_boxes(role, cloud)
       if ["homer", "homestead", "sprout"].include? role
         add_cluster_role(role)
-        if role == "sprout"
-          query = query_string(true, role: role)
-          query += " AND NOT tags:clustered"
-          return if search(:node, query).empty?
-          trigger_chef_client(cloud, query)
-        else
-          trigger_chef_client(cloud, query_string(true, role: role))
-        end
+        trigger_chef_client(cloud, query_string(true, role: role))
       else
         fail "Clustering of #{role} nodes not supported"
       end
@@ -70,7 +65,7 @@ module ClearwaterKnifePlugins
         s.save
       end
     end
-    
+
     # Trigger `chef-client` on all nodes in the local environment that match
     # the given `query_string`.
     #
