@@ -301,20 +301,30 @@ module ClearwaterKnifePlugins
     def run
       Chef::Log.info "Creating deployment in environment: #{config[:environment]}"
 
-      # This is a bit of a hack for now, and will probably be removed when we
-      # migrate this function to sprout and make it happen automatically.
-      # Should probably check other parameters aren't specified if it's
-      # left in for any time.
       if config[:finish]
-        # Finishing an earlier started resize.  Mark all the sprouts as "merged"
-        # and recluster them.
+        # Finishing an earlier started resize.
+
+        # Mark all the sprouts as "merged" and recluster them.
+        # This is a bit of a hack for now, and will probably be removed when we
+        # migrate this function to sprout and make it happen automatically.
         sprouts = find_nodes(roles: "sprout")
         sprouts.each do |s|
           s.set[:clearwater][:merged] = true
           s.save
         end
-
         cluster_boxes("sprout", config[:cloud].to_sym)
+
+        # Now check to see if any quiescing boxes have finished quiescing
+        if not config[:force]
+          still_quiescing = find_incomplete_quiescing_nodes env
+          unless still_quiescing.empty?
+            puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+            return
+          end
+
+        end
+        Chef::Log.info "Deleting quiesced boxes..."
+        delete_quiesced_boxes env
 
         return
       end
@@ -345,21 +355,6 @@ module ClearwaterKnifePlugins
         homer: config[:homer_count],
         sprout: config[:sprout_count],
         sipp: config[:sipp_count] }
-
-      if config[:finish]
-        if not config[:force]
-          still_quiescing = find_incomplete_quiescing_nodes env
-          unless still_quiescing.empty?
-            puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
-            return
-          end
-
-        end
-        Chef::Log.info "Deleting quiesced boxes..."
-        delete_quiesced_boxes env
-        return
-      end
-
 
       if not in_stable_state? env
         if old_counts == new_counts
