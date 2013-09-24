@@ -52,18 +52,20 @@ if node.run_list.include? "role[sprout]"
                    "role:sprout AND chef_environment:#{node.chef_environment}")
   sprouts.sort_by! { |n| n[:clearwater][:index] }
 
-  # Strip this down to the list of already merged sprouts.
+  # Strip this down to the list of already merged sprouts and the list of
+  # non-quiescing sprouts
   merged = sprouts.find_all { |s| s[:merged] }
+  nonquiescing = sprouts.find_all { |s| not s[:quiescing] }
 
-  if merged.size == sprouts.size
+  if merged.size == sprouts.size and nonquiescing.size == sprouts.size
     # Cluster is stable, so just include the server list.
     servers = sprouts
     new_servers = []
   else
-    # Cluster is growing, so use the merged list as the servers list
-    # and the full list as the new servers list.
+    # Cluster is growing or shrinking, so use the merged list as the servers
+    # list and the nonquiescing list as the new servers list.
     servers = merged
-    new_servers = sprouts
+    new_servers = nonquiescing
   end
 
   template "/etc/clearwater/cluster_settings" do
