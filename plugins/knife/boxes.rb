@@ -274,12 +274,24 @@ def box_ready_to_delete?(box_name, env)
     case node.run_list.first.name
     when "sprout"
       ssh_return = ssh.exec! "sudo pgrep -lf sprout > /dev/null; echo $?"
+      expected = "1\n"
+      # If we have quiesced, pgrep shouldn't find a process and should
+      # fail
     when "bono"
       ssh_return = ssh.exec! "sudo pgrep -lf bono > /dev/null; echo $?"
+      expected = "1\n"
+      # If we have quiesced, pgrep shouldn't find a process and should
+      # fail
     when "homer"
       ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+      expected = "0\n"
+      # If we have quiesced, grep should find the word
+      # "decommissioned" and succeed
     when "homestead"
       ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+      expected = "0\n"
+      # If we have quiesced, grep should find the word
+      # "decommissioned" and succeed
     else
       # No quiescing activity for other sorts of boxes - just return true
       return true
@@ -287,7 +299,7 @@ def box_ready_to_delete?(box_name, env)
   end
 
   # Check that $? is 0 (i.e. the SSH command executed successfully)
-  return ssh_return.eql?("0\n")
+  return ssh_return.eql?(expected)
 
 end
 
@@ -332,7 +344,7 @@ def find_incomplete_quiescing_nodes(env)
   # quiescing, but are not yet ready to be deleted (i.e. they are
   # stuill quiescing)
   # @param [String] env the Chef environment to use
-  find_quiescing_nodes(env).select do |v|
+  find_quiescing_nodes(env)G.select do |v|
     not box_ready_to_delete?(v.name, env)
   end
 end
