@@ -91,17 +91,8 @@ domain = if node[:clearwater][:use_subdomain]
            node[:clearwater][:root_domain]
          end
 
-begin
-  sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s }
-rescue
-  sas = "0.0.0.0"
-end
-
-begin
-  enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s }
-rescue
-  enum = "127.0.0.1"
-end
+sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
+enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
 if node.roles.include? "cw_aio"
   template "/etc/clearwater/config" do
