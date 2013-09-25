@@ -66,7 +66,6 @@ module ClearwaterKnifePlugins
     %w{bono homestead homer ibcf sprout sipp}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
-             default: (["ibcf", "sipp"].include? node) ? 0 : 1,
              description: "Number of #{node} nodes to launch",
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
@@ -304,6 +303,22 @@ module ClearwaterKnifePlugins
       if config[:finish]
         # Finishing an earlier started resize.
 
+        # Check no incompatible options are specified.
+        bad_options = []
+        %w{bono homestead homer ibcf sprout sipp}.each do |node|
+          if config["#{node}_count".to_sym]
+            bad_options << "--#{node}_count"
+          end
+        end
+        if config[:subscribers]
+          bad_options << "--subscribers"
+        end
+
+        if not bad_options.empty?
+          puts "Cannot specify --finish option with #{bad_options.join("/")}"
+          return
+        end
+
         # Check to see if any quiescing boxes have finished quiescing
         if not config[:force]
           still_quiescing = find_incomplete_quiescing_nodes env
@@ -348,14 +363,18 @@ module ClearwaterKnifePlugins
 
       # Enumerate current box counts so we can compare the desired list
       old_counts = get_current_counts
+
+      # Set up new box counts based on supplied config, or existing state.
+      # If an essential node type currently has no boxes, make sure we
+      # create one.
       new_counts = {
-        bono: config[:bono_count],
         ellis: 1,
-        ibcf: config[:ibcf_count],
-        homestead: config[:homestead_count],
-        homer: config[:homer_count],
-        sprout: config[:sprout_count],
-        sipp: config[:sipp_count] }
+        bono: config[:bono_count] || old_counts[:bono] != 0 ? old_counts[:bono] : 1,
+        homestead: config[:homestead_count] || old_counts[:homestead] != 0 ? old_counts[:homestead] : 1,
+        homer: config[:homer_count] || old_counts[:homer] != 0 ? old_counts[:homer] : 1,
+        sprout: config[:sprout_count] || old_counts[:sprout] != 0 ? old_counts[:sprout] : 1,
+        ibcf: config[:ibcf_count] || old_counts[:ibcf],
+        sipp: config[:sipp_count] || old_counts[:sipp]}
 
       if not in_stable_state? env
         if old_counts == new_counts
