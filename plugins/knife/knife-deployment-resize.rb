@@ -304,6 +304,19 @@ module ClearwaterKnifePlugins
       if config[:finish]
         # Finishing an earlier started resize.
 
+        # Check to see if any quiescing boxes have finished quiescing
+        if not config[:force]
+          still_quiescing = find_incomplete_quiescing_nodes env
+        end
+
+        if config[:force] or still_quiescing.empty?
+          # Safe to delete quiesced boxes.
+          Chef::Log.info "Deleting quiesced boxes..."
+          delete_quiesced_boxes env
+        else
+          puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+        end
+
         # Mark all the sprouts as "merged" and recluster them.
         # This is a bit of a hack for now, and will probably be removed when we
         # migrate this function to sprout and make it happen automatically.
@@ -313,18 +326,6 @@ module ClearwaterKnifePlugins
           s.save
         end
         cluster_boxes("sprout", config[:cloud].to_sym)
-
-        # Now check to see if any quiescing boxes have finished quiescing
-        if not config[:force]
-          still_quiescing = find_incomplete_quiescing_nodes env
-          unless still_quiescing.empty?
-            puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
-            return
-          end
-
-        end
-        Chef::Log.info "Deleting quiesced boxes..."
-        delete_quiesced_boxes env
 
         return
       end
