@@ -57,7 +57,7 @@ module ClearwaterKnifePlugins
         else
           print "Found node #{node.name} with hostname #{node.cloud.public_hostname} ip #{node.cloud.local_ipv4}"
         end
-        puts node.roles.include?("sprout") and not node[:clearwater].include?("merged") ? " (joining registration store cluster)" : ""
+        print (node.roles.include?("sprout") and not node[:clearwater].include?("merged")) ? " (joining registration store cluster)" : ""
         puts node[:clearwater].include?("quiescing") ? " (quiescing since #{node[:clearwater]['quiescing']})" : ""
 
       end.empty?
