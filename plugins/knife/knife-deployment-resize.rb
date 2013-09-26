@@ -369,12 +369,12 @@ module ClearwaterKnifePlugins
       # create one.
       new_counts = {
         ellis: 1,
-        bono: config[:bono_count] || old_counts[:bono] != 0 ? old_counts[:bono] : 1,
-        homestead: config[:homestead_count] || old_counts[:homestead] != 0 ? old_counts[:homestead] : 1,
-        homer: config[:homer_count] || old_counts[:homer] != 0 ? old_counts[:homer] : 1,
-        sprout: config[:sprout_count] || old_counts[:sprout] != 0 ? old_counts[:sprout] : 1,
+        bono: config[:bono_count] || [old_counts[:bono], 1].max,
+        homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
+        homer: config[:homer_count] || [old_counts[:homer], 1].max,
+        sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
-        sipp: config[:sipp_count] || old_counts[:sipp]}
+        sipp: config[:sipp_count] || old_counts[:sipp] }
 
       if not in_stable_state? env
         if old_counts == new_counts
