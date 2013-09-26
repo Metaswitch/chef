@@ -332,12 +332,12 @@ module ClearwaterKnifePlugins
           puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
-        # Mark all the sprouts as "merged" and recluster them.
+        # Clear the "joining" attribute on all the sprouts and recluster them.
         # This is a bit of a hack for now, and will probably be removed when we
         # migrate this function to sprout and make it happen automatically.
         sprouts = find_nodes(roles: "sprout")
         sprouts.each do |s|
-          s.set[:clearwater][:merged] = true
+          s.set[:clearwater].delete(:joining)
           s.save
         end
         cluster_boxes("sprout", config[:cloud].to_sym)
@@ -412,12 +412,16 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
-      # If spinning up a new sprout cluster, mark the nodes as "joined" so
-      # we don't have to go through the growth step.
-      if old_counts[:sprout] == 0
+      # If spinning up a new sprout nodes in an existing cluster mark the
+      # new ones so we know they are joining an existing cluster.
+      if old_counts[:sprout] != 0 and new_counts[:sprout] > old_counts[:sprout]
+        # Get the list of sprouts ordered by index
         sprouts = find_nodes(roles: "sprout")
-        sprouts.each do |s|
-          s.set[:clearwater][:merged] = true
+        sprouts.sort_by! { |n| n[:clearwater][:index] }
+
+        # Iterate over the new sprouts adding the joining attribute
+        sprouts.drop(old_counts[:sprout]).each do |s|
+          s.set[:clearwater][:joining] = true
           s.save
         end
       end
