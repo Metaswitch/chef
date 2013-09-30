@@ -130,8 +130,13 @@ package "clearwater-infrastructure" do
 end
 
 if node[:clearwater][:package_update_minutes]
+  package "clearwater-auto-update" do
+    action [:install]
+    options "--force-yes"
+  end
+
   cron "package update" do
     minute ("*/" + node[:clearwater][:package_update_minutes].to_s)
-    command "chef-client"
+    command "service clearwater-auto-update restart"
   end
 end
