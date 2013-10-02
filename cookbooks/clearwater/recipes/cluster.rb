@@ -193,6 +193,9 @@ if node.roles.include? "cassandra"
         # transport exception we'll simply sleep for a second and retry.  The
         # interesting case is an InvalidRequest which means that the
         # keyspace/table already exists and we should stop trying to create it.
+        #
+        # These create statements must match the statements defined in the crest
+        # project.
         if node_type == "homer"
           cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
                       "USE homer",
@@ -205,9 +208,9 @@ if node.roles.include? "cassandra"
 
                       "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
                       "USE homestead_provisioning",
-                      "CREATE TABLE implicit_registration_sets (irs_id uuid PRIMARY KEY) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE service_profiles (sp_id uuid PRIMARY KEY,  initialfiltercriteria text, irs uuid) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, serviceprofile uuid) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
+                      "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0",
                       "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
         end
 
