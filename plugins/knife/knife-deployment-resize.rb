@@ -33,11 +33,13 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
+require_relative 'cluster-boxes'
 require_relative 'boxes'
 
 module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::ClusterBoxes
 
     banner "knife deployment resize -E ENV"
 
@@ -64,7 +66,6 @@ module ClearwaterKnifePlugins
     %w{bono homestead homer ibcf sprout sipp}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
-             default: (["ibcf", "sipp"].include? node) ? 0 : 1,
              description: "Number of #{node} nodes to launch",
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
@@ -97,6 +98,14 @@ module ClearwaterKnifePlugins
           exit 2
         end
       end)
+
+    option :finish,
+      :long => "--finish",
+      :description => "Finishes a previously started resize operation."
+
+    option :force,
+      :long => "--force",
+      :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss. When used without --finish, destroys nodes immediately without requiring a separate --finish step."
 
     # Auto-scaling parameters
     #
@@ -191,26 +200,49 @@ module ClearwaterKnifePlugins
       abort_deployment if results.any? { |r| not r }
     end
 
-    def delete_extra_boxes(env, box_list)
-      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
+    def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       # Don't delete any AIO/AMI nodes
       victims.delete_if { |v| v.roles.include? "cw_aio" }
+      return victims
+    end
+
+    def in_stable_state? env
+      transitioning_list = find_quiescing_nodes(env)
+      return transitioning_list.empty?
+    end
+
+    def quiesce_extra_boxes(env, box_list)
+      victims = potential_deletions
+      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
+
       victims.select! { |v| not box_list.include? v.name }
 
       return if victims.empty?
 
       victims.each do |v|
+        quiesce_box(v.name, env)
+      end
+    end
+
+    def delete_quiesced_boxes(env)
+      find_quiescing_nodes(env).each do |v|
         delete_box(v.name, env)
+      end
+    end
+
+    def unquiesce_boxes(env)
+      find_quiescing_nodes(env).each do |v|
+        unquiesce_box(v.name, env)
       end
     end
 
     def calculate_boxes_to_create(env, nodes)
       current_nodes = find_nodes(roles: "clearwater-infrastructure")
-     
+
       result = nodes.select do |node|
         not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:index]) }
       end
@@ -232,9 +264,7 @@ module ClearwaterKnifePlugins
 
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
-      old_names = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and 
-                                      not n.roles.include? "cw_aio" }
-                            .map { |n| n.name }
+      old_names = potential_deletions.map {|v| v.name}
       new_names = create_cluster(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
@@ -248,7 +278,7 @@ module ClearwaterKnifePlugins
         end
       end
       unless victim_boxes.empty?
-        ui.msg "The following boxes will be deleted:"
+        ui.msg "The following boxes will be quiesced (run 'knife deployment resize -E <env> --finish' afterwards to terminate them):"
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end
@@ -270,6 +300,51 @@ module ClearwaterKnifePlugins
     def run
       Chef::Log.info "Creating deployment in environment: #{config[:environment]}"
 
+      if config[:finish]
+        # Finishing an earlier started resize.
+
+        # Check no incompatible options are specified.
+        bad_options = []
+        %w{bono homestead homer ibcf sprout sipp}.each do |node|
+          if config["#{node}_count".to_sym]
+            bad_options << "--#{node}_count"
+          end
+        end
+        if config[:subscribers]
+          bad_options << "--subscribers"
+        end
+
+        if not bad_options.empty?
+          puts "Cannot specify --finish option with #{bad_options.join("/")}"
+          return
+        end
+
+        # Check to see if any quiescing boxes have finished quiescing
+        if not config[:force]
+          still_quiescing = find_incomplete_quiescing_nodes env
+        end
+
+        if config[:force] or still_quiescing.empty?
+          # Safe to delete quiesced boxes.
+          Chef::Log.info "Deleting quiesced boxes..."
+          delete_quiesced_boxes env
+        else
+          puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+        end
+
+        # Clear the "joining" attribute on all the sprouts and recluster them.
+        # This is a bit of a hack for now, and will probably be removed when we
+        # migrate this function to sprout and make it happen automatically.
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.each do |s|
+          s.set[:clearwater].delete(:joining)
+          s.save
+        end
+        cluster_boxes("sprout", config[:cloud].to_sym)
+
+        return
+      end
+
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
 
@@ -288,13 +363,28 @@ module ClearwaterKnifePlugins
 
       # Enumerate current box counts so we can compare the desired list
       old_counts = get_current_counts
-      new_counts = { bono: config[:bono_count],
-                     ellis: 1,
-                     ibcf: config[:ibcf_count],
-                     homestead: config[:homestead_count],
-                     homer: config[:homer_count],
-                     sprout: config[:sprout_count],
-                     sipp: config[:sipp_count] }
+
+      # Set up new box counts based on supplied config, or existing state.
+      # If an essential node type currently has no boxes, make sure we
+      # create one.
+      new_counts = {
+        ellis: 1,
+        bono: config[:bono_count] || [old_counts[:bono], 1].max,
+        homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
+        homer: config[:homer_count] || [old_counts[:homer], 1].max,
+        sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
+        ibcf: config[:ibcf_count] || old_counts[:ibcf],
+        sipp: config[:sipp_count] || old_counts[:sipp] }
+
+      if not in_stable_state? env
+        if old_counts == new_counts
+          unquiesce_boxes(env)
+          return
+        else
+          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
+          return
+        end
+      end
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
@@ -307,7 +397,7 @@ module ClearwaterKnifePlugins
       launch_boxes(create_node_list)
       set_progress 50
 
-      delete_extra_boxes(env.name, node_list)
+      quiesce_extra_boxes(env.name, node_list)
       set_progress 60
 
       # Now that all the boxes are in place, cleanup any that failed
@@ -322,6 +412,20 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
+      # If spinning up a new sprout nodes in an existing cluster mark the
+      # new ones so we know they are joining an existing cluster.
+      if old_counts[:sprout] != 0 and new_counts[:sprout] > old_counts[:sprout]
+        # Get the list of sprouts ordered by index
+        sprouts = find_nodes(roles: "sprout")
+        sprouts.sort_by! { |n| n[:clearwater][:index] }
+
+        # Iterate over the new sprouts adding the joining attribute
+        sprouts.drop(old_counts[:sprout]).each do |s|
+          s.set[:clearwater][:joining] = true
+          s.save
+        end
+      end
+
       # Cluster the nodes together if needed
       if old_counts != new_counts
         count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
@@ -329,12 +433,7 @@ module ClearwaterKnifePlugins
         %w{sprout homer homestead}.each do |node|
           if count_diffs[node.to_sym]
             Chef::Log.info " - #{node}"
-            box_cluster = BoxCluster.new("-E #{env.name}".split)
-            box_cluster.config[:verbosity] = config[:verbosity]
-            Chef::Config[:verbosity] = config[:verbosity]
-            box_cluster.config[:cloud] = config[:cloud]
-            box_cluster.name_args = [node]
-            box_cluster.run
+            cluster_boxes(node, config[:cloud].to_sym)
           end
         end
       end
@@ -352,20 +451,27 @@ module ClearwaterKnifePlugins
       # Setup DNS records defined above
       if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
-        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split) 
+        bind_create = BindRecordsCreate.new("-E #{config[:environment]}".split)
         bind_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         bind_create.run
         status["DNS"][:status] = "Done"
       else
         Chef::Log.info "Creating DNS records..."
-        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split) 
+        dns_create = DnsRecordsCreate.new("-E #{config[:environment]}".split)
         dns_create.config[:verbosity] = config[:verbosity]
         Chef::Config[:verbosity] = config[:verbosity]
         dns_create.run
         status["DNS"][:status] = "Done"
       end
-      set_progress 100
+      set_progress 99
+
+      if config[:force]
+        # Destroy our quiescing boxes now rather than having a
+        # separate --finish step
+        delete_quiesced_boxes env
+      end
+
     end
 
     # Expands out hashes of boxes, e.g. {:bono => 3} becomes:
@@ -394,13 +500,13 @@ module ClearwaterKnifePlugins
     def status
       Thread.current[:status]
     end
-    
+
     def abort_deployment
       msg = "Too many failures (#{config[:fail_limit]}), aborting...
       To clean up broken boxes in deployment, issue:
       knife deployment clean -E #{config[:environment]}
       To delete the deployment completely, issue:
-      knife deployment delete -E #{config[:environment]}" 
+      knife deployment delete -E #{config[:environment]}"
       fail msg
     end
   end

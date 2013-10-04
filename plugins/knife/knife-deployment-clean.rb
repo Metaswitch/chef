@@ -72,29 +72,30 @@ module ClearwaterKnifePlugins
         return
       end
 
+      servers_to_terminate = connection.servers.all
+      # Filter down to unnamed servers or those which have the correct
+      # name for our environment
+      servers_to_terminate.select!{ |s| s.tags["Name"].nil? or s.tags["Name"].split("-").first == config[:environment] }
       # Only delete nodes with roles contained in this whitelist
       whitelist = ["bono", "ellis", "homer", "homestead", "sprout"]
-      servers = connection.servers.all
-      # Only care about running servers (Fog will also report recently terminated etc)
-      servers.select!{ |s| s.state == "running" }
-      # Filter down to unnamed servers or those which have the correct name for our environment
-      servers.select!{ |s| s.tags["Name"].nil? or s.tags["Name"].split("-").first == config[:environment] }
-      # Filter using whitelist
-      servers.select!{ |s| s.tags["Name"].nil? or whitelist.include? s.tags["Name"].split("-")[1] }
-      
+      servers_to_terminate.select!{ |s| s.tags["Name"].nil? or whitelist.include? s.tags["Name"].split("-")[1] }
+
+
       # Construct list of valid Chef nodes
       chef_nodes = find_nodes(name: "#{config[:environment]}-*")
       # Chef nodes that have no roles are also broken
       chef_nodes.select!{ |n| not n[:roles].nil? }
       chef_node_ids = chef_nodes.map{ |n| n[:ec2][:instance_id] }
       chef_node_names = chef_nodes.map{ |n| n.name }
-      
-      # Filter out servers which are controlled by Chef from the server list
-      servers.select!{ |s| not chef_node_ids.include? s.id }
-      
+
+      # We should only clean servers up if they are in "stopped"
+      # state, or if they are in "running" state but not being managed
+      # by Chef.
+      servers_to_terminate.select!{ |s| (s.state == "running" and not chef_node_ids.include? s.id) or (s.state == "stopped")}
+
       # Delete any remaining servers
-      Chef::Log.info "Will delete following broken servers: #{servers.map{ |s| s.tags["Name"] or "UNNAMED" }}" unless servers.empty?
-      servers.each do |server|
+      Chef::Log.info "Will delete following broken servers: #{servers_to_terminate.map{ |s| s.tags["Name"] or "UNNAMED" }}" unless servers_to_terminate.empty?
+      servers_to_terminate.each do |server|
         box_name = server.tags["Name"]
         Chef::Log.info "Found broken box #{box_name}"
         knife_ec2_delete = Chef::Knife::Ec2ServerDelete.new

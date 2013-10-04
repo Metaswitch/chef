@@ -1,2 +1,6 @@
 memstore=<%= @memstores.map{|n| n.cloud.local_ipv4}.join "," %>
 remote_memstore=<%= @remote_memstores.map{|n| n.cloud.public_ipv4}.join "," %>
+servers=<%= @servers.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
+<% if not @new_servers.empty? %>
+new_servers=<%= @new_servers.map{|n| n.cloud.local_ipv4 + ":11211"}.join "," %>
+<% end %>

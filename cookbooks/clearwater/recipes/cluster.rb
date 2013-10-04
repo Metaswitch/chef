@@ -50,10 +50,27 @@ is_gr = (gr_environments.length > 1)
 
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
+
+  # Get the full list of sprout nodes, in index order.
   sprouts = search(:node,
                    "role:sprout AND chef_environment:#{node.chef_environment}")
-  sprouts.delete_if { |n| n.name == node.name }
-  sprouts.map! { |s| s.cloud.public_hostname }
+  sprouts.sort_by! { |n| n[:clearwater][:index] }
+
+  # Strip this down to the list of sprouts that have already joined the cluster
+  # and the list that are not quiescing sprouts
+  joined = sprouts.find_all { |s| not s[:clearwater][:joining] }
+  nonquiescing = sprouts.find_all { |s| not s[:clearwater][:quiescing] }
+
+  if joined.size == sprouts.size and nonquiescing.size == sprouts.size
+    # Cluster is stable, so just include the server list.
+    servers = sprouts
+    new_servers = []
+  else
+    # Cluster is growing or shrinking, so use the joined list as the servers
+    # list and the nonquiescing list as the new servers list.
+    servers = joined
+    new_servers = nonquiescing
+  end
 
   other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
   remote_memstores = if not other_gr_environments.empty?
@@ -61,13 +78,30 @@ if node.run_list.include? "role[sprout]"
                      else
                        []
                      end
+
   template "/etc/clearwater/cluster_settings" do
     source "cluster/cluster_settings.erb"
     mode 0644
     owner "root"
     group "root"
-    variables memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
+    notifies :reload, "service[sprout]", :immediately
+    variables servers: servers,
+              new_servers: new_servers,
+              memstores: search(:node, "role:sprout AND chef_environment:#{node.chef_environment}"),
               remote_memstores: remote_memstores
+  end
+
+  service "sprout" do
+    supports :reload => true
+    action :nothing
+  end
+
+  ruby_block "set_clustered" do
+    block do
+      node.set["clustered"] = true
+      node.save
+    end
+    action :nothing
   end
 end
 
@@ -127,60 +161,61 @@ if node.roles.include? "cassandra"
               is_gr: is_gr
   end
 
-  if tagged?('clustered')
-    # Node is already in the cluster, just move to the correct token
-    execute "nodetool" do
-      command "nodetool move #{token}"
-      action :run
-      not_if { node.clearwater.cassandra.token == token rescue false }
-    end
-  else
-    # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
-    execute "monit" do
-      command "monit unmonitor cassandra"
-      user "root"
-      action :run
-    end
+  if not node[:clearwater].include? 'quiescing'
+    if tagged?('clustered')
+      # Node is already in the cluster, just move to the correct token
+      execute "nodetool" do
+        command "nodetool move #{token}"
+        action :run
+        not_if { node.clearwater.cassandra.token == token rescue false }
+      end
+    else
+      # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
+      execute "monit" do
+        command "monit unmonitor cassandra"
+        user "root"
+        action :run
+      end
 
-    service "cassandra" do
-      pattern "jsvc.exec"
-      service_name "cassandra"
-      action :stop
-    end
+      service "cassandra" do
+        pattern "jsvc.exec"
+        service_name "cassandra"
+        action :stop
+      end
 
-    directory "/var/lib/cassandra" do
-      recursive true
-      action :delete
-    end
+      directory "/var/lib/cassandra" do
+        recursive true
+        action :delete
+      end
 
-    directory "/var/lib/cassandra" do
-      action :create
-      mode "0755"
-      owner "cassandra"
-      group "cassandra"
-    end
+      directory "/var/lib/cassandra" do
+        action :create
+        mode "0755"
+        owner "cassandra"
+        group "cassandra"
+      end
 
-    service "cassandra" do
-      pattern "jsvc.exec"
-      service_name "cassandra"
-      action :start
-    end
+      service "cassandra" do
+        pattern "jsvc.exec"
+        service_name "cassandra"
+        action :start
+      end
 
-    # It's possible that we might need to create the keyspace now.
-    ruby_block "create keyspace and tables" do
-      block do
-        require 'cassandra-cql'
+      # It's possible that we might need to create the keyspace now.
+      ruby_block "create keyspace and tables" do
+        block do
+          require 'cassandra-cql'
 
-        # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
-        db = nil
-        60.times do
-          begin
-            db = CassandraCQL::Database.new('127.0.0.1:9160')
-            break
-          rescue ThriftClient::NoServersAvailable
-            sleep 1
+          # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
+          db = nil
+          60.times do
+            begin
+              db = CassandraCQL::Database.new('127.0.0.1:9160')
+              break
+            rescue ThriftClient::NoServersAvailable
+              sleep 1
+            end
           end
-        end
 
         fail "Cassandra failed to start in the cluster" unless db
 
@@ -224,31 +259,31 @@ if node.roles.include? "cassandra"
             # Pass
           end
         end
+
+        # To prevent conflicts during clustering, only homestead-1 or homer-1
+        # will ever attempt to create Keyspaces.
+        only_if { node[:clearwater][:index] == 1 }
+        action :run
       end
 
-      # To prevent conflicts during clustering, only homestead-1 or homer-1
-      # will ever attempt to create Keyspaces.
-      only_if { node[:clearwater][:index] == 1 }
-      action :run
+      # Re-enable monitoring
+      execute "monit" do
+        command "monit monitor cassandra"
+        user "root"
+        action :run
+      end
     end
 
-    # Re-enable monitoring
-    execute "monit" do
-      command "monit monitor cassandra"
-      user "root"
+    # Now we've migrated to our new token, remember it
+    ruby_block "save cluster details" do
+      block do
+        node.set[:clearwater][:cassandra][:cluster] = cluster_name
+        node.set[:clearwater][:cassandra][:token] = token
+      end
       action :run
     end
   end
 
-  # Now we've migrated to our new token, remember it
-  ruby_block "save cluster details" do
-    block do
-      node.set[:clearwater][:cassandra][:cluster] = cluster_name
-      node.set[:clearwater][:cassandra][:token] = token
-    end
-    action :run
-  end
+  # Now we're clustered
+  tag('clustered')
 end
-
-# Now we're clustered
-tag('clustered')
