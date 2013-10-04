@@ -217,46 +217,47 @@ if node.roles.include? "cassandra"
             end
           end
 
-        fail "Cassandra failed to start in the cluster" unless db
+          fail "Cassandra failed to start in the cluster" unless db
 
-        # Create the KeySpace and table(s), don't care if they already exist.
-        #
-        # For all of these requests, it's possible that the creating a
-        # keyspace/table might take so long that the thrift client times out.
-        # This seems to happen a lot when Cassandra has just booted, probably
-        # it's still settling down or garbage collecting.  In any case, on a
-        # transport exception we'll simply sleep for a second and retry.  The
-        # interesting case is an InvalidRequest which means that the
-        # keyspace/table already exists and we should stop trying to create it.
-        #
-        # These create statements must match the statements defined in the crest
-        # project.
-        if node_type == "homer"
-          cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
-                      "USE homer",
-                      "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
-        elsif node_type == "homestead"
-          cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
-                      "USE homestead_cache",
-                      "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
+          # Create the KeySpace and table(s), don't care if they already exist.
+          #
+          # For all of these requests, it's possible that the creating a
+          # keyspace/table might take so long that the thrift client times out.
+          # This seems to happen a lot when Cassandra has just booted, probably
+          # it's still settling down or garbage collecting.  In any case, on a
+          # transport exception we'll simply sleep for a second and retry.  The
+          # interesting case is an InvalidRequest which means that the
+          # keyspace/table already exists and we should stop trying to create it.
+          #
+          # These create statements must match the statements defined in the crest
+          # project.
+          if node_type == "homer"
+            cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                        "USE homer",
+                        "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
+          elsif node_type == "homestead"
+            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                        "USE homestead_cache",
+                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
+                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
 
-                      "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
-                      "USE homestead_provisioning",
-                      "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0",
-                      "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
-        end
+                        "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                        "USE homestead_provisioning",
+                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
+                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
+                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0",
+                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
+          end
 
-        cql_cmds.each do |cql_cmd|
-          begin
-            db.execute(cql_cmd)
-          rescue CassandraCQL::Thrift::Client::TransportException => e
-            sleep 1
-            retry
-          rescue CassandraCQL::Error::InvalidRequestException
-            # Pass
+          cql_cmds.each do |cql_cmd|
+            begin
+              db.execute(cql_cmd)
+            rescue CassandraCQL::Thrift::Client::TransportException => e
+              sleep 1
+              retry
+            rescue CassandraCQL::Error::InvalidRequestException
+              # Pass
+            end
           end
         end
 
