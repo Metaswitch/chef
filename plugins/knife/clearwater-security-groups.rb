@@ -45,10 +45,10 @@ def base_security_group_rules
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
     # NTP
     { ip_protocol: :udp, min: 123, max: 123, cidr_ip: "0.0.0.0/0" },
+    # SNMP
+    { ip_protocol: :udp, min: 161, max: 161, cidr_ip: "0.0.0.0/0" },
     # Monit
     { ip_protocol: :tcp, min: 2812, max: 2812, group: "mmonit" },
-    # SNMP from cacti
-    { ip_protocol: :udp, min: 161, max: 162, group: "cacti" },
   ]
 end
 
