@@ -41,3 +41,8 @@ package "restund" do
   action [:install]
   options "--force-yes"
 end
+
+package "clearwater-snmp-handler-bono" do
+  action [:install]
+  options "--force-yes"
+end
