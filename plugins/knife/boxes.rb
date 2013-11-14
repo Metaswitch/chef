@@ -269,16 +269,17 @@ def box_ready_to_delete?(box_name, env)
   @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
   ssh_options = { keys: @ssh_key }
   ssh_return = ""
+  expected = ""
 
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     case node.run_list.first.name
     when "sprout"
-      ssh_return = ssh.exec! "sudo pgrep -lf sprout > /dev/null; echo $?"
+      ssh_return = ssh.exec! "pgrep sprout > /dev/null; echo $?"
       expected = "1\n"
       # If we have quiesced, pgrep shouldn't find a process and should
       # fail
     when "bono"
-      ssh_return = ssh.exec! "sudo pgrep -lf bono > /dev/null; echo $?"
+      ssh_return = ssh.exec! "pgrep bono > /dev/null; echo $?"
       expected = "1\n"
       # If we have quiesced, pgrep shouldn't find a process and should
       # fail
@@ -293,12 +294,11 @@ def box_ready_to_delete?(box_name, env)
       # If we have quiesced, grep should find the word
       # "decommissioned" and succeed
     else
-      # No quiescing activity for other sorts of boxes - just return true
-      return true
+      # No quiescing activity for other sorts of boxes
     end
   end
 
-  # Check that $? is 0 (i.e. the SSH command executed successfully)
+  # Check that the returned value is as expected.
   return ssh_return.eql?(expected)
 
 end
