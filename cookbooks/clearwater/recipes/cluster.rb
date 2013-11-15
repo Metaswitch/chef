@@ -51,7 +51,7 @@ is_gr = (gr_environments.length > 1)
 # Clustering for Sprout nodes.
 if node.run_list.include? "role[sprout]"
 
-  def update_memstore_settings(environment, file)
+  def update_memstore_settings(environment, template_file, file)
 
     # Get the full list of sprout nodes, in index order.
     sprouts = search(:node,
@@ -75,7 +75,7 @@ if node.run_list.include? "role[sprout]"
     end
 
     template file do
-      source "cluster/cluster_settings.erb"
+      source template_file
       mode 0644
       owner "root"
       group "root"
@@ -86,11 +86,15 @@ if node.run_list.include? "role[sprout]"
   end
 
   # Update cluster_settings for local registration store.
-  update_memstore_settings(node.chef_environment, "/etc/clearwater/cluster_settings")
+  update_memstore_settings(node.chef_environment,
+                           "cluster/cluster_settings.erb",
+                           "/etc/clearwater/cluster_settings")
 
   other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
   if !other_gr_environments.empty?
-    update_memstore_settings(other_gr_environments[0], "/etc/clearwater/remote_cluster_settings")
+    update_memstore_settings(other_gr_environments[0],
+                             "cluster/remote_cluster_settings.erb",
+                             "/etc/clearwater/remote_cluster_settings")
   end
 
   service "sprout" do
