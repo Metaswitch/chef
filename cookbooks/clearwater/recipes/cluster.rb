@@ -268,7 +268,6 @@ if node.roles.include? "cassandra"
               # Pass
             end
           end
-
         end
 
         # To prevent conflicts during clustering, only homestead-1 or homer-1
