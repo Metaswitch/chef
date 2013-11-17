@@ -257,8 +257,11 @@ if node.roles.include? "cassandra"
 
           cql_cmds.each do |cql_cmd|
             begin
+              puts "CQL command: " + cql_cmd
               db.execute(cql_cmd)
-            rescue CassandraCQL::Thrift::Client::TransportException => e
+              # Pause briefly to ensure each command settles in time.
+              sleep 5
+            rescue CassandraCQL::Thrift::Client::TransportException, CassandraCQL::Thrift::SchemaDisagreementException => e
               sleep 1
               retry
             rescue CassandraCQL::Error::InvalidRequestException
