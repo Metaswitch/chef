@@ -201,10 +201,11 @@ if node.roles.include? "cassandra"
         group "cassandra"
       end
 
-      service "cassandra" do
-        pattern "jsvc.exec"
-        service_name "cassandra"
-        action :start
+      # Restart Cassandra, making sure not to nice it.
+      execute "start cassandra" do
+        command "nice -n -`nice` service cassandra start"
+        user "root"
+        action :run
       end
 
       # It's possible that we might need to create the keyspace now.
