@@ -84,9 +84,11 @@ module ClearwaterKnifePlugins
       knife_ssh.config[:verbosity] = config[:verbosity]
       Chef::Config[:verbosity] = config[:verbosity]
       knife_ssh.config[:on_error] = :raise
+      # Run chef-client at maximum niceness to minimize the hit on potentially
+      # heavily loaded nodes.
       knife_ssh.name_args = [
         query_string,
-        "sudo chef-client"
+        "sudo nice -n 19 chef-client"
       ]
       knife_ssh.run
     end
