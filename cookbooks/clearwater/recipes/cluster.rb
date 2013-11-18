@@ -203,7 +203,7 @@ if node.roles.include? "cassandra"
 
       # Restart Cassandra, making sure not to nice it.
       execute "start cassandra" do
-        command "declare -i x=-`nice` ; nice -n $x service cassandra start"
+        command "nice -n $((-$(nice))) service cassandra start"
         user "root"
         action :run
       end
