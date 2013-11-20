@@ -40,5 +40,11 @@ end
 # Perform daily backup of database
 cron "backup" do
   hour 0 
-  command "/usr/share/clearwater/homestead/backup/do_backup.sh homestead"
+  minute 0
+  command "/usr/share/clearwater/homestead/backup/do_backup.sh homestead_provisioning"
+end
+cron "backup_cache" do
+  hour 0
+  minute 5
+  command "/usr/share/clearwater/homestead/backup/do_backup.sh homestead_cache"
 end
