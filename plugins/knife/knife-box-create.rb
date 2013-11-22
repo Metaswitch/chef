@@ -109,7 +109,7 @@ module ClearwaterKnifePlugins
       instance_id = new_box.id
 
       if role == "cw_ami"
-        ec2_conn = Fog::Compute::AWS.new
+        ec2_conn = Fog::Compute::AWS.new(Chef::Config[:knife].select { |k, v| [:aws_secret_access_key, :aws_access_key_id].include? k })
         ec2_conn.stop_instances(instance_id)
         print "\nStopping the instance in preparation for making an AMI"
         Fog.wait_for do
