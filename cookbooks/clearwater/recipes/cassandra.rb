@@ -32,25 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "python-cql" do
+package "clearwater-cassandra" do
   action [:install]
   options "--force-yes"
 end
 
-package "cassandra" do
-  version "1.1.9"
-  options "--force-yes"
-end
-
-package "dsc1.1" do
-  action [:install]
-  version "1.1.9-1"
-  options "--force-yes"
-end
-
-template "/etc/monit/conf.d/cassandra.monit" do
-  mode "0644"
-  source "cassandra/cassandra.monit"
-  owner "root"
-  group "root"
-end
