@@ -45,10 +45,10 @@ def base_security_group_rules
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
     # NTP
     { ip_protocol: :udp, min: 123, max: 123, cidr_ip: "0.0.0.0/0" },
+    # SNMP
+    { ip_protocol: :udp, min: 161, max: 161, cidr_ip: "0.0.0.0/0" },
     # Monit
     { ip_protocol: :tcp, min: 2812, max: 2812, group: "mmonit" },
-    # SNMP from cacti
-    { ip_protocol: :udp, min: 161, max: 162, group: "cacti" },
   ]
 end
 
@@ -137,6 +137,8 @@ def homestead_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
+      # Statistics interface
+      { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
@@ -148,6 +150,8 @@ def homer_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homer" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homer" },
+      # Statistics interface
+      { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
     ]
 end
 

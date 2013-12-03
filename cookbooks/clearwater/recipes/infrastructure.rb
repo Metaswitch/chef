@@ -52,29 +52,10 @@ execute "apt-key-clearwater" do
   action :nothing
 end
 
-# Tell apt about the Cassandra repository server.
-template "/etc/apt/sources.list.d/cassandra.list" do
-  mode "0644"
-  source "apt.list.erb"
-  variables({
-    hostname: "http://debian.datastax.com/community",
-    repos: ["stable", "main"]
-  })
-  notifies :run, "execute[apt-key-cassandra]", :immediately
-end
-
-# Fetch the key for the Cassandra repository server
-execute "apt-key-cassandra" do
-  user "root"
-  command "curl -L http://debian.datastax.com/debian/repo_key | sudo apt-key add -"
-  action :nothing
-end
-
 # Make sure all packages are up to date (note this uses an external cookbook, in cookbooks/apt)
 execute "apt-get update" do
   action :nothing
   subscribes :run, "execute[apt-key-clearwater]", :immediately
-  subscribes :run, "execute[apt-key-cassandra]", :immediately
 end
 
 # Setup the clearwater config file
