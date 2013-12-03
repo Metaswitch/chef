@@ -239,10 +239,10 @@ def quiesce_box(box_name, env)
     case node.run_list.first.name
     when "sprout"
       ssh.exec! "sudo monit unmonitor sprout"
-      ssh.exec! "sudo pkill -QUIT -f sprout"
+      ssh.exec! "sudo service sprout quiesce"
     when "bono"
       ssh.exec! "sudo monit unmonitor bono"
-      ssh.exec! "sudo pkill -QUIT -f bono"
+      ssh.exec! "sudo service bono quiesce"
     when "homer"
       ssh.exec! "sudo monit stop homer"
       ssh.exec! "sudo monit unmonitor cassandra"
@@ -274,12 +274,12 @@ def box_ready_to_delete?(box_name, env)
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     case node.run_list.first.name
     when "sprout"
-      ssh_return = ssh.exec! "pgrep sprout > /dev/null; echo $?"
+      ssh_return = ssh.exec! "service sprout status > /dev/null; echo $?"
       expected = "1\n"
       # If we have quiesced, pgrep shouldn't find a process and should
       # fail
     when "bono"
-      ssh_return = ssh.exec! "pgrep bono > /dev/null; echo $?"
+      ssh_return = ssh.exec! "service bono status > /dev/null; echo $?"
       expected = "1\n"
       # If we have quiesced, pgrep shouldn't find a process and should
       # fail
@@ -317,10 +317,10 @@ def unquiesce_box(box_name, env)
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     case node.run_list.first.name
     when "sprout"
-      ssh.exec! "sudo pkill -USR1 -f sprout"
+      ssh.exec! "sudo service sprout unquiesce"
       ssh.exec! "sudo monit start sprout"
     when "bono"
-      ssh.exec! "sudo pkill -USR1 -f bono"
+      ssh.exec! "sudo service bono unquiesce"
       ssh.exec! "sudo monit start bono"
     when "homer"
       puts ssh.exec! "sudo chef-client"
