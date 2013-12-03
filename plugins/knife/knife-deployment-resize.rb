@@ -291,9 +291,7 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Subscriber count given, calculating box counts automatically:"
 
       boxes = ["homer", "homestead", "sprout"]
-      if config["bono_count".to_sym] != 0
-        boxes.push("bono")
-      end
+      boxes << "bono" if config[:bono_count] > 0
     
       boxes.each do |role|
         count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil

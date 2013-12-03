@@ -52,9 +52,6 @@ module ClearwaterKnifePlugins
       # Setup DNS records defined above
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
       record_manager.delete_deployment_records(dns_records, env.name, attributes)
-      if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
-        record_manager.delete_deployment_records(bono_dns_records, env.name, attributes)
-      end
     end
   end
 end

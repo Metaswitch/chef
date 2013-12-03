@@ -77,9 +77,6 @@ module ClearwaterKnifePlugins
       })
       # Configure records in BIND server
       bind_manager.create_or_update_records(dns_records, nodes)
-      if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
-        bind_manager.create_or_update_records(bono_dns_records, nodes)
-      end
     end
   end
 end

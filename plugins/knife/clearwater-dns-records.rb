@@ -37,7 +37,8 @@
 require_relative 'boxes'
 
 def dns_records
-  {
+  dns = {}
+  base_dns = {
     "sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
@@ -61,10 +62,7 @@ def dns_records
       :value => ipv4s(find_active_nodes("ellis")),
     },
   }
-end
-
-def bono_dns_records
-  {
+  bono_dns = {
     "" => {
       :type  => "A",
       :value => ipv4s(find_active_nodes("bono")),
@@ -77,6 +75,13 @@ def bono_dns_records
       :ttl   => "60"
     },
   }
+
+  dns = dns.merge(base_dns)
+  if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
+    dns = dns.merge(bono_dns)
+  end
+
+  return dns
 end
 
 def ipv4s(boxes)
