@@ -38,21 +38,9 @@ require_relative 'boxes'
 
 def dns_records
   {
-    "" => {
-      :type  => "A",
-      :value => ipv4s(find_active_nodes("bono")),
-      :ttl   => "60"
-    },
-
     "sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "bono" => {
-      :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "bono")),
       :ttl   => "60"
     },
 
@@ -71,6 +59,22 @@ def dns_records
     "ellis" => {
       :type => "A",
       :value => ipv4s(find_active_nodes("ellis")),
+    },
+  }
+end
+
+def bono_dns_records
+  {
+    "" => {
+      :type  => "A",
+      :value => ipv4s(find_active_nodes("bono")),
+      :ttl   => "60"
+    },
+
+    "bono" => {
+      :type  => "A",
+      :value => ipv4s_local(find_nodes(role: "bono")),
+      :ttl   => "60"
     },
   }
 end
