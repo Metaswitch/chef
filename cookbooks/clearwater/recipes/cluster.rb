@@ -245,7 +245,7 @@ if node.roles.include? "cassandra"
           elsif node_type == "homestead"
             cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
                         "USE homestead_cache",
-                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0",
+                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred text) WITH read_repair_chance = 1.0",
                         "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
 
                         "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
