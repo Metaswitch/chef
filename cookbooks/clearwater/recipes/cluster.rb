@@ -217,16 +217,15 @@ if node.roles.include? "cassandra"
           # These create statements must match the statements defined in the crest
           # project.
           if node_type == "homer"
-            cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+            cql_cmds = ["CREATE KEYSPACE homer WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
                         "USE homer",
                         "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
           elsif node_type == "homestead"
-            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
                         "USE homestead_cache",
                         "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0",
                         "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
-
-                        "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+                        "CREATE KEYSPACE homestead_provisioning WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
                         "USE homestead_provisioning",
                         "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
                         "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
@@ -267,7 +266,6 @@ if node.roles.include? "cassandra"
     ruby_block "save cluster details" do
       block do
         node.set[:clearwater][:cassandra][:cluster] = cluster_name
-        node.set[:clearwater][:cassandra][:token] = token
       end
       action :run
     end
