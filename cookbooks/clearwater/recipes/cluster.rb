@@ -125,6 +125,12 @@ if node.roles.include? "cassandra"
   gr_environment_search = gr_environments.map { |e| "chef_environment:" + e }.join(" OR ")
   gr_cluster_nodes = search(:node, "role:#{node_type} AND (#{gr_environment_search})")
 
+  puts gr_cluster_nodes
+  puts gr_cluster_nodes.select {|n| not (n[:clearwater].nil? or n[:clearwater][:cassandra].nil? or n[:clearwater][:cassandra][:cluster].nil?) }
+  seeds = gr_cluster_nodes.select {|n| not (n[:clearwater].nil? or n[:clearwater][:cassandra].nil? or n[:clearwater][:cassandra][:cluster].nil?) }.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
+  if seeds.empty?
+    seeds = gr_cluster_nodes.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
+  end
   # Create the Cassandra config and topology files
   template "/etc/cassandra/cassandra.yaml" do
     source "cassandra/cassandra.yaml.erb"
@@ -132,7 +138,7 @@ if node.roles.include? "cassandra"
     owner "root"
     group "root"
     variables cluster_name: cluster_name,
-              seeds: gr_cluster_nodes.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 },
+              seeds: seeds,
               node: node,
               is_gr: is_gr
   end
@@ -146,14 +152,7 @@ if node.roles.include? "cassandra"
   end
 
   if not node[:clearwater].include? 'quiescing'
-    if tagged?('clustered')
-      # Node is already in the cluster, just move to the correct token
-      execute "nodetool" do
-        command "nodetool move #{token}"
-        action :run
-        not_if { node.clearwater.cassandra.token == token rescue false }
-      end
-    else
+    if not tagged?('clustered')
       # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
       execute "monit" do
         command "monit unmonitor cassandra"
