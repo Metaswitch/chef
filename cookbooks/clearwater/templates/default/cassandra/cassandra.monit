@@ -1,11 +1,11 @@
-# Poll every 10 seconds
-set daemon 10
+# Poll every 2 minutes
+set daemon 120
 
 # Monitor the server's PID file and check its public interfaces.
 check process cassandra pidfile /var/run/cassandra.pid
   start program = "/etc/init.d/cassandra start"
   stop program = "/etc/init.d/cassandra stop"
-  if failed host localhost port 9160 type TCP 
+  if failed host localhost port 9160 type TCP
     with timeout 15 seconds
-    for 6 times within 6 cycles
+    for 2 times within 2 cycles
     then restart

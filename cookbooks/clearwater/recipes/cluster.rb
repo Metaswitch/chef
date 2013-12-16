@@ -216,20 +216,20 @@ if node.roles.include? "cassandra"
           # These create statements must match the statements defined in the crest
           # project.
           if node_type == "homer"
-            cql_cmds = ["CREATE KEYSPACE homer WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
+            cql_cmds = ["CREATE KEYSPACE homer WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 2}",
                         "USE homer",
                         "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
           elsif node_type == "homestead"
-            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
-                        "USE homestead_cache",
-                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
-                        "CREATE KEYSPACE homestead_provisioning WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2}",
-                        "USE homestead_provisioning",
-                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
+            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH REPLICATION =  {'class': 'SimpleStrategy', 'replication_factor': 2};",
+                        "USE homestead_cache;",
+                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0;",
+                        "CREATE KEYSPACE homestead_provisioning WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2};",
+                        "USE homestead_provisioning;",
+                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0;"]
           end
 
           cql_cmds.each do |cql_cmd|
@@ -239,6 +239,7 @@ if node.roles.include? "cassandra"
               # Pause briefly to ensure each command settles in time.
               sleep 5
             rescue CassandraCQL::Thrift::Client::TransportException, CassandraCQL::Thrift::SchemaDisagreementException => e
+              puts "Failure! Sleeping and retrying."
               sleep 1
               retry
             rescue CassandraCQL::Error::InvalidRequestException

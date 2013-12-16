@@ -215,6 +215,19 @@ module ClearwaterKnifePlugins
       return transitioning_list.empty?
     end
 
+    def prepare_to_quiesce_extra_boxes(env, orig_box_list)
+      victims = potential_deletions
+      box_list = orig_box_list.map { |b| node_name_from_definition(env, b[:role], b[:index]) }
+
+      victims.select! { |v| not box_list.include? v.name }
+
+      return if victims.empty?
+
+      victims.each do |v|
+        prepare_to_quiesce_box(v.name, env)
+      end
+    end
+
     def quiesce_extra_boxes(env, box_list)
       victims = potential_deletions
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
@@ -292,7 +305,7 @@ module ClearwaterKnifePlugins
 
       boxes = ["homer", "homestead", "sprout"]
       boxes << "bono" if config[:bono_count] > 0
-    
+
       boxes.each do |role|
         count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil
         count_using_subs_limit = (config[:subscribers] / SCALING_LIMITS[role][:subs]).ceil
@@ -401,6 +414,15 @@ module ClearwaterKnifePlugins
       launch_boxes(create_node_list)
       set_progress 50
 
+      prepare_to_quiesce_extra_boxes(env.name, node_list)
+
+      if not in_stable_state? env
+        Chef::Log.info "Removing nodes from DNS before quiescing..."
+        configure_dns config
+        Chef::Log.info "Waiting 10 minutes for DNS to propagate..."
+        sleep 600
+      end
+
       quiesce_extra_boxes(env.name, node_list)
       set_progress 60
 
@@ -452,6 +474,18 @@ module ClearwaterKnifePlugins
       zone_create.run
       set_progress 95
 
+      configure_dns config
+      set_progress 99
+
+      if config[:force]
+        # Destroy our quiescing boxes now rather than having a
+        # separate --finish step
+        delete_quiesced_boxes env
+      end
+
+    end
+
+    def configure_dns config
       # Setup DNS records defined above
       if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
@@ -468,14 +502,6 @@ module ClearwaterKnifePlugins
         dns_create.run
         status["DNS"][:status] = "Done"
       end
-      set_progress 99
-
-      if config[:force]
-        # Destroy our quiescing boxes now rather than having a
-        # separate --finish step
-        delete_quiesced_boxes env
-      end
-
     end
 
     # Expands out hashes of boxes, e.g. {:bono => 3} becomes:

@@ -225,6 +225,12 @@ class Chef::Knife::OpenstackServerCreate
   end
 end
 
+def prepare_to_quiesce_box(box_name, env)
+  node = Chef::Node.load box_name
+  node.set[:clearwater]['quiescing'] = DateTime.now
+  node.save
+end
+
 def quiesce_box(box_name, env)
   # Runs SSH commands on box_name to quiesce it
   # @param [String] box_name the name of the box to quiesce (e.g.
@@ -254,7 +260,6 @@ def quiesce_box(box_name, env)
     end
   end
 
-  node.set[:clearwater]['quiescing'] = DateTime.now
   node.set[:clearwater].delete :cassandra
   node.set[:tags].delete "clustered"
   node.save
