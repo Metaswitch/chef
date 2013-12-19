@@ -34,6 +34,10 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
 
+# I-CSCF/S-CSCF configuration
+<% if @node[:clearwater][:scscf] %><% if not @node[:clearwater][:scscf] == 0 %>scscf=<%= @node[:clearwater][:scscf] %><% end %><% end %>
+<% if @node[:clearwater][:icscf] %><% if not @node[:clearwater][:icscf] == 0 %>icscf=<%= @node[:clearwater][:icscf] %><% end %><% end %>
+
 # Keys
 signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
