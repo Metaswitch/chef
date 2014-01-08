@@ -120,12 +120,15 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "bono" },
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "perimeta" },
       { ip_protocol: :tcp, min: 5054, max: 5054, group: "internal-sip" },
-      { ip_protocol: :tcp, min: 5052, max: 5052, group: "bono" },
-      { ip_protocol: :tcp, min: 5052, max: 5052, group: "perimeta" },
-      { ip_protocol: :tcp, min: 5052, max: 5052, group: "internal-sip" },
       { ip_protocol: :udp, min: 5054, max: 5054, group: "bono" },
       { ip_protocol: :udp, min: 5054, max: 5054, group: "perimeta" },
       { ip_protocol: :udp, min: 5054, max: 5054, group: "internal-sip" },
+      { ip_protocol: :tcp, min: 5052, max: 5052, group: "bono" },
+      { ip_protocol: :tcp, min: 5052, max: 5052, group: "perimeta" },
+      { ip_protocol: :tcp, min: 5052, max: 5052, group: "internal-sip" },
+      { ip_protocol: :udp, min: 5052, max: 5052, group: "bono" },
+      { ip_protocol: :udp, min: 5052, max: 5052, group: "perimeta" },
+      { ip_protocol: :udp, min: 5052, max: 5052, group: "internal-sip" },
       # Memcached interface
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       # Statistics interface
