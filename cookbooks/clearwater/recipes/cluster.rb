@@ -142,6 +142,7 @@ if node.roles.include? "cassandra"
               node: node,
               is_gr: is_gr
   end
+
   template "/etc/cassandra/cassandra-topology.properties" do
     source "cassandra/cassandra-topology.properties.erb"
     mode "0644"
@@ -149,6 +150,13 @@ if node.roles.include? "cassandra"
     group "root"
     variables gr_cluster_nodes: gr_cluster_nodes,
               is_gr: is_gr
+  end
+
+  template "/etc/cassandra/cassandra-env.sh" do
+    source "cassandra/cassandra-env.sh.erb"
+    mode "0644"
+    owner "root"
+    group "root"
   end
 
   if not node[:clearwater].include? 'quiescing'
