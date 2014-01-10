@@ -39,6 +39,7 @@ end
 
 # Perform daily backup of database
 cron "backup" do
+  minute 0
   hour 0 
   command "/usr/share/clearwater/ellis/backup/do_backup.sh"
 end
