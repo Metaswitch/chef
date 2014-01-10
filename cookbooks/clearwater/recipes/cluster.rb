@@ -125,12 +125,9 @@ if node.roles.include? "cassandra"
   gr_environment_search = gr_environments.map { |e| "chef_environment:" + e }.join(" OR ")
   gr_cluster_nodes = search(:node, "role:#{node_type} AND (#{gr_environment_search})")
 
-  puts gr_cluster_nodes
-  puts gr_cluster_nodes.select {|n| not (n[:clearwater].nil? or n[:clearwater][:cassandra].nil? or n[:clearwater][:cassandra][:cluster].nil?) }
-  seeds = gr_cluster_nodes.select {|n| not (n[:clearwater].nil? or n[:clearwater][:cassandra].nil? or n[:clearwater][:cassandra][:cluster].nil?) }.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
-  if seeds.empty?
-    seeds = gr_cluster_nodes.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
-  end
+
+  seeds = gr_cluster_nodes.find_all { |s| not (s[:clearwater][:joining] or s[:clearwater][:quiescing]) }.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
+
   # Create the Cassandra config and topology files
   template "/etc/cassandra/cassandra.yaml" do
     source "cassandra/cassandra.yaml.erb"

@@ -351,13 +351,16 @@ module ClearwaterKnifePlugins
 
         # Clear the "joining" attribute on all the sprouts and recluster them.
         # This is a bit of a hack for now, and will probably be removed when we
-        # migrate this function to sprout and make it happen automatically.
-        sprouts = find_nodes(roles: "sprout")
-        sprouts.each do |s|
-          s.set[:clearwater].delete(:joining)
-          s.save
+        # migrate this function to sprout and make it happen
+        # automatically.
+        %w{sprout homer homestead}.each do |role|
+          cluster = find_nodes(roles: role)
+          cluster.each do |s|
+            s.set[:clearwater].delete(:joining)
+            s.save
+          end
+          cluster_boxes(role, config[:cloud].to_sym)
         end
-        cluster_boxes("sprout", config[:cloud].to_sym)
 
         return
       end
@@ -438,17 +441,19 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
-      # If spinning up a new sprout nodes in an existing cluster mark the
+      # If spinning up a new sprout, homer or homestead nodes in an existing cluster mark the
       # new ones so we know they are joining an existing cluster.
-      if old_counts[:sprout] != 0 and new_counts[:sprout] > old_counts[:sprout]
-        # Get the list of sprouts ordered by index
-        sprouts = find_nodes(roles: "sprout")
-        sprouts.sort_by! { |n| n[:clearwater][:index] }
+      %w{sprout homer homestead}.each do |node|
+        if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
+          # Get the list of sprouts ordered by index
+          cluster = find_nodes(roles: node)
+          cluster.sort_by! { |n| n[:clearwater][:index] }
 
         # Iterate over the new sprouts adding the joining attribute
-        sprouts.drop(old_counts[:sprout]).each do |s|
-          s.set[:clearwater][:joining] = true
-          s.save
+          cluster.drop(old_counts[node.to_sym]).each do |s|
+            s.set[:clearwater][:joining] = true
+            s.save
+          end
         end
       end
 
