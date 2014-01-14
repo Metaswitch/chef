@@ -349,15 +349,16 @@ module ClearwaterKnifePlugins
           puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
-        # Clear the "joining" attribute on all the sprouts and recluster them.
-        # This is a bit of a hack for now, and will probably be removed when we
-        # migrate this function to sprout and make it happen
-        # automatically.
+        # Clear the "joining" attribute on all the sprouts, homers and
+        # homesteads and recluster them.
+        # This is a bit of a hack for now, and will probably be
+        # removed when we migrate this function to the node and make
+        # it happen automatically.
         %w{sprout homer homestead}.each do |role|
           cluster = find_nodes(roles: role)
-          cluster.each do |s|
-            s.set[:clearwater].delete(:joining)
-            s.save
+          cluster.each do |node|
+            node.set[:clearwater].delete(:joining)
+            node.save
           end
           cluster_boxes(role, config[:cloud].to_sym)
         end
@@ -449,7 +450,7 @@ module ClearwaterKnifePlugins
           cluster = find_nodes(roles: node)
           cluster.sort_by! { |n| n[:clearwater][:index] }
 
-        # Iterate over the new sprouts adding the joining attribute
+          # Iterate over the new sprouts adding the joining attribute
           cluster.drop(old_counts[node.to_sym]).each do |s|
             s.set[:clearwater][:joining] = true
             s.save
