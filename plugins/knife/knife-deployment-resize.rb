@@ -215,6 +215,19 @@ module ClearwaterKnifePlugins
       return transitioning_list.empty?
     end
 
+    def prepare_to_quiesce_extra_boxes(env, orig_box_list)
+      victims = potential_deletions
+      box_list = orig_box_list.map { |b| node_name_from_definition(env, b[:role], b[:index]) }
+
+      victims.select! { |v| not box_list.include? v.name }
+
+      return if victims.empty?
+
+      victims.each do |v|
+        prepare_to_quiesce_box(v.name, env)
+      end
+    end
+
     def quiesce_extra_boxes(env, box_list)
       victims = potential_deletions
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
@@ -292,7 +305,7 @@ module ClearwaterKnifePlugins
 
       boxes = ["homer", "homestead", "sprout"]
       boxes << "bono" if config[:bono_count] > 0
-    
+
       boxes.each do |role|
         count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil
         count_using_subs_limit = (config[:subscribers] / SCALING_LIMITS[role][:subs]).ceil
@@ -336,15 +349,19 @@ module ClearwaterKnifePlugins
           puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
-        # Clear the "joining" attribute on all the sprouts and recluster them.
-        # This is a bit of a hack for now, and will probably be removed when we
-        # migrate this function to sprout and make it happen automatically.
-        sprouts = find_nodes(roles: "sprout")
-        sprouts.each do |s|
-          s.set[:clearwater].delete(:joining)
-          s.save
+        # Clear the "joining" attribute on all the sprouts, homers and
+        # homesteads and recluster them.
+        # This is a bit of a hack for now, and will probably be
+        # removed when we migrate this function to the node and make
+        # it happen automatically.
+        %w{sprout homer homestead}.each do |role|
+          cluster = find_nodes(roles: role)
+          cluster.each do |node|
+            node.set[:clearwater].delete(:joining)
+            node.save
+          end
+          cluster_boxes(role, config[:cloud].to_sym)
         end
-        cluster_boxes("sprout", config[:cloud].to_sym)
 
         return
       end
@@ -401,6 +418,15 @@ module ClearwaterKnifePlugins
       launch_boxes(create_node_list)
       set_progress 50
 
+      prepare_to_quiesce_extra_boxes(env.name, node_list)
+
+      if not in_stable_state? env
+        Chef::Log.info "Removing nodes from DNS before quiescing..."
+        configure_dns config
+        Chef::Log.info "Waiting 10 minutes for DNS to propagate..."
+        sleep 600
+      end
+
       quiesce_extra_boxes(env.name, node_list)
       set_progress 60
 
@@ -416,17 +442,19 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
-      # If spinning up a new sprout nodes in an existing cluster mark the
+      # If spinning up a new sprout, homer or homestead nodes in an existing cluster mark the
       # new ones so we know they are joining an existing cluster.
-      if old_counts[:sprout] != 0 and new_counts[:sprout] > old_counts[:sprout]
-        # Get the list of sprouts ordered by index
-        sprouts = find_nodes(roles: "sprout")
-        sprouts.sort_by! { |n| n[:clearwater][:index] }
+      %w{sprout homer homestead}.each do |node|
+        if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
+          # Get the list of sprouts ordered by index
+          cluster = find_nodes(roles: node)
+          cluster.sort_by! { |n| n[:clearwater][:index] }
 
-        # Iterate over the new sprouts adding the joining attribute
-        sprouts.drop(old_counts[:sprout]).each do |s|
-          s.set[:clearwater][:joining] = true
-          s.save
+          # Iterate over the new sprouts adding the joining attribute
+          cluster.drop(old_counts[node.to_sym]).each do |s|
+            s.set[:clearwater][:joining] = true
+            s.save
+          end
         end
       end
 
@@ -452,6 +480,18 @@ module ClearwaterKnifePlugins
       zone_create.run
       set_progress 95
 
+      configure_dns config
+      set_progress 99
+
+      if config[:force]
+        # Destroy our quiescing boxes now rather than having a
+        # separate --finish step
+        delete_quiesced_boxes env
+      end
+
+    end
+
+    def configure_dns config
       # Setup DNS records defined above
       if config[:cloud].to_sym == :openstack
         Chef::Log.info "Creating BIND records..."
@@ -468,14 +508,6 @@ module ClearwaterKnifePlugins
         dns_create.run
         status["DNS"][:status] = "Done"
       end
-      set_progress 99
-
-      if config[:force]
-        # Destroy our quiescing boxes now rather than having a
-        # separate --finish step
-        delete_quiesced_boxes env
-      end
-
     end
 
     # Expands out hashes of boxes, e.g. {:bono => 3} becomes:

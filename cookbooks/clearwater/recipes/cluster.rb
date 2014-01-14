@@ -122,29 +122,11 @@ if node.roles.include? "cassandra"
 
   # Work out the other nodes in the geo-redundant cluster - we'll list all these
   # nodes as seeds.
-  gr_index = gr_environments.index(node.chef_environment)
   gr_environment_search = gr_environments.map { |e| "chef_environment:" + e }.join(" OR ")
   gr_cluster_nodes = search(:node, "role:#{node_type} AND (#{gr_environment_search})")
 
-  # Work out the other nodes in the local cluster - we'll calculate the token ID
-  # based on these.
-  cluster_nodes = search(:node, "role:#{node_type} AND chef_environment:#{node.chef_environment}")
 
-  # Sort into "Cassandra order", where each node bisects the largest space
-  # between previously inserted nodes.  If you do the sums you'll see that
-  # this equates to ordering by the reverse of the binary representation of
-  # the 0-indexed node index.
-  cluster_nodes.sort_by! { |n| (n[:clearwater][:index] - 1).to_s(2).reverse }
-
-  # Calculate our token by taking an even chunk of the token space.
-  #
-  # As of the "Lock, Stock and Two Smoking Barrels" release, the ordering policy
-  # changed.  Unfortunately this means that upgrade fails from releases before then
-  # to releases after (since `nodetool move` rejects moves to taken tokens).  To
-  # resolve this, we shuffle every node 1 token step round the ring.  Further, we
-  # shuffle round by the geo-redundant site index, to avoid conflicts between sites.
-  index = cluster_nodes.index { |n| n.name == node.name }
-  token = ((index * 2**127) / cluster_nodes.length) + 1 + gr_index
+  seeds = gr_cluster_nodes.find_all { |s| not (s[:clearwater][:joining] or s[:clearwater][:quiescing]) }.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 }
 
   # Create the Cassandra config and topology files
   template "/etc/cassandra/cassandra.yaml" do
@@ -153,11 +135,11 @@ if node.roles.include? "cassandra"
     owner "root"
     group "root"
     variables cluster_name: cluster_name,
-              token: token,
-              seeds: gr_cluster_nodes.map { |n| is_gr ? n.cloud.public_ipv4 : n.cloud.local_ipv4 },
+              seeds: seeds,
               node: node,
               is_gr: is_gr
   end
+
   template "/etc/cassandra/cassandra-topology.properties" do
     source "cassandra/cassandra-topology.properties.erb"
     mode "0644"
@@ -167,15 +149,15 @@ if node.roles.include? "cassandra"
               is_gr: is_gr
   end
 
+  template "/etc/cassandra/cassandra-env.sh" do
+    source "cassandra/cassandra-env.sh.erb"
+    mode "0644"
+    owner "root"
+    group "root"
+  end
+
   if not node[:clearwater].include? 'quiescing'
-    if tagged?('clustered')
-      # Node is already in the cluster, just move to the correct token
-      execute "nodetool" do
-        command "nodetool move #{token}"
-        action :run
-        not_if { node.clearwater.cassandra.token == token rescue false }
-      end
-    else
+    if not tagged?('clustered')
       # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
       execute "monit" do
         command "monit unmonitor cassandra"
@@ -239,21 +221,20 @@ if node.roles.include? "cassandra"
           # These create statements must match the statements defined in the crest
           # project.
           if node_type == "homer"
-            cql_cmds = ["CREATE KEYSPACE homer WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
+            cql_cmds = ["CREATE KEYSPACE homer WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 2}",
                         "USE homer",
                         "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
           elsif node_type == "homestead"
-            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
-                        "USE homestead_cache",
-                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0",
-
-                        "CREATE KEYSPACE homestead_provisioning WITH strategy_class='org.apache.cassandra.locator.SimpleStrategy' AND strategy_options:replication_factor=2",
-                        "USE homestead_provisioning",
-                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0",
-                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0"]
+            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH REPLICATION =  {'class': 'SimpleStrategy', 'replication_factor': 2};",
+                        "USE homestead_cache;",
+                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0;",
+                        "CREATE KEYSPACE homestead_provisioning WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2};",
+                        "USE homestead_provisioning;",
+                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0;",
+                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0;"]
           end
 
           cql_cmds.each do |cql_cmd|
@@ -263,6 +244,7 @@ if node.roles.include? "cassandra"
               # Pause briefly to ensure each command settles in time.
               sleep 5
             rescue CassandraCQL::Thrift::Client::TransportException, CassandraCQL::Thrift::SchemaDisagreementException => e
+              puts "Failure! Sleeping and retrying."
               sleep 1
               retry
             rescue CassandraCQL::Error::InvalidRequestException
@@ -289,7 +271,6 @@ if node.roles.include? "cassandra"
     ruby_block "save cluster details" do
       block do
         node.set[:clearwater][:cassandra][:cluster] = cluster_name
-        node.set[:clearwater][:cassandra][:token] = token
       end
       action :run
     end
