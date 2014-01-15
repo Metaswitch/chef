@@ -38,3 +38,8 @@ run_list [
   "role[clearwater-infrastructure]",
   "recipe[clearwater::sprout]"
 ]
+
+override_attributes "clearwater" => {
+  "icscf" => 5052,
+  "scscf" => 5054,
+}
