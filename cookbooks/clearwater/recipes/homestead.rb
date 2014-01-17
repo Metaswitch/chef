@@ -37,9 +37,14 @@ package "homestead" do
   options "--force-yes"
 end
 
+package "homestead-prov" do
+  action [:install]
+  options "--force-yes"
+end
+
 # Perform daily backup of database
 cron "backup" do
-  hour 0 
+  hour 0
   minute 0
   command "/usr/share/clearwater/homestead/backup/do_backup.sh homestead_provisioning"
 end

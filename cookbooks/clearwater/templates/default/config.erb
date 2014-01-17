@@ -2,13 +2,8 @@
 home_domain=<%= @node[:clearwater][:gr_home_domain] or @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
+hs_provisioning_hostname=<%= @hs_prov %>
 xdms_hostname=<%= @homer %>
-splunk_hostname=<%= @node[:clearwater][:splunk_server] || "0.0.0.0" %>
-<% if [:mmonit_server, :mmonit_username, :mmonit_password].all? { |k| @node[:clearwater].has_key? k } %>
-mmonit_hostname=<%= @node[:clearwater][:mmonit_server] %>
-mmonit_username=<%= @node[:clearwater][:mmonit_username] %>
-mmonit_password=<%= @node[:clearwater][:mmonit_password] %>
-<% end %>
 sas_server=<%= @sas %>
 <% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
@@ -43,4 +38,3 @@ signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
 ellis_api_key="<%= @node[:clearwater][:ellis_api_key] %>"
 ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
-homestead_password_encryption_key="<%= @node[:clearwater][:homestead_password_encryption_key] || "2lB6HWYd1cvuGbAdey9cFL5bSWDzxHOsYyPLYOxV3Bs" %>"

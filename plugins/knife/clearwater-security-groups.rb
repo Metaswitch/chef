@@ -142,7 +142,7 @@ def homestead_security_group_rules
       # API access from sprout/ellis, and restund on bono
       { ip_protocol: :tcp, min: 8888, max: 8888, group: "sprout" },
       { ip_protocol: :tcp, min: 8888, max: 8888, group: "bono" },
-      { ip_protocol: :tcp, min: 8888, max: 8888, group: "ellis" },
+      { ip_protocol: :tcp, min: 8888, max: 8889, group: "ellis" },
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
