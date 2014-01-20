@@ -38,11 +38,6 @@ build_essential_action = apt_package "build-essential" do
 end
 build_essential_action.run_action(:install)
 
-chef_gem "cassandra-cql" do
-  action :install
-  source "https://rubygems.org"
-end
-
 # Work out whether we're geographically-redundant.  In this case, we'll need to
 # configure things to use public IP addresses rather than local.
 gr_environments = node[:clearwater][:gr_environments] || [node.chef_environment]
@@ -191,72 +186,38 @@ if node.roles.include? "cassandra"
       end
 
       # It's possible that we might need to create the keyspace now.
-      ruby_block "create keyspace and tables" do
-        block do
-          require 'cassandra-cql'
+      # To prevent conflicts during clustering, only homestead-1 or homer-1
+      # will ever attempt to create Keyspaces.
 
-          # Cassandra takes some time to come up successfully, give it 1 minute (should be ample)
-          db = nil
-          60.times do
-            begin
-              db = CassandraCQL::Database.new('127.0.0.1:9160')
-              break
-            rescue ThriftClient::NoServersAvailable
-              sleep 1
-            end
-          end
-
-          fail "Cassandra failed to start in the cluster" unless db
-
-          # Create the KeySpace and table(s), don't care if they already exist.
-          #
-          # For all of these requests, it's possible that the creating a
-          # keyspace/table might take so long that the thrift client times out.
-          # This seems to happen a lot when Cassandra has just booted, probably
-          # it's still settling down or garbage collecting.  In any case, on a
-          # transport exception we'll simply sleep for a second and retry.  The
-          # interesting case is an InvalidRequest which means that the
-          # keyspace/table already exists and we should stop trying to create it.
-          #
-          # These create statements must match the statements defined in the crest
-          # project.
-          if node_type == "homer"
-            cql_cmds = ["CREATE KEYSPACE homer WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 2}",
-                        "USE homer",
-                        "CREATE TABLE simservs (user text PRIMARY KEY, value text) WITH read_repair_chance = 1.0"]
-          elsif node_type == "homestead"
-            cql_cmds = ["CREATE KEYSPACE homestead_cache WITH REPLICATION =  {'class': 'SimpleStrategy', 'replication_factor': 2};",
-                        "USE homestead_cache;",
-                        "CREATE TABLE impi (private_id text PRIMARY KEY, digest_ha1 text, digest_realm text, digest_qop text, known_preferred boolean) WITH read_repair_chance = 1.0;",
-                        "CREATE TABLE impu (public_id text PRIMARY KEY, ims_subscription_xml text) WITH read_repair_chance = 1.0;",
-                        "CREATE KEYSPACE homestead_provisioning WITH REPLICATION =  {'class' : 'SimpleStrategy', 'replication_factor' : 2};",
-                        "USE homestead_provisioning;",
-                        "CREATE TABLE implicit_registration_sets (id uuid PRIMARY KEY, dummy text) WITH read_repair_chance = 1.0;",
-                        "CREATE TABLE service_profiles (id uuid PRIMARY KEY, irs text, initialfiltercriteria text) WITH read_repair_chance = 1.0;",
-                        "CREATE TABLE public (public_id text PRIMARY KEY, publicidentity text, service_profile text) WITH read_repair_chance = 1.0;",
-                        "CREATE TABLE private (private_id text PRIMARY KEY, digest_ha1 text) WITH read_repair_chance = 1.0;"]
-          end
-
-          cql_cmds.each do |cql_cmd|
-            begin
-              puts "CQL command: " + cql_cmd
-              db.execute(cql_cmd)
-              # Pause briefly to ensure each command settles in time.
-              sleep 5
-            rescue CassandraCQL::Thrift::Client::TransportException, CassandraCQL::Thrift::SchemaDisagreementException => e
-              puts "Failure! Sleeping and retrying."
-              sleep 1
-              retry
-            rescue CassandraCQL::Error::InvalidRequestException
-              # Pass
-            end
-          end
+      if node_type == "homer"
+        execute "create homer schema" do
+          command "/usr/share/clearwater/cassandra-schemas/homer.sh"
+          # It's possible Cassandra hasn't started up yet, so retry generously
+          retries 8
+          retry_delay 15
+          user "root"
+          only_if { node[:clearwater][:index] == 1 }
+          action :run
         end
-
-        # To prevent conflicts during clustering, only homestead-1 or homer-1
-        # will ever attempt to create Keyspaces.
-        only_if { node[:clearwater][:index] == 1 }
-        action :run
+      elsif node_type == "homestead"
+        execute "create homestead cache schema" do
+          command "/usr/share/clearwater/cassandra-schemas/homestead_cache.sh"
+          # It's possible Cassandra hasn't started up yet, so retry generously
+          retries 8
+          retry_delay 15
+          user "root"
+          only_if { node[:clearwater][:index] == 1 }
+          action :run
+        end
+        execute "create homestead provisioning schema" do
+          command "/usr/share/clearwater/cassandra-schemas/homestead_provisioning.sh"
+          user "root"
+          # It's possible Cassandra hasn't started up yet, so retry generously
+          retries 8
+          retry_delay 15
+          only_if { node[:clearwater][:index] == 1 }
+          action :run
+        end
       end
 
       # Re-enable monitoring
