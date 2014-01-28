@@ -47,7 +47,7 @@ module ClearwaterKnifePlugins
     #
     # @param role [String] Nodes of this role will be clustered.
     def cluster_boxes(role, cloud)
-      if ["homer", "homestead", "sprout"].include? role
+      if ["homer", "homestead", "sprout", "ralf"].include? role
         add_cluster_role(role)
         trigger_chef_client(cloud, query_string(true, role: role))
       else
