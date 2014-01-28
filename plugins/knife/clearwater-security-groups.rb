@@ -164,6 +164,18 @@ def homer_security_group_rules
     ]
 end
 
+def ralf_security_group_rules
+  ipsec_security_group_rules +
+    [
+     { ip_protocol: :tcp, min: 9888, max: 9888, group: "internal-sip" },
+     { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
+     # Memcached interface
+     { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
+     # Statistics interface
+     { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+    ]
+end
+
 def ellis_security_group_rules
   [
     # HTTP
@@ -262,6 +274,7 @@ def clearwater_security_groups
     "homestead" => homestead_security_group_rules,
     "homer" => homer_security_group_rules,
     "ellis" => ellis_security_group_rules,
+    "ralf" => ralf_security_group_rules,
     "dns" => dns_security_group_rules,
     "enum" => enum_security_group_rules,
     "cacti" => cacti_security_group_rules,

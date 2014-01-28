@@ -65,7 +65,7 @@ module ClearwaterKnifePlugins
       nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
       nodes.sort_by(&:name).each { |n| describe_node n, versions }
     end
-    
+
     private
 
     def describe_node(node, versions)
@@ -101,18 +101,19 @@ module ClearwaterKnifePlugins
       end
       puts "\n"
     end
-    
+
     def package_lookup
       {
         "bono" => ["bono", "restund", "sprout-libs"],
         "clearwater-infrastructure" => ["clearwater-infrastructure"],
         "ellis" => ["ellis"],
         "homer" => ["homer"],
+        "ralf" => ["ralf", "chronos"],
         "homestead" => ["homestead"],
         "sprout" => ["sprout", "sprout-libs"],
-      }      
+      }
     end
-    
+
     def fetch_package_versions(server)
       uri = URI(server + '/binary/Packages')
       package_info = Net::HTTP.get(uri)

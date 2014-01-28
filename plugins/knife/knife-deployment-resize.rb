@@ -63,7 +63,7 @@ module ClearwaterKnifePlugins
       BindRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout sipp}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              description: "Number of #{node} nodes to launch",
@@ -113,6 +113,7 @@ module ClearwaterKnifePlugins
     SCALING_LIMITS = { "bono" =>      { bhca: 200000, subs: 50000 },
                        "homer" =>     { bhca: 2300000, subs: 1250000 },
                        "homestead" => { bhca: 850000, subs: 5000000 },
+                       "ralf" => { bhca: 850000, subs: 5000000 },
                        "sprout" =>    { bhca: 250000, subs: 250000 },
                        "ellis" =>     { bhca: Float::INFINITY, subs: Float::INFINITY }
     }
@@ -203,7 +204,7 @@ module ClearwaterKnifePlugins
     def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       # Don't delete any AIO/AMI nodes
       victims.delete_if { |v| v.roles.include? "cw_aio" }
@@ -269,7 +270,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf}.each do |node|
         result[node.to_sym] = find_nodes(roles: "clearwater-infrastructure", role: node).length
       end
       return result
@@ -305,6 +306,7 @@ module ClearwaterKnifePlugins
 
       boxes = ["homer", "homestead", "sprout"]
       boxes << "bono" if config[:bono_count] > 0
+      boxes << "ralf" if config[:ralf_count] > 0
 
       boxes.each do |role|
         count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil
@@ -322,7 +324,7 @@ module ClearwaterKnifePlugins
 
         # Check no incompatible options are specified.
         bad_options = []
-        %w{bono homestead homer ibcf sprout sipp}.each do |node|
+        %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
           if config["#{node}_count".to_sym]
             bad_options << "--#{node}_count"
           end
@@ -354,7 +356,7 @@ module ClearwaterKnifePlugins
         # This is a bit of a hack for now, and will probably be
         # removed when we migrate this function to the node and make
         # it happen automatically.
-        %w{sprout homer homestead}.each do |role|
+        %w{sprout ralf homer homestead}.each do |role|
           cluster = find_nodes(roles: role)
           cluster.each do |node|
             node.set[:clearwater].delete(:joining)
@@ -392,6 +394,7 @@ module ClearwaterKnifePlugins
         ellis: 1,
         bono: config[:bono_count] || [old_counts[:bono], 1].max,
         homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
+        ralf: config[:ralf_count] || old_counts[:ralf],
         homer: config[:homer_count] || [old_counts[:homer], 1].max,
         sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
@@ -444,7 +447,7 @@ module ClearwaterKnifePlugins
 
       # If spinning up a new sprout, homer or homestead nodes in an existing cluster mark the
       # new ones so we know they are joining an existing cluster.
-      %w{sprout homer homestead}.each do |node|
+      %w{sprout ralf homer homestead}.each do |node|
         if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
           # Get the list of sprouts ordered by index
           cluster = find_nodes(roles: node)
@@ -462,7 +465,7 @@ module ClearwaterKnifePlugins
       if old_counts != new_counts
         count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
         Chef::Log.info "Reclustering nodes:"
-        %w{sprout homer homestead}.each do |node|
+        %w{sprout ralf homer homestead}.each do |node|
           if count_diffs[node.to_sym]
             Chef::Log.info " - #{node}"
             cluster_boxes(node, config[:cloud].to_sym)
@@ -523,7 +526,7 @@ module ClearwaterKnifePlugins
         Thread.current[:status][item] = {:status => "Pending"}
       end
 
-      ["bono", "ellis", "homer", "homestead", "sprout", "sipp"].each do |node|
+      ["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf"].each do |node|
         Thread.current[:status]["Nodes"][node] =
           {:status => "Pending", :count => config["#{node}_count".to_sym]}
       end

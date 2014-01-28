@@ -61,6 +61,7 @@ module Clearwater
         {:name => "homer", :security_groups => ["base", "homer"]},
         {:name => "sprout", :security_groups => ["base", "internal-sip", "sprout"]},
         {:name => "ibcf", :security_groups => ["base", "internal-sip", "ibcf", "bono"]},
+        {:name => "ralf", :security_groups => ["base", "ralf"]},
         {:name => "dns", :security_groups => ["base", "dns"], :public_ip => true},
         {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
         {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},

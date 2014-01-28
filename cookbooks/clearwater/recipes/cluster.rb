@@ -43,66 +43,68 @@ build_essential_action.run_action(:install)
 gr_environments = node[:clearwater][:gr_environments] || [node.chef_environment]
 is_gr = (gr_environments.length > 1)
 
-# Clustering for Sprout nodes.
-if node.run_list.include? "role[sprout]"
+# Clustering for nodes using memcached.
+["sprout", "ralf"].each do |nodetype|
+  if node.run_list.include? "role[#{nodetype}]"
 
-  def update_memstore_settings(environment, template_file, file)
+    def update_memstore_settings(environment, template_file, file)
 
-    # Get the full list of sprout nodes, in index order.
-    sprouts = search(:node,
-                     "role:sprout AND chef_environment:#{environment}")
-    sprouts.sort_by! { |n| n[:clearwater][:index] }
+      # Get the full list of sprout nodes, in index order.
+      nodes = search(:node,
+                     "role:#{nodetype]} AND chef_environment:#{environment}")
+      nodes.sort_by! { |n| n[:clearwater][:index] }
 
-    # Strip this down to the list of sprouts that have already joined the cluster
-    # and the list that are not quiescing sprouts
-    joined = sprouts.find_all { |s| not s[:clearwater][:joining] }
-    nonquiescing = sprouts.find_all { |s| not s[:clearwater][:quiescing] }
+      # Strip this down to the list of sprouts that have already joined the cluster
+      # and the list that are not quiescing sprouts
+      joined = nodes.find_all { |s| not s[:clearwater][:joining] }
+      nonquiescing = nodes.find_all { |s| not s[:clearwater][:quiescing] }
 
-    if joined.size == sprouts.size and nonquiescing.size == sprouts.size
-      # Cluster is stable, so just include the server list.
-      servers = sprouts
-      new_servers = []
-    else
-      # Cluster is growing or shrinking, so use the joined list as the servers
-      # list and the nonquiescing list as the new servers list.
-      servers = joined
-      new_servers = nonquiescing
+      if joined.size == nodes.size and nonquiescing.size == nodes.size
+        # Cluster is stable, so just include the server list.
+        servers = nodes
+        new_servers = []
+      else
+        # Cluster is growing or shrinking, so use the joined list as the servers
+        # list and the nonquiescing list as the new servers list.
+        servers = joined
+        new_servers = nonquiescing
+      end
+
+      template file do
+        source template_file
+        mode 0644
+        owner "root"
+        group "root"
+        notifies :reload, "service[#{nodetype}]", :immediately
+        variables servers: servers,
+        new_servers: new_servers
+      end
     end
 
-    template file do
-      source template_file
-      mode 0644
-      owner "root"
-      group "root"
-      notifies :reload, "service[sprout]", :immediately
-      variables servers: servers,
-                new_servers: new_servers
+    # Update cluster_settings for local memcached store.
+    update_memstore_settings(node.chef_environment,
+                             "cluster/cluster_settings.erb",
+                             "/etc/clearwater/cluster_settings")
+
+    other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
+    if !other_gr_environments.empty?
+      update_memstore_settings(other_gr_environments[0],
+                               "cluster/remote_cluster_settings.erb",
+                               "/etc/clearwater/remote_cluster_settings")
     end
-  end
 
-  # Update cluster_settings for local registration store.
-  update_memstore_settings(node.chef_environment,
-                           "cluster/cluster_settings.erb",
-                           "/etc/clearwater/cluster_settings")
-
-  other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
-  if !other_gr_environments.empty?
-    update_memstore_settings(other_gr_environments[0],
-                             "cluster/remote_cluster_settings.erb",
-                             "/etc/clearwater/remote_cluster_settings")
-  end
-
-  service "sprout" do
-    supports :reload => true
-    action :nothing
-  end
-
-  ruby_block "set_clustered" do
-    block do
-      node.set["clustered"] = true
-      node.save
+    service nodetype do
+      supports :reload => true
+      action :nothing
     end
-    action :nothing
+
+    ruby_block "set_clustered" do
+      block do
+        node.set["clustered"] = true
+        node.save
+      end
+      action :nothing
+    end
   end
 end
 
