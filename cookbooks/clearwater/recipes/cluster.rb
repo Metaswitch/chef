@@ -76,6 +76,24 @@ def update_memstore_settings(nodetype, environment, template_file, file)
   end
 end
 
+def update_chronos_settings(localhost, nodetype, environment, template_file, file)
+  # Get the full list of nodes, in index order.
+  nodes = search(:node,
+                 "role:#{nodetype} AND chef_environment:#{environment}")
+  nodes.sort_by! { |n| n[:clearwater][:index] }
+
+  template file do
+    source template_file
+    mode 0644
+    owner "root"
+    group "root"
+    notifies :reload, "service[chronos]", :immediately
+    variables servers: nodes,
+    localhost: localhost
+  end
+end
+
+
 # Clustering for nodes using memcached.
 ["sprout", "ralf"].each do |nodetype|
   if node.run_list.include? "role[#{nodetype}]"
@@ -84,6 +102,11 @@ end
                              node.chef_environment,
                              "cluster/cluster_settings.erb",
                              "/etc/clearwater/cluster_settings")
+    update_chronos_settings(node.cloud.local_ipv4,
+                            nodetype,
+                            node.chef_environment,
+                            "cluster/chronos.conf.erb",
+                            "/etc/chronos/chronos.conf")
 
     other_gr_environments = gr_environments.reject { |e| e == node.chef_environment }
     if !other_gr_environments.empty?
@@ -94,6 +117,11 @@ end
     end
 
     service "#{nodetype}" do
+      supports :reload => true
+      action :nothing
+    end
+
+    service "chronos" do
       supports :reload => true
       action :nothing
     end
