@@ -113,7 +113,7 @@ module ClearwaterKnifePlugins
     SCALING_LIMITS = { "bono" =>      { bhca: 200000, subs: 50000 },
                        "homer" =>     { bhca: 2300000, subs: 1250000 },
                        "homestead" => { bhca: 850000, subs: 5000000 },
-                       "ralf" => { bhca: 850000, subs: 5000000 },
+                       "ralf" =>      { bhca: 850000, subs: 5000000 },
                        "sprout" =>    { bhca: 250000, subs: 250000 },
                        "ellis" =>     { bhca: Float::INFINITY, subs: Float::INFINITY }
     }
