@@ -77,7 +77,7 @@ module ClearwaterKnifePlugins
       # name for our environment
       servers_to_terminate.select!{ |s| s.tags["Name"].nil? or s.tags["Name"].split("-").first == config[:environment] }
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "homer", "homestead", "sprout"]
+      whitelist = ["bono", "ellis", "homer", "homestead", "sprout", "ralf"]
       servers_to_terminate.select!{ |s| s.tags["Name"].nil? or whitelist.include? s.tags["Name"].split("-")[1] }
 
 

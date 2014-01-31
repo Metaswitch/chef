@@ -1,6 +1,4 @@
-#!/usr/bin/env ruby
-
-# @file clearwater-dns-records.rb
+# @file ibcf.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -34,75 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-require_relative 'boxes'
-
-def dns_records
-  dns = {}
-  base_dns = {
-    "sprout" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "hs" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
-    "homer" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-
-    "ellis" => {
-      :type => "A",
-      :value => ipv4s(find_active_nodes("ellis")),
-    },
-  }
-  bono_dns = {
-    "" => {
-      :type  => "A",
-      :value => ipv4s(find_active_nodes("bono")),
-      :ttl   => "60"
-    },
-
-    "bono" => {
-      :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "bono")),
-      :ttl   => "60"
-    },
-  }
-
-  ralf_dns = {
-    "ralf" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("ralf")),
-      :ttl   => "60"
-    },
-  }
-
-  dns = dns.merge(base_dns)
-  if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
-    dns = dns.merge(bono_dns)
-  end
-  if find_nodes(roles: "clearwater-infrastructure", role: "ralf").length > 0
-    dns = dns.merge(ralf_dns)
-  end
-
-  return dns
-end
-
-def ipv4s(boxes)
-  boxes.map {|n| n[:cloud][:public_ipv4]}
-end
-
-def ipv4s_local(boxes)
-  boxes.map {|n| n[:cloud][:local_ipv4]}
-end
-
-def public_hostnames(boxes)
-  boxes.map {|n| n[:cloud][:public_hostname] + "."}
-end
+name "ralf"
+description "ralf role"
+run_list [
+  "role[clearwater-infrastructure]",
+  "recipe[clearwater::ralf]"
+]

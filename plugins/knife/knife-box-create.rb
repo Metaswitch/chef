@@ -96,6 +96,7 @@ module ClearwaterKnifePlugins
         ibcf: nil,
         dns: nil,
         sipp: nil,
+        ralf: nil,
         enum: nil,
         cacti: nil,
         plivo: nil,
