@@ -1,0 +1,9 @@
+[http]
+bind-address = 0.0.0.0
+bind-port = 7253
+
+[cluster]
+localhost = <%= @localhost %>
+<% for @node in @servers %>
+node = <%= @node.cloud.local_ipv4 %>
+<% end %>
