@@ -84,6 +84,7 @@ if node.roles.include? "cw_aio"
               sprout: "localhost",
               hs: "localhost:8888",
               homer: "localhost:7888",
+              chronos: "localhost:7253",
               sas: sas,
               enum: enum
   end
@@ -101,6 +102,7 @@ else
               hs: "hs." + domain + ":8888",
               hs_prov: "hs." + domain + ":8889",
               homer: "homer." + domain + ":7888",
+              chronos: "localhost:7253",
               ralf: "ralf." + domain + ":9888",
               sas: sas,
               enum: enum

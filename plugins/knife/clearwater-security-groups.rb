@@ -133,6 +133,9 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       # Statistics interface
       { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+      # Chronos interface
+      { ip_protocol: :tcp, min: 7253, max: 7253, group: "sprout" },
+      { ip_protocol: :tcp, min: 9888, max: 9888, group: "internal-sip" },
     ]
 end
 
