@@ -102,9 +102,6 @@ def internal_sip_security_group_rules
 end
 
 def bono_security_group_rules
-  # DEPRECATED: Internal SIP (TCP only) - use of the
-  # internal_sip_security_group_rules should be removed once all
-  # deployments are migrated to using internal-sip security groups.
   internal_sip_security_group_rules + bono_external_security_group_rules
 end
 
@@ -133,6 +130,9 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
       # Statistics interface
       { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+      # Chronos interface
+      { ip_protocol: :tcp, min: 7253, max: 7253, group: "sprout" },
+      { ip_protocol: :tcp, min: 9888, max: 9888, group: "sprout" },
     ]
 end
 
@@ -170,6 +170,7 @@ def ralf_security_group_rules
   ipsec_security_group_rules +
     [
      { ip_protocol: :tcp, min: 9888, max: 9888, group: "internal-sip" },
+     { ip_protocol: :tcp, min: 9888, max: 9888, group: "ralf" },
      { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
      # Memcached interface
      { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
