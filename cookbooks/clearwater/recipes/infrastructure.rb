@@ -60,7 +60,7 @@ execute "apt-get update" do
   subscribes :run, "execute[apt-key-clearwater]", :immediately
 end
 
-#unless Chef::Config[:solo]
+unless Chef::Config[:solo]
 
 # Setup the clearwater config file
 directory "/etc/clearwater" do
@@ -112,7 +112,7 @@ else
               enum: enum
   end
 end
-#end
+end
 
 package "clearwater-infrastructure" do
   action [:install]
