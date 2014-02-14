@@ -58,6 +58,8 @@ execute "apt-get update" do
   subscribes :run, "execute[apt-key-clearwater]", :immediately
 end
 
+unless Chef::Config[:solo]
+
 # Setup the clearwater config file
 directory "/etc/clearwater" do
   owner "root"
@@ -75,7 +77,6 @@ domain = if node[:clearwater][:use_subdomain]
 sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
 enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
-unless Chef::Config[:solo]
 if node.roles.include? "cw_aio"
   template "/etc/clearwater/config" do
     mode "0644"
