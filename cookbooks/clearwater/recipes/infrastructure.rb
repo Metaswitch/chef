@@ -35,7 +35,6 @@
 require 'resolv'
 
 # Tell apt about the Clearwater repository server.
-unless Chef::Config[:solo]
 template "/etc/apt/sources.list.d/clearwater.list" do
   mode "0644"
   source "apt.list.erb"
@@ -44,7 +43,6 @@ template "/etc/apt/sources.list.d/clearwater.list" do
     repos: ["binary/"]
   })
   notifies :run, "execute[apt-key-clearwater]", :immediately
-end
 end
 
 # Fetch the key for the Clearwater repository server
@@ -62,56 +60,56 @@ end
 
 unless Chef::Config[:solo]
 
-# Setup the clearwater config file
-directory "/etc/clearwater" do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-end
-
-domain = if node[:clearwater][:use_subdomain]
-           node.chef_environment + "." + node[:clearwater][:root_domain]
-         else
-           node[:clearwater][:root_domain]
-         end
-
-sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
-enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-
-if node.roles.include? "cw_aio"
-  template "/etc/clearwater/config" do
-    mode "0644"
-    source "config.erb"
-    variables domain: "example.com",
-              node: node,
-              sprout: "localhost",
-              hs: "localhost:8888",
-              homer: "localhost:7888",
-              chronos: "localhost:7253",
-              sas: sas,
-              enum: enum
+  # Setup the clearwater config file
+  directory "/etc/clearwater" do
+    owner "root"
+    group "root"
+    mode "0755"
+    action :create
   end
-  package "clearwater-auto-config-aws" do
-    action [:install]
-    options "--force-yes"
+
+  domain = if node[:clearwater][:use_subdomain]
+             node.chef_environment + "." + node[:clearwater][:root_domain]
+           else
+             node[:clearwater][:root_domain]
+           end
+
+  sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
+  enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
+
+  if node.roles.include? "cw_aio"
+    template "/etc/clearwater/config" do
+      mode "0644"
+      source "config.erb"
+      variables domain: "example.com",
+                node: node,
+                sprout: "localhost",
+                hs: "localhost:8888",
+                homer: "localhost:7888",
+                chronos: "localhost:7253",
+                sas: sas,
+                enum: enum
+    end
+    package "clearwater-auto-config-aws" do
+      action [:install]
+      options "--force-yes"
+    end
+  else
+    template "/etc/clearwater/config" do
+      mode "0644"
+      source "config.erb"
+      variables domain: domain,
+                node: node,
+                sprout: "sprout." + domain,
+                hs: "hs." + domain + ":8888",
+                hs_prov: "hs." + domain + ":8889",
+                homer: "homer." + domain + ":7888",
+                chronos: "localhost:7253",
+                ralf: "ralf." + domain + ":9888",
+                sas: sas,
+                enum: enum
+    end
   end
-else
-  template "/etc/clearwater/config" do
-    mode "0644"
-    source "config.erb"
-    variables domain: domain,
-              node: node,
-              sprout: "sprout." + domain,
-              hs: "hs." + domain + ":8888",
-              hs_prov: "hs." + domain + ":8889",
-              homer: "homer." + domain + ":7888",
-              chronos: "localhost:7253",
-              ralf: "ralf." + domain + ":9888",
-              sas: sas,
-              enum: enum
-  end
-end
 end
 
 package "clearwater-infrastructure" do
