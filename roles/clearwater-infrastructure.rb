@@ -37,6 +37,7 @@ description "clearwater-infrastructure role"
 run_list [
   "recipe[clearwater::ec2_metadata]",
   "recipe[apt]",
+  "recipe[chef-solo-search]",
   "recipe[clearwater::infrastructure]"
 ]
 default_attributes "clearwater" => {

@@ -58,54 +58,57 @@ execute "apt-get update" do
   subscribes :run, "execute[apt-key-clearwater]", :immediately
 end
 
-# Setup the clearwater config file
-directory "/etc/clearwater" do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-end
+unless Chef::Config[:solo]
 
-domain = if node[:clearwater][:use_subdomain]
-           node.chef_environment + "." + node[:clearwater][:root_domain]
-         else
-           node[:clearwater][:root_domain]
-         end
-
-sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
-enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-
-if node.roles.include? "cw_aio"
-  template "/etc/clearwater/config" do
-    mode "0644"
-    source "config.erb"
-    variables domain: "example.com",
-              node: node,
-              sprout: "localhost",
-              hs: "localhost:8888",
-              homer: "localhost:7888",
-              chronos: "localhost:7253",
-              sas: sas,
-              enum: enum
+  # Setup the clearwater config file
+  directory "/etc/clearwater" do
+    owner "root"
+    group "root"
+    mode "0755"
+    action :create
   end
-  package "clearwater-auto-config-aws" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  template "/etc/clearwater/config" do
-    mode "0644"
-    source "config.erb"
-    variables domain: domain,
-              node: node,
-              sprout: "sprout." + domain,
-              hs: "hs." + domain + ":8888",
-              hs_prov: "hs." + domain + ":8889",
-              homer: "homer." + domain + ":7888",
-              chronos: "localhost:7253",
-              ralf: "ralf." + domain + ":9888",
-              sas: sas,
-              enum: enum
+
+  domain = if node[:clearwater][:use_subdomain]
+             node.chef_environment + "." + node[:clearwater][:root_domain]
+           else
+             node[:clearwater][:root_domain]
+           end
+
+  sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
+  enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
+
+  if node.roles.include? "cw_aio"
+    template "/etc/clearwater/config" do
+      mode "0644"
+      source "config.erb"
+      variables domain: "example.com",
+                node: node,
+                sprout: "localhost",
+                hs: "localhost:8888",
+                homer: "localhost:7888",
+                chronos: "localhost:7253",
+                sas: sas,
+                enum: enum
+    end
+    package "clearwater-auto-config-aws" do
+      action [:install]
+      options "--force-yes"
+    end
+  else
+    template "/etc/clearwater/config" do
+      mode "0644"
+      source "config.erb"
+      variables domain: domain,
+                node: node,
+                sprout: "sprout." + domain,
+                hs: "hs." + domain + ":8888",
+                hs_prov: "hs." + domain + ":8889",
+                homer: "homer." + domain + ":7888",
+                chronos: "localhost:7253",
+                ralf: "ralf." + domain + ":9888",
+                sas: sas,
+                enum: enum
+    end
   end
 end
 

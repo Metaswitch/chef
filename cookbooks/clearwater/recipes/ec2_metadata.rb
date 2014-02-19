@@ -247,4 +247,6 @@ patch_up = ruby_block "patch_up_metadata" do
   action :nothing
 end
 
-patch_up.run_action(:create)
+unless Chef::Config[:solo]
+  patch_up.run_action(:create)
+end
