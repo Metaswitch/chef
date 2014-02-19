@@ -132,6 +132,7 @@ end
         node.save
       end
       action :nothing
+      not_if Chef::Config[:solo]
     end
   end
 end
@@ -268,5 +269,5 @@ if node.roles.include? "cassandra"
   end
 
   # Now we're clustered
-  tag('clustered')
+  tag('clustered') unless Chef::Config[:solo]
 end
