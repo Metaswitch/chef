@@ -357,7 +357,7 @@ module ClearwaterKnifePlugins
         # removed when we migrate this function to the node and make
         # it happen automatically.
         %w{sprout ralf homer homestead}.each do |role|
-          cluster = find_nodes(roles: role)
+          cluster = find_nodes(roles: role) rescue []
           cluster.each do |node|
             node.set[:clearwater].delete(:joining)
             node.save
