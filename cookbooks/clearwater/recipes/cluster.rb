@@ -132,7 +132,7 @@ end
         node.save
       end
       action :nothing
-      not_if Chef::Config[:solo]
+      not_if { Chef::Config[:solo] }
     end
   end
 end
