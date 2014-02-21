@@ -246,9 +246,11 @@ def quiesce_box(box_name, env)
     case node.run_list.first.name
     when "sprout"
       ssh.exec! "sudo monit unmonitor sprout"
+      ssh.exec! "sudo monit unmonitor poll_sprout"
       ssh.exec! "sudo service sprout start-quiesce"
     when "bono"
       ssh.exec! "sudo monit unmonitor bono"
+      ssh.exec! "sudo monit unmonitor poll_bono"
       ssh.exec! "sudo service bono start-quiesce"
     when "homer"
       ssh.exec! "sudo monit stop homer"
