@@ -189,7 +189,7 @@ if node.roles.include? "cassandra"
         command "monit unmonitor cassandra"
         user "root"
         retries 8
-        retry_delay 15
+        retry_delay 5
         action :run
       end
 
@@ -258,7 +258,7 @@ if node.roles.include? "cassandra"
         command "monit monitor cassandra"
         user "root"
         retries 8
-        retry_delay 15
+        retry_delay 5
         action :run
       end
     end
