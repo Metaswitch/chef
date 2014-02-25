@@ -88,7 +88,7 @@ def dns_records
   if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
     dns = dns.merge(bono_dns)
   end
-  if find_nodes(roles: "clearwater-infrastructure", role: "ralf").length > 0
+  if find_active_nodes("ralf").length > 0
     dns = dns.merge(ralf_dns)
   end
 
