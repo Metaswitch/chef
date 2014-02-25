@@ -68,12 +68,6 @@ def dns_records
       :value => ipv4s(find_active_nodes("bono")),
       :ttl   => "60"
     },
-
-    "bono" => {
-      :type  => "A",
-      :value => ipv4s_local(find_nodes(role: "bono")),
-      :ttl   => "60"
-    },
   }
 
   ralf_dns = {
@@ -85,7 +79,7 @@ def dns_records
   }
 
   dns = dns.merge(base_dns)
-  if find_nodes(roles: "clearwater-infrastructure", role: "bono").length > 0
+  if find_active_nodes("bono").length > 0
     dns = dns.merge(bono_dns)
   end
   if find_active_nodes("ralf").length > 0
