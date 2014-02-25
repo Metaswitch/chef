@@ -351,8 +351,8 @@ module ClearwaterKnifePlugins
           puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
-        # Clear the "joining" attribute on all the sprouts, homers and
-        # homesteads and recluster them.
+        # Clear the "joining" attribute on all the sprouts, ralfs, 
+        # homers and homesteads and recluster them.
         # This is a bit of a hack for now, and will probably be
         # removed when we migrate this function to the node and make
         # it happen automatically.
