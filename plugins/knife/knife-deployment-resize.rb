@@ -351,18 +351,20 @@ module ClearwaterKnifePlugins
           puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
-        # Clear the "joining" attribute on all the sprouts, homers and
-        # homesteads and recluster them.
+        # Clear the "joining" attribute on all the sprouts, ralfs, 
+        # homers and homesteads and recluster them.
         # This is a bit of a hack for now, and will probably be
         # removed when we migrate this function to the node and make
         # it happen automatically.
         %w{sprout ralf homer homestead}.each do |role|
           cluster = find_nodes(roles: role) rescue []
-          cluster.each do |node|
-            node.set[:clearwater].delete(:joining)
-            node.save
+          if !cluster.empty?
+            cluster.each do |node|
+              node.set[:clearwater].delete(:joining)
+              node.save
+            end
+            cluster_boxes(role, config[:cloud].to_sym)
           end
-          cluster_boxes(role, config[:cloud].to_sym)
         end
 
         return
@@ -445,7 +447,7 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
 
-      # If spinning up a new sprout, homer or homestead nodes in an existing cluster mark the
+      # If spinning up new sprout, ralf, homer or homestead nodes in an existing cluster mark the
       # new ones so we know they are joining an existing cluster.
       %w{sprout ralf homer homestead}.each do |node|
         if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
