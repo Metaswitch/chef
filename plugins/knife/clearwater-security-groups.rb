@@ -162,7 +162,7 @@ def homer_security_group_rules
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homer" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homer" },
       # Statistics interface
-      { ip_protocol: :tcp, min: 6665 max: 6665, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 6665, max: 6665, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
