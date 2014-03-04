@@ -72,7 +72,7 @@ def bono_external_security_group_rules
     # SIP/Websockets
     { ip_protocol: :tcp, min: 5062, max: 5062, cidr_ip: "0.0.0.0/0" },
     # Statistics interface
-    { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+    { ip_protocol: :tcp, min: 6669, max: 6669, cidr_ip: "0.0.0.0/0" },
     # RTP
     { ip_protocol: :udp, min: 32768, max: 65535, cidr_ip: "0.0.0.0/0" },
   ]
@@ -146,9 +146,9 @@ def homestead_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
-      # Statistics interface - 'homestead' publishes to 6666 and homestead-prov
+      # Statistics interface - 'homestead' publishes to 6668 and homestead-prov
       # to 6667.
-      { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 6668, max: 6668, cidr_ip: "0.0.0.0/0" },
       { ip_protocol: :tcp, min: 6667, max: 6667, cidr_ip: "0.0.0.0/0" },
     ]
 end
@@ -162,7 +162,7 @@ def homer_security_group_rules
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homer" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homer" },
       # Statistics interface
-      { ip_protocol: :tcp, min: 6667, max: 6667, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 6665 max: 6665, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
@@ -175,7 +175,7 @@ def ralf_security_group_rules
      # Memcached interface
      { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
      # Statistics interface
-     { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+     { ip_protocol: :tcp, min: 6664, max: 6664, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
