@@ -169,8 +169,8 @@ end
 def ralf_security_group_rules
   ipsec_security_group_rules +
     [
-     { ip_protocol: :tcp, min: 10888, max: 10888, group: "internal-sip" },
-     { ip_protocol: :tcp, min: 10888, max: 10888, group: "ralf" },
+     { ip_protocol: :tcp, min: 9888, max: 9888, group: "internal-sip" },
+     { ip_protocol: :tcp, min: 9888, max: 9888, group: "ralf" },
      { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
      # Memcached interface
      { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
