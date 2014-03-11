@@ -105,7 +105,7 @@ unless Chef::Config[:solo]
                 hs_prov: "hs." + domain + ":8889",
                 homer: "homer." + domain + ":7888",
                 chronos: "localhost:7253",
-                ralf: "ralf." + domain + ":9888",
+                ralf: "ralf." + domain + ":10888",
                 sas: sas,
                 enum: enum
     end
