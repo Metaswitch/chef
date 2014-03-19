@@ -74,7 +74,6 @@ unless Chef::Config[:solo]
              node[:clearwater][:root_domain]
            end
 
-  sas = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:sas_server]).to_s } rescue "0.0.0.0"
   enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
   if node.roles.include? "cw_aio"
@@ -87,7 +86,6 @@ unless Chef::Config[:solo]
                 hs: "localhost:8888",
                 homer: "localhost:7888",
                 chronos: "localhost:7253",
-                sas: sas,
                 enum: enum
     end
     package "clearwater-auto-config-aws" do
@@ -106,7 +104,6 @@ unless Chef::Config[:solo]
                 homer: "homer." + domain + ":7888",
                 chronos: "localhost:7253",
                 ralf: "ralf." + domain + ":10888",
-                sas: sas,
                 enum: enum
     end
   end
