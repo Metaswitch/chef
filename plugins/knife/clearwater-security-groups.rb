@@ -133,6 +133,8 @@ def sprout_security_group_rules
       # Chronos interface
       { ip_protocol: :tcp, min: 7253, max: 7253, group: "sprout" },
       { ip_protocol: :tcp, min: 9888, max: 9888, group: "sprout" },
+      # Homestead deregistration interface
+      { ip_protocol: :tcp, min: 9888, max: 9888, group: "homestead" },
     ]
 end
 
