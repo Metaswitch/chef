@@ -76,6 +76,8 @@ unless Chef::Config[:solo]
 
   enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
+  # Set up template values for /etc/clearwater/config - any new values should
+  # be added for all-in-one and distributed installs
   if node.roles.include? "cw_aio"
     template "/etc/clearwater/config" do
       mode "0644"
@@ -84,8 +86,10 @@ unless Chef::Config[:solo]
                 node: node,
                 sprout: "localhost",
                 hs: "localhost:8888",
+                hs_prov: "localhost:8889",
                 homer: "localhost:7888",
                 chronos: "localhost:7253",
+                ralf: "localhost:10888",
                 enum: enum
     end
     package "clearwater-auto-config-aws" do
