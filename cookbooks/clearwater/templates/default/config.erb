@@ -34,6 +34,12 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 # I-CSCF/S-CSCF configuration
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
+<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %>
+<% else %>upstream_hostname=<%= @sprout %>
+<% end %>
+<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %>
+<% else %>upstream_port=5052
+<% end %>
 
 # Keys
 signup_key="<%= @node[:clearwater][:signup_key] %>"
