@@ -69,7 +69,7 @@ default_attributes "clearwater" => {
   # allows so we'll use that until we test on other clouds.
   "dns_ttl" => 300,
 
-  # Sas server to use. To disable SAS, set to an invalid host, e.g "0.0.0.0"
+  # Sas server to use. To disable SAS, set to "0.0.0.0".
   "sas_server" => "0.0.0.0",
 
   # Splunk server to use. To disable splunk, set an invalid host, e.g. "0.0.0.0"
