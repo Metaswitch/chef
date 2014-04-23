@@ -46,3 +46,15 @@ package "clearwater-snmp-handler-sprout" do
   action [:install]
   options "--force-yes"
 end
+
+domain = if node[:clearwater][:use_subdomain]
+           node.chef_environment + "." + node[:clearwater][:root_domain]
+         else
+           node[:clearwater][:root_domain]
+         end
+
+template "/etc/clearwater/s-cscf.json" do
+  mode "0644"
+  source "sprout/s-cscf.erb"
+  variables domain: domain
+end
