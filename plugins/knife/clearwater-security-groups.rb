@@ -175,7 +175,7 @@ def ralf_security_group_rules
      { ip_protocol: :tcp, min: 10888, max: 10888, group: "ralf" },
      { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
      # Memcached interface
-     { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
+     { ip_protocol: :tcp, min: 11211, max: 11211, group: "ralf" },
      # Statistics interface
      { ip_protocol: :tcp, min: 6664, max: 6664, cidr_ip: "0.0.0.0/0" },
     ]
