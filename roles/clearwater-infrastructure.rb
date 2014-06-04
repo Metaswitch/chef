@@ -78,6 +78,9 @@ default_attributes "clearwater" => {
   # ENUM server to use.  To use the default (public) servers, specify "localhost".
   "enum_server" => nil,
 
+  # Trusted SIP trunking peers to accept calls from. Specify an array of IP addresses.
+  "trusted_peers" => [],
+
   #
   # The following values should be set in knife.rb; we copy them into
   # the role here.
