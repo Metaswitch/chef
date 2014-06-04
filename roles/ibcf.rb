@@ -36,5 +36,5 @@ name "ibcf"
 description "ibcf role"
 run_list [
   "role[bono]",
-  "recipe[clearwater::ibcf]"
+  # bono now includes all function that ibcf did, so this role is just a clone of it
 ]

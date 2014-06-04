@@ -46,3 +46,9 @@ package "clearwater-snmp-handler-bono" do
   action [:install]
   options "--force-yes"
 end
+
+template "/etc/clearwater/user_settings" do
+  mode "0644"
+  source "bono/user_settings.erb"
+  variables trusted_peers: node[:clearwater][:trusted_peers]
+end
