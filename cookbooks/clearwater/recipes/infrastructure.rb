@@ -90,7 +90,7 @@ unless Chef::Config[:solo]
                 hs_prov: node[:cloud][:local_ipv4] + ":8889",
                 homer: node[:cloud][:local_ipv4] + ":7888",
                 chronos: node[:cloud][:local_ipv4] + ":7253",
-                ralf: nil,
+                ralf: "",
                 enum: enum
     end
     package "clearwater-auto-config-aws" do
