@@ -78,18 +78,19 @@ unless Chef::Config[:solo]
 
   # Set up template values for /etc/clearwater/config - any new values should
   # be added for all-in-one and distributed installs
+  # Ralf isn't currently part of the all-in-one image
   if node.roles.include? "cw_aio"
     template "/etc/clearwater/config" do
       mode "0644"
       source "config.erb"
       variables domain: "example.com",
                 node: node,
-                sprout: "localhost",
-                hs: "localhost:8888",
-                hs_prov: "localhost:8889",
-                homer: "localhost:7888",
-                chronos: "localhost:7253",
-                ralf: "localhost:10888",
+                sprout: node[:cloud][:public_hostname],
+                hs: node[:cloud][:local_ipv4] + ":8888",
+                hs_prov: node[:cloud][:local_ipv4] + ":8889",
+                homer: node[:cloud][:local_ipv4] + ":7888",
+                chronos: node[:cloud][:local_ipv4] + ":7253",
+                ralf: "",
                 enum: enum
     end
     package "clearwater-auto-config-aws" do
