@@ -107,7 +107,7 @@ unless Chef::Config[:solo]
                 hs: "hs." + domain + ":8888",
                 hs_prov: "hs." + domain + ":8889",
                 homer: "homer." + domain + ":7888",
-                chronos: "localhost:7253",
+                chronos: node[:cloud][:local_ipv4] + ":7253",
                 ralf: "ralf." + domain + ":10888",
                 enum: enum
     end
