@@ -43,7 +43,7 @@ directory "/opt/OpenIMSCore" do
 end
 
 subversion "OpenIMSCore HSS" do
-  repository "http://svn.berlios.de/svnroot/repos/openimscore/FHoSS/trunk"
+  repository "http://svn.code.sf.net/p/openimscore/code/FHoSS/trunk"
   destination "/opt/OpenIMSCore/FHoSS"
   action :sync
 end
