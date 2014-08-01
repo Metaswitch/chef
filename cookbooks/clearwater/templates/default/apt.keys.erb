@@ -1,0 +1,5 @@
+Acquire::https::<%= @repo_host %> {
+CaInfo "/etc/apt/certs/clearwater/repository-ca.crt";
+SslCert "/etc/apt/certs/clearwater/repository-server.crt";
+SslKey "/etc/apt/certs/clearwater/repository-server.key";
+};
