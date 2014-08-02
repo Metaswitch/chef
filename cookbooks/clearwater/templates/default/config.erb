@@ -41,6 +41,8 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 <% else %>upstream_port=5052
 <% end %>
 
+trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
+
 # Keys
 signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
