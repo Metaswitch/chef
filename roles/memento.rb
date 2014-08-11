@@ -1,4 +1,4 @@
-# @file memento_http.rb
+# @file memento.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2014 Metaswitch Networks Ltd
