@@ -164,7 +164,7 @@ module Clearwater
         raise unless FileTest::directory? log_folder
       end
 
-      # Timestamp the logs so, when a node fails to be created its log file is not overwritten
+      # Timestamp the logs so when a node fails to be created its log file is not overwritten
       bootstrap_log_filename = File.join(log_folder, "#{knife_create.config[:chef_node_name]}-bootstrap-#{Time.now.to_i}.log")
       bootstrap_output = File.new(bootstrap_log_filename, "w")
       bootstrap_output.sync = true

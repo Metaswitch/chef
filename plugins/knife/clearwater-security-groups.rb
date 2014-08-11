@@ -112,7 +112,6 @@ end
 def memento_security_group_rules
   [
     # HTTP
-    { ip_protocol: :tcp, min: 80, max: 80, cidr_ip: "0.0.0.0/0" },
     { ip_protocol: :tcp, min: 443, max: 443, cidr_ip: "0.0.0.0/0" },
     # Cassandra
     { ip_protocol: :tcp, min: 7000, max: 7000, group: "sprout" },
