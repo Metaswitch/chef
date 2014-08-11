@@ -62,6 +62,7 @@ def dns_records
       :value => ipv4s(find_active_nodes("ellis")),
     },
   }
+
   bono_dns = {
     "" => {
       :type  => "A",
@@ -78,12 +79,23 @@ def dns_records
     },
   }
 
+  memento_dns = {
+    "memento" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("memento")),
+      :ttl   => "60"
+    },
+  }
+
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
     dns = dns.merge(bono_dns)
   end
   if find_active_nodes("ralf").length > 0
     dns = dns.merge(ralf_dns)
+  end
+  if find_active_nodes("memento").length > 0
+    dns = dns.merge(memento_dns)
   end
 
   return dns

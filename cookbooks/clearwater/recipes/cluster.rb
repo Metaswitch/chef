@@ -137,12 +137,14 @@ end
   end
 end
 
-# Support clustering for homer and homestead
+# Support clustering for homer, homestead and memento
 if node.roles.include? "cassandra"
   node_type = if node.run_list.include? "role[homer]"
                 "homer"
               elsif node.run_list.include? "role[homestead]"
                 "homestead"
+              elsif node.run_list.include? "role[memento]"
+                "memento"
               end
   cluster_name = node_type.capitalize + "Cluster"
 
@@ -248,6 +250,16 @@ if node.roles.include? "cassandra"
           # It's possible Cassandra hasn't started up yet, so retry generously
           retries 8
           retry_delay 15
+          only_if { node[:clearwater][:index] == 1 }
+          action :run
+        end
+      elsif node_type == "memento"
+        execute "create memento schema" do
+          command "/usr/share/clearwater/cassandra-schemas/memento.sh"
+          # It's possible Cassandra hasn't started up yet, so retry generously
+          retries 8
+          retry_delay 15
+          user "root"
           only_if { node[:clearwater][:index] == 1 }
           action :run
         end
