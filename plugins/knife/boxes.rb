@@ -53,6 +53,7 @@ module Clearwater
     ]
 
     @@supported_boxes = [
+        {:name => "clearwater-infrastructure", :security_groups => ["base"], :public_ip => true},
         {:name => "cw_aio", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "bono", :security_groups => ["base", "internal-sip", "bono"], :public_ip => true},
