@@ -164,7 +164,8 @@ module Clearwater
       rescue SystemCallError => e
         raise unless FileTest::directory? log_folder
       end
-      # Timestamp the logs so, when a node fails to be created it's log file is not overwritten
+
+      # Timestamp the logs so when a node fails to be created its log file is not overwritten
       bootstrap_log_filename = File.join(log_folder, "#{knife_create.config[:chef_node_name]}-bootstrap-#{Time.now.to_i}.log")
       bootstrap_output = File.new(bootstrap_log_filename, "w")
       bootstrap_output.sync = true
@@ -174,6 +175,11 @@ module Clearwater
       # Do not keep more than 1000 log files
       log_files = Dir["#{log_folder}/*.log"].sort_by { |f| File.mtime(f) }
       log_files[0..-1000].each { |f| File.unlink(f) rescue nil }
+
+      # Node specific changes
+      if role == "sprout" and @attributes["memento_enabled"] == "Y"
+        knife_create.config[:run_list] += ["role[memento]"]
+      end
 
       # Finally, create box
       knife_create.run
@@ -249,6 +255,12 @@ def quiesce_box(box_name, env)
       ssh.exec! "sudo monit unmonitor sprout"
       ssh.exec! "sudo monit unmonitor poll_sprout"
       ssh.exec! "sudo service sprout start-quiesce"
+      if node.run_list.include? "memento"
+        ssh.exec! "sudo monit stop memento"
+        ssh.exec! "sudo monit unmonitor cassandra"
+        ssh.exec! "nodetool decommission"
+        ssh.exec! "sudo service memento start-quiesce"
+      end
     when "bono"
       ssh.exec! "sudo monit unmonitor bono"
       ssh.exec! "sudo monit unmonitor poll_bono"
@@ -285,6 +297,13 @@ def box_ready_to_delete?(box_name, env)
     when "sprout"
       ssh_return = ssh.exec! "service sprout status > /dev/null; echo $?"
       expected = "1\n"
+      if node.run_list.include? "memento" and ssh_return == "1"
+        ssh_return = ssh.exec! "service memento status > /dev/null; echo $?"
+        if ssh_return == "1"
+          ssh_return = ssh.exec! "nodetool netstats | grep DECOMMISSIONED > /dev/null; echo $?"
+          expected = "0\n"
+        end
+      end
       # If we have quiesced, pgrep shouldn't find a process and should
       # fail
     when "bono"
@@ -328,6 +347,10 @@ def unquiesce_box(box_name, env)
     when "sprout"
       ssh.exec! "sudo service sprout unquiesce"
       ssh.exec! "sudo monit start sprout"
+      if node.run_list.include? "memento"
+        ssh.exec! "sudo chef-client"
+        ssh.exec! "sudo monit start memento"
+      end
     when "bono"
       ssh.exec! "sudo service bono unquiesce"
       ssh.exec! "sudo monit start bono"
