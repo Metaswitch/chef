@@ -81,15 +81,15 @@ module Clearwater
 
     @@default_image = {
       ec2: {
-        "us-east-1" => "ami-3d4ff254",
-        "us-west-1" => "ami-fe002cbb",
-        "us-west-2" => "ami-70f96e40",
-        "eu-west-1" => "ami-ce7b6fba",
-        "ap-southeast-1" => "ami-64084736",
-        "ap-northeast-1" => "ami-fe6ceeff",
-        "ap-southeast-2" => "ami-04ea7a3e",
-        "sa-east-1" => "ami-a3da00be",
-        default: "ami-3d4ff254"
+        "us-east-1" => "ami-3251905a",
+        "us-west-1" => "ami-47582677",
+        "us-west-2" => "ami-897070cc",
+        "eu-west-1" => "ami-25865252",
+        "ap-southeast-1" => "ami-dcd6888e",
+        "ap-northeast-1" => "ami-f56d0acf",
+        "ap-southeast-2" => "ami-1b47111a",
+        "sa-east-1" => "ami-0d892710",
+        default: "ami-3251905a"
       },
       openstack: {
         "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
