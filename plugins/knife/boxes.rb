@@ -88,7 +88,7 @@ module Clearwater
         "ap-northeast-1" => "ami-f56d0acf",
         "ap-southeast-2" => "ami-1b47111a",
         "sa-east-1" => "ami-0d892710",
-        default: "ami-3d4ff254"
+        default: "ami-3251905a"
       },
       openstack: {
         "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
