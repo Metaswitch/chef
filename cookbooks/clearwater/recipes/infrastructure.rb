@@ -126,7 +126,7 @@ unless Chef::Config[:solo]
                 homer: node[:cloud][:local_ipv4] + ":7888",
                 chronos: node[:cloud][:local_ipv4] + ":7253",
                 ralf: "",
-                cdf: "cdf." + domain,
+                cdf: "",
                 enum: enum
     end
     package "clearwater-auto-config-aws" do
