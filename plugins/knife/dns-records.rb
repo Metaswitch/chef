@@ -63,17 +63,6 @@ module Clearwater
       end
     end
 
-    # Delete a specified record
-    def delete_record(subdomain, options)
-      options = @options.merge(options)
-      options[:subdomain] = subdomain
-      record = find_by_name_and_type(options)
-      if record
-        Chef::Log.info "Deleting record for '#{record.name}'"
-        record.destroy
-      end
-    end
-
     # Converge on a collection of specified DNS entries
     def create_or_update_deployment_records(definitions, env_name, attributes)
       definitions.each do |record_name, record|
@@ -176,5 +165,19 @@ module Clearwater
         raise e
       end
     end
+
+    # Delete a specified record
+    def delete_record(subdomain, options)
+      options = @options.merge(options)
+      options[:subdomain] = subdomain
+      Chef::Log.info "delete_record with options #{options}"
+      record = find_by_name_and_type(options)
+      if record
+        Chef::Log.info "Deleting record for '#{record.name}'"
+        record.destroy
+      end
+    end
+
+
   end
 end
