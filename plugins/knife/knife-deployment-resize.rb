@@ -243,7 +243,12 @@ module ClearwaterKnifePlugins
     end
 
     def delete_quiesced_boxes(env)
-      find_quiescing_nodes(env).each do |v|
+      record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
+
+      quiesced_boxes = find_quiescing_nodes(env)
+      record_manager.delete_node_records(quiesced_boxes)
+
+      quiesced_boxes.each do |v|
         delete_box(v.name, env)
       end
     end
