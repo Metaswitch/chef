@@ -185,6 +185,7 @@ module Clearwater
       if role == "sprout" and @attributes["gemini_enabled"] == "Y"
         knife_create.config[:run_list] += ["role[gemini]"]
       end
+
       # Finally, create box
       knife_create.run
       return knife_create.server
