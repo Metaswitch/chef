@@ -1,4 +1,4 @@
-# @file memento.rb
+# @file gemini.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2014 Metaswitch Networks Ltd
@@ -32,12 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "memento-nginx" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "memento-as" do
-  action [:install]
-  options "--force-yes"
-end
+name "gemini"
+description "gemini role"
+run_list [
+  "recipe[clearwater::gemini]"
+]
