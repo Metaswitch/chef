@@ -40,5 +40,6 @@ end
 # Perform daily backup of database
 cron "backup" do
   hour 0 
-  command "/usr/share/clearwater/homer/backup/do_backup.sh homer"
+  minute 0
+  command "/usr/share/clearwater/bin/do_backup.sh homer"
 end

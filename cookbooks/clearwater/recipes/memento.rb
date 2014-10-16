@@ -41,3 +41,10 @@ package "memento-as" do
   action [:install]
   options "--force-yes"
 end
+
+# Perform daily backup of database
+cron "backup" do
+  hour 0
+  minute 0
+  command "/usr/share/clearwater/bin/do_backup.sh memento"
+end
