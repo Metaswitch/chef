@@ -1,7 +1,7 @@
-# @file metadata.rb
+# @file call-diversion-as.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2014 Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,16 +10,16 @@
 # the program along with SSL, set forth below. This program is distributed
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# A PARTICULAR PURPOSE. See the GNU General Public License for more
 # details. You should have received a copy of the GNU General Public
-# License along with this program.  If not, see
+# License along with this program. If not, see
 # <http://www.gnu.org/licenses/>.
 #
 # The author can be reached by email at clearwater@metaswitch.com or by
 # post at Metaswitch Networks Ltd, 100 Church St, Enfield EN2 6BQ, UK
 #
 # Special Exception
-# Metaswitch Networks Ltd  grants you permission to copy, modify,
+# Metaswitch Networks Ltd grants you permission to copy, modify,
 # propagate, and distribute a work formed by combining OpenSSL with The
 # Software, or a work derivative of such a combination, even if such
 # copying, modification, propagation, or distribution would otherwise
@@ -32,9 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-maintainer       "YOUR_COMPANY_NAME"
-maintainer_email "YOUR_EMAIL"
-license          "All rights reserved"
-description      "Installs/Configures clearwater"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.0.10"
+package "call-diversion-as" do
+  action [:install]
+  options "--force-yes"
+end
