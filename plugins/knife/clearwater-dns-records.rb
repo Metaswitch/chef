@@ -85,6 +85,12 @@ def dns_records
       :value => ipv4s_local(find_active_nodes("memento")),
       :ttl   => "60"
     },
+
+    "mementohttp" => {
+      :type  => "A",
+      :value => ipv4s(find_active_nodes("memento")),
+      :ttl   => "60"
+    },
   }
 
   dns = dns.merge(base_dns)
