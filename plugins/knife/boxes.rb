@@ -186,6 +186,11 @@ module Clearwater
         knife_create.config[:run_list] += ["role[gemini]"]
       end
 
+      # Node specific changes
+      if role == "sprout" and @attributes["cdiv_as_enabled"] == "Y"
+        knife_create.config[:run_list] += ["role[call-diversion-as]"]
+      end
+
       # Finally, create box
       knife_create.run
       return knife_create.server
