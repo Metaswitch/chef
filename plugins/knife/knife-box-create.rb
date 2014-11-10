@@ -101,6 +101,7 @@ module ClearwaterKnifePlugins
         cacti: nil,
         plivo: nil,
         openimscorehss: nil,
+        mangelwurzel: nil,
         cw_aio: nil,
         cw_ami: nil
       }
