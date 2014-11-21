@@ -43,8 +43,6 @@ def base_security_group_rules
     { ip_protocol: :icmp, min: 3, max: -1, cidr_ip: "0.0.0.0/0" },
     # SSH
     { ip_protocol: :tcp, min: 22, max: 22, cidr_ip: "0.0.0.0/0" },
-    # NTP
-    { ip_protocol: :udp, min: 123, max: 123, cidr_ip: "0.0.0.0/0" },
     # SNMP
     { ip_protocol: :udp, min: 161, max: 161, cidr_ip: "0.0.0.0/0" },
     # Monit
