@@ -103,7 +103,8 @@ module ClearwaterKnifePlugins
         openimscorehss: nil,
         mangelwurzel: nil,
         cw_aio: nil,
-        cw_ami: nil
+        cw_ami: nil,
+        seagull: nil
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
