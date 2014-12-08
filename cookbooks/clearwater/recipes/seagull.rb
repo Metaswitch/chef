@@ -1,7 +1,7 @@
-# @file openimscorehss.rb
+# @file seagull.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013 Metaswitch Networks Ltd
+# Copyright (C) 2014 Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,14 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-#seagull_package = if node[:clearwater][:seagull]
- #                   node[:clearwater][:seagull]
-  #                else
-   #                 "clearwater-seagull"
-    #              end
 package node[:clearwater][:seagull] do
-#package "clearwater-seagull" do
-#package @options[:seagull] do
   action [:install]
   options "--force-yes"
 end
