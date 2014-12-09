@@ -93,6 +93,20 @@ def dns_records
     },
   }
 
+  seagull_dns = {
+    "cdf.seagull" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("seagull")),
+      :ttl   => "60"
+    },
+
+    "hss.seagull" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("seagull")),
+      :ttl   => "60"
+    },
+  }
+
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
     dns = dns.merge(bono_dns)
@@ -102,6 +116,9 @@ def dns_records
   end
   if find_active_nodes("memento").length > 0
     dns = dns.merge(memento_dns)
+  end
+  if find_active_nodes("seagull").length > 0
+    dns = dns.merge(seagull_dns)
   end
 
   return dns

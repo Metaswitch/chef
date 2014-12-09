@@ -109,6 +109,20 @@ unless Chef::Config[:solo]
              node[:clearwater][:root_domain]
            end
 
+  if node[:clearwater][:seagull]
+    hss = "hss.seagull." + domain
+    cdf = "cdf.seagull." + domain
+  else
+    hss = nil
+    cdf = "cdf." + domain
+  end
+
+  ralf = if node[:clearwater][:ralf] and node[:clearwater][:ralf] > 0
+           "ralf." + domain + ":10888"
+         else
+           ""
+         end
+
   enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
   # Set up template values for /etc/clearwater/config - any new values should
@@ -127,7 +141,8 @@ unless Chef::Config[:solo]
                 chronos: node[:cloud][:local_ipv4] + ":7253",
                 ralf: "",
                 cdf: "",
-                enum: enum
+                enum: enum,
+                hss: hss
     end
     package "clearwater-auto-config-aws" do
       action [:install]
@@ -144,9 +159,10 @@ unless Chef::Config[:solo]
                 hs_prov: "hs." + domain + ":8889",
                 homer: "homer." + domain + ":7888",
                 chronos: node[:cloud][:local_ipv4] + ":7253",
-                ralf: "ralf." + domain + ":10888",
-                cdf: "cdf." + domain,
-                enum: enum
+                ralf: ralf,
+                cdf: cdf,
+                enum: enum,
+                hss: hss
     end
   end
 end

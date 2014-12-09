@@ -70,6 +70,10 @@ module ClearwaterKnifePlugins
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
 
+    option :seagull,
+      :long => "--seagull <seagull package to install>",
+      :description => "Installs a seagull node."
+
     option :fail_limit,
       :long => "--fail-limit FAIL_LIMIT",
       :default => 5,
@@ -124,7 +128,7 @@ module ClearwaterKnifePlugins
     def launch_box(box, environment, retries)
       success = false
 
-      # Since we run this in an agressively multi-threaded way, smear our start
+      # Since we run this in an aggressively multi-threaded way, smear our start
       # times out randomly over a 5 second period to avoid spamming cloud
       # provisioning APIs.
       sleep(rand * 5)
@@ -137,6 +141,8 @@ module ClearwaterKnifePlugins
           box_create.config[:verbosity] = config[:verbosity]
           Chef::Config[:verbosity] = config[:verbosity]
           box_create.config[:cloud] = config[:cloud]
+          box_create.config[:seagull] = config[:seagull]
+          box_create.config[:ralf] = config[:ralf_count]
           box_create.run
         rescue Exception => e
           Chef::Log.error "Failed to create node: #{e}"
@@ -204,7 +210,7 @@ module ClearwaterKnifePlugins
     def potential_deletions
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       # Don't delete any AIO/AMI nodes
       victims.delete_if { |v| v.roles.include? "cw_aio" }
@@ -275,7 +281,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp ralf}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull}.each do |node|
         result[node.to_sym] = find_nodes(roles: "clearwater-infrastructure", role: node).length
       end
       return result
@@ -332,6 +338,11 @@ module ClearwaterKnifePlugins
         %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
           if config["#{node}_count".to_sym]
             bad_options << "--#{node}_count"
+          end
+        end
+        %w{seagull}.each do |node|
+          if config["#{node}".to_sym]
+            bad_options << "--#{node}"
           end
         end
         if config[:subscribers]
@@ -397,6 +408,8 @@ module ClearwaterKnifePlugins
       # Set up new box counts based on supplied config, or existing state.
       # If an essential node type currently has no boxes, make sure we
       # create one.
+      seagull_count = (config[:seagull] ? 1 : 0)
+
       new_counts = {
         ellis: 1,
         bono: config[:bono_count] || [old_counts[:bono], 1].max,
@@ -405,7 +418,8 @@ module ClearwaterKnifePlugins
         homer: config[:homer_count] || [old_counts[:homer], 1].max,
         sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
-        sipp: config[:sipp_count] || old_counts[:sipp] }
+        sipp: config[:sipp_count] || old_counts[:sipp],
+        seagull: seagull_count || old_counts[:seagull] }
 
       if not in_stable_state? env
         if old_counts == new_counts
@@ -536,6 +550,10 @@ module ClearwaterKnifePlugins
       ["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf"].each do |node|
         Thread.current[:status]["Nodes"][node] =
           {:status => "Pending", :count => config["#{node}_count".to_sym]}
+      end
+      ["seagull"].each do |node|
+        Thread.current[:status]["Nodes"][node] =
+          {:status => "Pending", :count => (config[:seagull] ? 1 : 0)}
       end
     end
 

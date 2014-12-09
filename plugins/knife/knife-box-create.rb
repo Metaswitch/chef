@@ -103,11 +103,12 @@ module ClearwaterKnifePlugins
         openimscorehss: nil,
         mangelwurzel: nil,
         cw_aio: nil,
-        cw_ami: nil
+        cw_ami: nil,
+        seagull: nil
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
-      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym]})
+      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym], ralf: config[:ralf], seagull: config[:seagull]})
       instance_id = new_box.id
 
       if role == "cw_ami"

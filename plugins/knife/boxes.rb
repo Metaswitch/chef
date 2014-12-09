@@ -70,6 +70,7 @@ module Clearwater
         {:name => "plivo", :security_groups => ["base", "internal-sip", "plivo"], :public_ip => true},
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},
         {:name => "mangelwurzel", :security_groups => ["base", "internal-sip"]},
+        {:name => "seagull", :security_groups => ["base", "seagull"]},
       ]
 
     @@supported_roles = @@supported_boxes.map { |r| r[:name] }
@@ -130,6 +131,7 @@ module Clearwater
         knife_create.config[:json_attributes] = {:clearwater => {:index => options[:index]}}
       else
         knife_create.config[:chef_node_name] = "#{@environment}-#{role}"
+        knife_create.config[:json_attributes] = {:clearwater => {}}
       end
       # Note that by default Rackspace does not use ssh auth, however we use a
       # preconfigured image with the correct ssh key
@@ -177,20 +179,25 @@ module Clearwater
       log_files = Dir["#{log_folder}/*.log"].sort_by { |f| File.mtime(f) }
       log_files[0..-1000].each { |f| File.unlink(f) rescue nil }
 
-      # Node specific changes
+      # Node specific changes - Add memento role
       if role == "sprout" and @attributes["memento_enabled"] == "Y"
         knife_create.config[:run_list] += ["role[memento]"]
       end
 
-      # Node specific changes
+      # Node specific changes - Add gemini role
       if role == "sprout" and @attributes["gemini_enabled"] == "Y"
         knife_create.config[:run_list] += ["role[gemini]"]
       end
 
-      # Node specific changes
+      # Node specific changes - Add cdiv_as role
       if role == "sprout" and @attributes["cdiv_as_enabled"] == "Y"
         knife_create.config[:run_list] += ["role[call-diversion-as]"]
       end
+
+      # Add ralf/seagull configuration - this will affect /etc/clearwater/config
+      # on non-ralf/seagull nodes
+      knife_create.config[:json_attributes][:clearwater][:seagull] = options[:seagull]
+      knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
       # Finally, create box
       knife_create.run
