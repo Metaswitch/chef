@@ -94,15 +94,15 @@ def dns_records
   }
 
   seagull_dns = {
-    "cdf" => {
+    "cdf.seagull" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("seagull")),
       :ttl   => "60"
     },
 
-    "hss" => {
+    "hss.seagull" => {
       :type  => "A",
-      :value => ipv4s(find_active_nodes("seagull")),
+      :value => ipv4s_local(find_active_nodes("seagull")),
       :ttl   => "60"
     },
   }

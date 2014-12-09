@@ -194,10 +194,10 @@ module Clearwater
         knife_create.config[:run_list] += ["role[call-diversion-as]"]
       end
 
-      # Node specific changes - Add seagull package to install
-      if role == "seagull"
-        knife_create.config[:json_attributes][:clearwater][:seagull] = options[:seagull]
-      end
+      # Add ralf/seagull configuration - this will affect /etc/clearwater/config
+      # on non-ralf/seagull nodes
+      knife_create.config[:json_attributes][:clearwater][:seagull] = options[:seagull]
+      knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
       # Finally, create box
       knife_create.run
