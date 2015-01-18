@@ -151,7 +151,7 @@ module ClearwaterKnifePlugins
       req = Net::HTTP::Get.new(uri.path)
 
       http_opts = {}
-      if server[0..4] == "https"
+      if uri.scheme == "https"
         # Get the client-side keys from the databag and use them
         keys = Chef::EncryptedDataBagItem.load("repo_keys", "generic")
         raw_crt = keys["repository-server.crt"]
