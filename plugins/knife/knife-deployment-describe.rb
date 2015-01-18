@@ -114,10 +114,59 @@ module ClearwaterKnifePlugins
       }
     end
 
+    # Reformats a PEM-encoded certificate into the format needed by
+    # OpenSSL (begin/end on their own-line, 64-character lines) and
+    # creates an OpenSSL certificate from it
+    def format_cert(raw_crt)
+      raw_crt = raw_crt.split("-----")[2]
+      str = "-----BEGIN CERTIFICATE-----\n"
+      index = 0
+      while index < raw_crt.length
+        str << raw_crt[index..index+63]
+        str << "\n"
+        index += 64
+      end
+      str << "-----END CERTIFICATE-----\n"
+      OpenSSL::X509::Certificate.new str
+    end
+
+    # Reformats a PEM-encoded RSA key into the format needed by
+    # OpenSSL (begin/end on their own-line, 64-character lines) and
+    # creates an OpenSSL key from it
+    def format_key(raw_key)
+      raw_key = raw_key.split("-----")[2]
+      str = "-----BEGIN RSA PRIVATE KEY-----\n"
+      index = 0
+      while index < raw_key.length
+        str << raw_key[index..index+63]
+        str << "\n"
+        index += 64
+      end
+      str << "-----END RSA PRIVATE KEY-----\n"
+      OpenSSL::PKey::RSA.new str
+    end
+
     def fetch_package_versions(server)
       uri = URI(server + '/binary/Packages')
-      package_info = Net::HTTP.get(uri)
-      package_list = package_info.split /\n\n/
+      req = Net::HTTP::Get.new(uri.path)
+
+      http_opts = {}
+      if uri.scheme == "https"
+        # Get the client-side keys from the databag and use them
+        keys = Chef::EncryptedDataBagItem.load("repo_keys", "generic")
+        raw_crt = keys["repository-server.crt"]
+        raw_key = keys["repository-server.key"]
+        http_opts = {:use_ssl => true,
+                     :verify_mode => OpenSSL::SSL::VERIFY_NONE,
+                     :cert => format_cert(raw_crt),
+                     :key => format_key(raw_key)}
+      end
+
+      package_info = Net::HTTP.start(uri.host, uri.port, http_opts) do |http|
+        http.request(req)
+      end
+
+      package_list = package_info.body.split /\n\n/
       versions = {}
       package_list.each do |package|
         name = /Package: (.+)\n/.match package
