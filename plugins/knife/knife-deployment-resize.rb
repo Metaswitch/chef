@@ -142,7 +142,7 @@ module ClearwaterKnifePlugins
           Chef::Config[:verbosity] = config[:verbosity]
           box_create.config[:cloud] = config[:cloud]
           box_create.config[:seagull] = config[:seagull]
-          box_create.config[:ralf] = config[:ralf_count]
+          box_create.config[:ralf] = (config[:ralf_count] > 0)
           box_create.run
         rescue Exception => e
           Chef::Log.error "Failed to create node: #{e}"
