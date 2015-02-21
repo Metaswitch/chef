@@ -33,6 +33,7 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
+require_relative 'trigger-chef-client'
 require_relative 'cluster-boxes'
 require_relative 'boxes'
 
@@ -40,6 +41,7 @@ module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
     include ClearwaterKnifePlugins::ClusterBoxes
+    include ClearwaterKnifePlugins::TriggerChefClient
 
     banner "knife deployment resize -E ENV"
 
@@ -142,7 +144,7 @@ module ClearwaterKnifePlugins
           Chef::Config[:verbosity] = config[:verbosity]
           box_create.config[:cloud] = config[:cloud]
           box_create.config[:seagull] = config[:seagull]
-          box_create.config[:ralf] = (config[:ralf_count] > 0)
+          box_create.config[:ralf] = (config[:ralf_count] and (config[:ralf_count] > 0))
           box_create.run
         rescue Exception => e
           Chef::Log.error "Failed to create node: #{e}"
@@ -287,6 +289,36 @@ module ClearwaterKnifePlugins
       return result
     end
 
+    def update_ralf_hostname environment, cloud
+      ralfs = find_nodes(roles: "clearwater-infrastructure", role: "ralf").length
+
+      changed_nodes = []
+
+      %w{bono ibcf sprout ralf}.each do |node_type|
+        find_nodes(roles: "clearwater-infrastructure", role: node_type).each do |node|
+          has_ralf = node.set[:clearwater][:ralf]
+          puts "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
+          if (ralfs == 0) && has_ralf
+            node.set[:clearwater][:ralf] = false
+            node.save
+            changed_nodes << node.name
+          elsif (ralfs > 0) && (not has_ralf)
+            node.set[:clearwater][:ralf] = true
+            node.save
+            changed_nodes << node.name
+          end
+            
+        end
+      end
+
+      unless changed_nodes.empty?
+        query_string_nodes = changed_nodes.map { |n| "name:#{n}" }.join " OR "
+        query_string = "chef_environment:#{environment} AND (#{query_string_nodes})"
+        puts query_string
+        trigger_chef_client(cloud, query_string, true)
+      end
+    end
+
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions.map {|v| v.name}
@@ -383,6 +415,7 @@ module ClearwaterKnifePlugins
           end
         end
 
+        update_ralf_hostname config[:environment], config[:cloud].to_sym
         return
       end
 
@@ -512,6 +545,8 @@ module ClearwaterKnifePlugins
         # separate --finish step
         delete_quiesced_boxes env
       end
+      
+      update_ralf_hostname config[:environment], config[:cloud].to_sym
 
     end
 
