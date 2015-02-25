@@ -283,7 +283,11 @@ def seagull_security_group_rules
 end
 
 def cw_aio_security_group_rules
-  bono_external_security_group_rules + ellis_security_group_rules
+  bono_external_security_group_rules + ellis_security_group_rules +
+  [
+    # Statistics interface
+    { ip_protocol: :tcp, min: 6665, max: 6669, cidr_ip: "0.0.0.0/0" },
+  ]
 end
 
 def clearwater_security_groups
