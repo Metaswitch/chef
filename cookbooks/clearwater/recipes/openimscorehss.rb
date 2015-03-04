@@ -45,11 +45,12 @@ end
 subversion "OpenIMSCore HSS" do
   repository "http://svn.code.sf.net/p/openimscore/code/FHoSS/trunk"
   destination "/opt/OpenIMSCore/FHoSS"
+  revision "1193"
   action :sync
 end
 
 execute "mysql" do
-  command "mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/hss_db.sql && mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/userdata.sql"
+  command "mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/hss_db.sql && mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/userdata.sql && mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/hss_db_migrate_as_register.sql"
 end
 
 execute "ant" do
