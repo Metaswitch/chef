@@ -296,8 +296,8 @@ module ClearwaterKnifePlugins
 
       %w{bono ibcf sprout ralf}.each do |node_type|
         find_nodes(roles: "clearwater-infrastructure", role: node_type).each do |node|
-          has_ralf = node.set[:clearwater][:ralf]
-          puts "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
+          has_ralf = node[:clearwater][:ralf]
+          Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
           if (ralfs == 0) && has_ralf
             node.set[:clearwater][:ralf] = false
             node.save
@@ -314,7 +314,6 @@ module ClearwaterKnifePlugins
       unless changed_nodes.empty?
         query_string_nodes = changed_nodes.map { |n| "name:#{n}" }.join " OR "
         query_string = "chef_environment:#{environment} AND (#{query_string_nodes})"
-        puts query_string
         trigger_chef_client(cloud, query_string, true)
       end
     end
@@ -382,7 +381,7 @@ module ClearwaterKnifePlugins
         end
 
         if not bad_options.empty?
-          puts "Cannot specify --finish option with #{bad_options.join("/")}"
+          Chef::Log.error "Cannot specify --finish option with #{bad_options.join("/")}"
           return
         end
 
@@ -396,7 +395,7 @@ module ClearwaterKnifePlugins
           Chef::Log.info "Deleting quiesced boxes..."
           delete_quiesced_boxes env
         else
-          puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+          Chef::Log.error "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
         # Clear the "joining" attribute on all the sprouts, ralfs,
@@ -415,7 +414,7 @@ module ClearwaterKnifePlugins
           end
         end
 
-        update_ralf_hostname config[:environment], config[:cloud].to_sym
+        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
         return
       end
 
@@ -459,7 +458,7 @@ module ClearwaterKnifePlugins
           unquiesce_boxes(env)
           return
         else
-          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
+          Chef::Log.error 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
           return
         end
       end
