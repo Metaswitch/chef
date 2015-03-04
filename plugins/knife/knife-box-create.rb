@@ -74,6 +74,12 @@ module ClearwaterKnifePlugins
         end
       end)
 
+    option :ralf,
+      :long => "--with-ralf",
+      :boolean => true,     
+      :default => false,
+      :description => "Does this deployment have a Ralf?"
+
     def run()
       unless name_args.size == 1
         ui.fatal "You need to supply a box role name"
@@ -108,7 +114,7 @@ module ClearwaterKnifePlugins
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
-      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym], ralf: config[:ralf], seagull: config[:seagull]})
+      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
       instance_id = new_box.id
 
       if role == "cw_ami"

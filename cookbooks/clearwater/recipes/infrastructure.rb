@@ -117,7 +117,7 @@ unless Chef::Config[:solo]
     cdf = "cdf." + domain
   end
 
-  ralf = if node[:clearwater][:ralf] and node[:clearwater][:ralf] > 0
+  ralf = if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
            "ralf." + domain + ":10888"
          else
            ""

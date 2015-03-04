@@ -1,7 +1,7 @@
-# @file cluster-boxes.rb
+# @file trigger-chef-client.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015 Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,41 +32,40 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-require 'chef/knife'
-require_relative 'trigger-chef-client'
-
 module ClearwaterKnifePlugins
-  module ClusterBoxes
-    include ClearwaterKnifePlugins::TriggerChefClient
-    # Trigger clustering of the nodes of a given type.
+  module TriggerChefClient
+    # Trigger `chef-client` on all nodes in the local environment that match
+    # the given `query_string`.
     #
-    # For perfomance reasons, we should only run chef-client on devices that
-    # **need** to be told about the re-clustering.  In general this will
-    # always include new nodes, and currently includes all existing nodes
-    # for Cassandra based nodes like Homer and Homestead, and memcached
-    # based Sprout nodes.  For Infinispan based sprout nodes it would be
-    # possible to avoid re-clustering existing nodes.
-    #
-    # @param role [String] Nodes of this role will be clustered.
-    def cluster_boxes(role, cloud)
-      if ["homer", "homestead", "sprout", "ralf"].include? role
-        add_cluster_role(role)
-        trigger_chef_client(cloud, query_string(true, role: role))
-      else
-        fail "Clustering of #{role} nodes not supported"
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param query_string [String] A Chef-format query string to match on.
+    def trigger_chef_client(cloud, query_string, restart_all=false)
+      Chef::Knife::Ssh.load_deps
+      knife_ssh = Chef::Knife::Ssh.new
+      knife_ssh.merge_configs
+      knife_ssh.config[:ssh_user] = 'ubuntu'
+      if cloud == :openstack
+        # Guard against boxes which do not have a public hostname
+        knife_ssh.config[:attribute] = 'ipaddress'
       end
-    end
+      knife_ssh.config[:identity_file] = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
+      knife_ssh.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      knife_ssh.config[:on_error] = :raise
+      command = if restart_all
+                  "sudo nice -n 19 chef-client; sudo monit restart all"
+                else
+                  "sudo nice -n 19 chef-client"
+                end
+                  
 
-    # Adds the cluster role to all nodes of a given role.
-    #
-    # @param role [String] The role to apply this change to
-    def add_cluster_role(role)
-      nodes = find_nodes(role: role)
-      nodes.each do |s|
-        s.run_list << "role[clustered]"
-        s.save
-      end
+      # Run chef-client at maximum niceness to minimize the hit on potentially
+      # heavily loaded nodes.
+      knife_ssh.name_args = [
+        query_string,
+        command
+      ]
+      knife_ssh.run
     end
-
   end
 end

@@ -33,6 +33,7 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
+require_relative 'trigger-chef-client'
 require_relative 'cluster-boxes'
 require_relative 'boxes'
 
@@ -40,6 +41,7 @@ module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
     include ClearwaterKnifePlugins::ClusterBoxes
+    include ClearwaterKnifePlugins::TriggerChefClient
 
     banner "knife deployment resize -E ENV"
 
@@ -142,7 +144,7 @@ module ClearwaterKnifePlugins
           Chef::Config[:verbosity] = config[:verbosity]
           box_create.config[:cloud] = config[:cloud]
           box_create.config[:seagull] = config[:seagull]
-          box_create.config[:ralf] = config[:ralf_count]
+          box_create.config[:ralf] = (config[:ralf_count] and (config[:ralf_count] > 0))
           box_create.run
         rescue Exception => e
           Chef::Log.error "Failed to create node: #{e}"
@@ -287,6 +289,35 @@ module ClearwaterKnifePlugins
       return result
     end
 
+    def update_ralf_hostname environment, cloud
+      ralfs = find_nodes(roles: "clearwater-infrastructure", role: "ralf").length
+
+      changed_nodes = []
+
+      %w{bono ibcf sprout ralf}.each do |node_type|
+        find_nodes(roles: "clearwater-infrastructure", role: node_type).each do |node|
+          has_ralf = node[:clearwater][:ralf]
+          Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
+          if (ralfs == 0) && has_ralf
+            node.set[:clearwater][:ralf] = false
+            node.save
+            changed_nodes << node.name
+          elsif (ralfs > 0) && (not has_ralf)
+            node.set[:clearwater][:ralf] = true
+            node.save
+            changed_nodes << node.name
+          end
+            
+        end
+      end
+
+      unless changed_nodes.empty?
+        query_string_nodes = changed_nodes.map { |n| "name:#{n}" }.join " OR "
+        query_string = "chef_environment:#{environment} AND (#{query_string_nodes})"
+        trigger_chef_client(cloud, query_string, true)
+      end
+    end
+
     def confirm_changes(old, new)
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions.map {|v| v.name}
@@ -350,7 +381,7 @@ module ClearwaterKnifePlugins
         end
 
         if not bad_options.empty?
-          puts "Cannot specify --finish option with #{bad_options.join("/")}"
+          Chef::Log.error "Cannot specify --finish option with #{bad_options.join("/")}"
           return
         end
 
@@ -364,7 +395,7 @@ module ClearwaterKnifePlugins
           Chef::Log.info "Deleting quiesced boxes..."
           delete_quiesced_boxes env
         else
-          puts "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
+          Chef::Log.error "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
         end
 
         # Clear the "joining" attribute on all the sprouts, ralfs,
@@ -383,6 +414,7 @@ module ClearwaterKnifePlugins
           end
         end
 
+        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
         return
       end
 
@@ -426,7 +458,7 @@ module ClearwaterKnifePlugins
           unquiesce_boxes(env)
           return
         else
-          puts 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
+          Chef::Log.error 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
           return
         end
       end
@@ -512,6 +544,8 @@ module ClearwaterKnifePlugins
         # separate --finish step
         delete_quiesced_boxes env
       end
+      
+      update_ralf_hostname config[:environment], config[:cloud].to_sym
 
     end
 
