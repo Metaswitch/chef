@@ -1,4 +1,4 @@
-# @file sprout.rb
+# @file ralf.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -31,6 +31,21 @@
 # "OpenSSL Licenses" means the OpenSSL License and Original SSLeay License
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
+
+directory "/etc/chronos/" do
+  owner "root"
+  group "root"
+  recursive true
+end
+
+template "/etc/chronos/chronos.conf" do
+  source "cluster/chronos.conf.erb"
+  mode 0644
+  owner "root"
+  group "root"
+  variables servers: [node],
+            localhost: node.cloud.local_ipv4
+end
 
 package "chronos" do
   action [:install]
