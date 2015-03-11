@@ -499,7 +499,7 @@ module ClearwaterKnifePlugins
         run_astaire(config[:cloud].to_sym, "reload")
       end
 
-      if !finish
+      if finish
         Chef::Log.info "Finishing resize operation"
 
         # Check no incompatible options are specified.  If we've just done start
