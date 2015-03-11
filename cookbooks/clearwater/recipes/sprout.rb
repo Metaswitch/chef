@@ -32,6 +32,21 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+directory "/etc/chronos/" do
+  owner "root"
+  group "root"
+  recursive true
+end
+
+template "/etc/chronos/chronos.conf" do
+  source "cluster/chronos.conf.erb"
+  mode 0644
+  owner "root"
+  group "root"
+  variables servers: [node],
+            localhost: node.cloud.local_ipv4
+end
+
 package "chronos" do
   action [:install]
   options "--force-yes"
