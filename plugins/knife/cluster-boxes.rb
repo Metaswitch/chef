@@ -68,5 +68,53 @@ module ClearwaterKnifePlugins
       end
     end
 
+    # Run the specified command on all nodes in the local environment that match
+    # the given `query_string`.  This should only be used for "trigger" operations,
+    # not for changing configuration - trigger_chef_client should be used for that.
+    #
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param query_string [String] A Chef-format query string to match on.
+    # @param command [String] A shell command to run
+    def run_command(cloud, query_string, command)
+      Chef::Knife::Ssh.load_deps
+      knife_ssh = Chef::Knife::Ssh.new
+      knife_ssh.merge_configs
+      knife_ssh.config[:ssh_user] = 'ubuntu'
+      if cloud == :openstack
+        # Guard against boxes which do not have a public hostname
+        knife_ssh.config[:attribute] = 'ipaddress'
+      end
+      knife_ssh.config[:identity_file] = "#{attributes["keypair_dir"]}/#{attributes["keypair"]}.pem"
+      knife_ssh.config[:verbosity] = config[:verbosity]
+      Chef::Config[:verbosity] = config[:verbosity]
+      knife_ssh.config[:on_error] = :raise
+      knife_ssh.name_args = [
+        query_string,
+        command
+      ]
+      knife_ssh.run
+    end
+
+    # Trigger `chef-client` on all nodes in the local environment that match
+    # the given `query_string`.
+    #
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param query_string [String] A Chef-format query string to match on.
+    def trigger_chef_client(cloud, query_string)
+      run_command(cloud, query_string, "sudo nice -n 19 chef-client")
+    end
+
+    # Run the specified `astaire` command on all nodes in the local environment
+    # that match the given `query_string`.
+    #
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param command [String] The command to send to `astaire`.
+    def run_astaire(cloud, command)
+      %w{sprout ralf}.each do |role|
+        if find_active_nodes(role).length > 0
+          run_command(cloud, query_string(true, role: role), "sudo service astaire #{command}")
+        end
+      end
+    end
   end
 end

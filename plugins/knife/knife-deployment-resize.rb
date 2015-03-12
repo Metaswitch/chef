@@ -105,13 +105,17 @@ module ClearwaterKnifePlugins
         end
       end)
 
+    option :start,
+      :long => "--start",
+      :description => "Starts a new resize operation."
+
     option :finish,
       :long => "--finish",
       :description => "Finishes a previously started resize operation."
 
     option :force,
       :long => "--force",
-      :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss. When used without --finish, destroys nodes immediately without requiring a separate --finish step."
+      :description => "When used with --finish, finishes a previously started resize operation by destroying the nodes regardless of possible call failures or data loss."
 
     # Auto-scaling parameters
     #
@@ -318,7 +322,7 @@ module ClearwaterKnifePlugins
       end
     end
 
-    def confirm_changes(old, new)
+    def confirm_changes(old, new, finish)
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions.map {|v| v.name}
       new_names = create_cluster(new).map do |n|
@@ -334,10 +338,11 @@ module ClearwaterKnifePlugins
         end
       end
       unless victim_boxes.empty?
-        ui.msg "The following boxes will be quiesced (run 'knife deployment resize -E <env> --finish' afterwards to terminate them):"
+        ui.msg "The following boxes will be quiesced:"
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end
+        ui.msg "(run 'knife deployment resize -E <env> --finish' afterwards to terminate them):" unless finish
       end
 
       fail "Exiting on user request" unless continue?
@@ -359,44 +364,178 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      Chef::Log.info "Creating deployment in environment: #{config[:environment]}"
+      Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
 
-      if config[:finish]
-        # Finishing an earlier started resize.
+      # Default is to start and finish processing.  If either --start or --finish is
+      # specified, just do that.  (If both are specified, do both.)  If --force is
+      # specified, this always implies --finish.
+      start = config[:start] || !config[:finish]
+      finish = config[:finish] || config[:force] || !config[:start]
 
-        # Check no incompatible options are specified.
-        bad_options = []
-        %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
-          if config["#{node}_count".to_sym]
-            bad_options << "--#{node}_count"
+      if start
+        Chef::Log.info "Starting resize operation"
+
+        # Calculate box counts from subscriber count
+        calculate_box_counts(config) if config[:subscribers]
+  
+        # Initialize status object
+        init_status
+  
+        # Create security groups
+        status["Security Groups"][:status] = "Configuring..."
+        Chef::Log.info "Creating security groups..."
+        sg_create = SecurityGroupsCreate.new("-E #{config[:environment]}".split)
+        sg_create.config[:verbosity] = config[:verbosity]
+        Chef::Config[:verbosity] = config[:verbosity]
+        sg_create.run
+        status["Security Groups"][:status] = "Done"
+        set_progress 10
+  
+        # Enumerate current box counts so we can compare the desired list
+        old_counts = get_current_counts
+  
+        # Set up new box counts based on supplied config, or existing state.
+        # If an essential node type currently has no boxes, make sure we
+        # create one.
+        seagull_count = (config[:seagull] ? 1 : 0)
+  
+        new_counts = {
+          ellis: 1,
+          bono: config[:bono_count] || [old_counts[:bono], 1].max,
+          homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
+          ralf: config[:ralf_count] || old_counts[:ralf],
+          homer: config[:homer_count] || [old_counts[:homer], 1].max,
+          sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
+          ibcf: config[:ibcf_count] || old_counts[:ibcf],
+          sipp: config[:sipp_count] || old_counts[:sipp],
+          seagull: seagull_count || old_counts[:seagull] }
+  
+        if not in_stable_state? env
+          if old_counts == new_counts
+            unquiesce_boxes(env)
+            return
+          else
+            Chef::Log.error 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
+            return
           end
         end
-        %w{seagull}.each do |node|
-          if config["#{node}".to_sym]
-            bad_options << "--#{node}"
+  
+        # Confirm changes if there are any
+        confirm_changes(old_counts, new_counts, finish) unless old_counts == new_counts
+  
+        # Create boxes
+        node_list = create_cluster(new_counts)
+        create_node_list = calculate_boxes_to_create(env, node_list)
+  
+        Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?
+        launch_boxes(create_node_list)
+        set_progress 50
+  
+        prepare_to_quiesce_extra_boxes(env.name, node_list)
+  
+        if not in_stable_state? env
+          Chef::Log.info "Removing nodes from DNS before quiescing..."
+          configure_dns config
+          Chef::Log.info "Waiting 60s for DNS to propagate..."
+          sleep 60
+        end
+  
+        quiesce_extra_boxes(env.name, node_list)
+        set_progress 60
+  
+        # Now that all the boxes are in place, cleanup any that failed
+        Chef::Log.info "Cleaning deployment..."
+        deployment_clean = DeploymentClean.new("-E #{config[:environment]}".split)
+        deployment_clean.config[:verbosity] = config[:verbosity]
+        deployment_clean.config[:cloud] = config[:cloud]
+        Chef::Config[:verbosity] = config[:verbosity]
+        deployment_clean.run(yes_allowed=true)
+        set_progress 70
+  
+        # Sleep to let chef catch up _sigh_
+        sleep 10
+  
+        # If spinning up new sprout, ralf, homer or homestead nodes in an existing cluster mark the
+        # new ones so we know they are joining an existing cluster.
+        %w{sprout ralf homer homestead}.each do |node|
+          if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
+            # Get the list of nodes ordered by index
+            cluster = find_nodes(roles: node)
+            cluster.sort_by! { |n| n[:clearwater][:index] }
+  
+            # Iterate over the new nodes adding the joining attribute
+            cluster.drop(old_counts[node.to_sym]).each do |s|
+              s.set[:clearwater][:joining] = true
+              s.save
+            end
           end
         end
-        if config[:subscribers]
-          bad_options << "--subscribers"
+  
+        # Cluster the nodes together if needed
+        if old_counts != new_counts
+          count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
+          Chef::Log.info "Reclustering nodes:"
+          %w{sprout ralf homer homestead}.each do |node|
+            if count_diffs[node.to_sym]
+              Chef::Log.info " - #{node}"
+              cluster_boxes(node, config[:cloud].to_sym)
+            end
+          end
+        end
+  
+        # Setup DNS zone record
+        status["DNS"][:status] = "Configuring..."
+        Chef::Log.info "Creating zone record..."
+        zone_create = DnszoneCreate.new
+        zone_create.config[:verbosity] = config[:verbosity]
+        Chef::Config[:verbosity] = config[:verbosity]
+        zone_create.name_args = [attributes["root_domain"]]
+        zone_create.run
+        set_progress 95
+  
+        configure_dns config
+        set_progress 99
+
+        # Kick Astaire to reload - this starts synchronization processing.
+        run_astaire(config[:cloud].to_sym, "reload")
+      end
+
+      if finish
+        Chef::Log.info "Finishing resize operation"
+
+        # Check no incompatible options are specified.  If we've just done start
+        # processing, anything is allowed (as we know we must be in sync).
+        if !start
+          bad_options = []
+          %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
+            if config["#{node}_count".to_sym]
+              bad_options << "--#{node}_count"
+            end
+          end
+          %w{seagull}.each do |node|
+            if config["#{node}".to_sym]
+              bad_options << "--#{node}"
+            end
+          end
+          if config[:subscribers]
+            bad_options << "--subscribers"
+          end
+
+          if not bad_options.empty?
+            Chef::Log.error "Cannot specify --finish option with #{bad_options.join("/")}"
+            return
+          end
         end
 
-        if not bad_options.empty?
-          Chef::Log.error "Cannot specify --finish option with #{bad_options.join("/")}"
-          return
+        if !config[:force]
+          # Make Astaire wait for synchronization to complete.
+          run_astaire(config[:cloud].to_sym, "wait-sync")
         end
 
-        # Check to see if any quiescing boxes have finished quiescing
-        if not config[:force]
-          still_quiescing = find_incomplete_quiescing_nodes env
-        end
-
-        if config[:force] or still_quiescing.empty?
-          # Safe to delete quiesced boxes.
-          Chef::Log.info "Deleting quiesced boxes..."
-          delete_quiesced_boxes env
-        else
-          Chef::Log.error "#{still_quiescing} are still quiescing, can't finish (use --force to force it at the risk of data loss or call failures)'"
-        end
+        # Delete quiesced boxes, either because it's safe to do so, or because we've
+        # been forced.
+        Chef::Log.info "Deleting quiesced boxes..."
+        delete_quiesced_boxes env
 
         # Clear the "joining" attribute on all the sprouts, ralfs,
         # homers and homesteads and recluster them.
@@ -413,140 +552,7 @@ module ClearwaterKnifePlugins
             cluster_boxes(role, config[:cloud].to_sym)
           end
         end
-
-        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
-        return
       end
-
-      # Calculate box counts from subscriber count
-      calculate_box_counts(config) if config[:subscribers]
-
-      # Initialize status object
-      init_status
-
-      # Create security groups
-      status["Security Groups"][:status] = "Configuring..."
-      Chef::Log.info "Creating security groups..."
-      sg_create = SecurityGroupsCreate.new("-E #{config[:environment]}".split)
-      sg_create.config[:verbosity] = config[:verbosity]
-      Chef::Config[:verbosity] = config[:verbosity]
-      sg_create.run
-      status["Security Groups"][:status] = "Done"
-      set_progress 10
-
-      # Enumerate current box counts so we can compare the desired list
-      old_counts = get_current_counts
-
-      # Set up new box counts based on supplied config, or existing state.
-      # If an essential node type currently has no boxes, make sure we
-      # create one.
-      seagull_count = (config[:seagull] ? 1 : 0)
-
-      new_counts = {
-        ellis: 1,
-        bono: config[:bono_count] || [old_counts[:bono], 1].max,
-        homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
-        ralf: config[:ralf_count] || old_counts[:ralf],
-        homer: config[:homer_count] || [old_counts[:homer], 1].max,
-        sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
-        ibcf: config[:ibcf_count] || old_counts[:ibcf],
-        sipp: config[:sipp_count] || old_counts[:sipp],
-        seagull: seagull_count || old_counts[:seagull] }
-
-      if not in_stable_state? env
-        if old_counts == new_counts
-          unquiesce_boxes(env)
-          return
-        else
-          Chef::Log.error 'Error - you still have quiescing boxes in this deployment, so cannot perform a resize operation (other than returning the deployment to its original state). Please call "knife deployment resize -E <env> --finish" to try and complete this quiescing phase. You can see which boxes are quiescing with "knife box list -E env"'
-          return
-        end
-      end
-
-      # Confirm changes if there are any
-      confirm_changes(old_counts, new_counts) unless old_counts == new_counts
-
-      # Create boxes
-      node_list = create_cluster(new_counts)
-      create_node_list = calculate_boxes_to_create(env, node_list)
-
-      Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?
-      launch_boxes(create_node_list)
-      set_progress 50
-
-      prepare_to_quiesce_extra_boxes(env.name, node_list)
-
-      if not in_stable_state? env
-        Chef::Log.info "Removing nodes from DNS before quiescing..."
-        configure_dns config
-        Chef::Log.info "Waiting 10 minutes for DNS to propagate..."
-        sleep 600
-      end
-
-      quiesce_extra_boxes(env.name, node_list)
-      set_progress 60
-
-      # Now that all the boxes are in place, cleanup any that failed
-      Chef::Log.info "Cleaning deployment..."
-      deployment_clean = DeploymentClean.new("-E #{config[:environment]}".split)
-      deployment_clean.config[:verbosity] = config[:verbosity]
-      deployment_clean.config[:cloud] = config[:cloud]
-      Chef::Config[:verbosity] = config[:verbosity]
-      deployment_clean.run(yes_allowed=true)
-      set_progress 70
-
-      # Sleep to let chef catch up _sigh_
-      sleep 10
-
-      # If spinning up new sprout, ralf, homer or homestead nodes in an existing cluster mark the
-      # new ones so we know they are joining an existing cluster.
-      %w{sprout ralf homer homestead}.each do |node|
-        if old_counts[node.to_sym] != 0 and new_counts[node.to_sym] > old_counts[node.to_sym]
-          # Get the list of nodes ordered by index
-          cluster = find_nodes(roles: node)
-          cluster.sort_by! { |n| n[:clearwater][:index] }
-
-          # Iterate over the new nodes adding the joining attribute
-          cluster.drop(old_counts[node.to_sym]).each do |s|
-            s.set[:clearwater][:joining] = true
-            s.save
-          end
-        end
-      end
-
-      # Cluster the nodes together if needed
-      if old_counts != new_counts
-        count_diffs = new_counts.merge(old_counts) { |k, v1, v2| v1 != v2 }
-        Chef::Log.info "Reclustering nodes:"
-        %w{sprout ralf homer homestead}.each do |node|
-          if count_diffs[node.to_sym]
-            Chef::Log.info " - #{node}"
-            cluster_boxes(node, config[:cloud].to_sym)
-          end
-        end
-      end
-
-      # Setup DNS zone record
-      status["DNS"][:status] = "Configuring..."
-      Chef::Log.info "Creating zone record..."
-      zone_create = DnszoneCreate.new
-      zone_create.config[:verbosity] = config[:verbosity]
-      Chef::Config[:verbosity] = config[:verbosity]
-      zone_create.name_args = [attributes["root_domain"]]
-      zone_create.run
-      set_progress 95
-
-      configure_dns config
-      set_progress 99
-
-      if config[:force]
-        # Destroy our quiescing boxes now rather than having a
-        # separate --finish step
-        delete_quiesced_boxes env
-      end
-      
-      update_ralf_hostname config[:environment], config[:cloud].to_sym
-
     end
 
     def configure_dns config
