@@ -322,7 +322,7 @@ module ClearwaterKnifePlugins
       end
     end
 
-    def confirm_changes(old, new)
+    def confirm_changes(old, new, finish)
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions.map {|v| v.name}
       new_names = create_cluster(new).map do |n|
@@ -338,10 +338,11 @@ module ClearwaterKnifePlugins
         end
       end
       unless victim_boxes.empty?
-        ui.msg "The following boxes will be quiesced (run 'knife deployment resize -E <env> --finish' afterwards to terminate them):"
+        ui.msg "The following boxes will be quiesced:"
         victim_boxes.each do |b|
           ui.msg " - #{b}"
         end
+        ui.msg "(run 'knife deployment resize -E <env> --finish' afterwards to terminate them):" unless finish
       end
 
       fail "Exiting on user request" unless continue?
@@ -420,7 +421,7 @@ module ClearwaterKnifePlugins
         end
   
         # Confirm changes if there are any
-        confirm_changes(old_counts, new_counts) unless old_counts == new_counts
+        confirm_changes(old_counts, new_counts, finish) unless old_counts == new_counts
   
         # Create boxes
         node_list = create_cluster(new_counts)
@@ -527,7 +528,7 @@ module ClearwaterKnifePlugins
         end
 
         if !config[:force]
-          # Make Astaire wait for synchroniztion to complete.
+          # Make Astaire wait for synchronization to complete.
           run_astaire(config[:cloud].to_sym, "wait-sync")
         end
 

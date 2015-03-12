@@ -88,8 +88,6 @@ module ClearwaterKnifePlugins
       knife_ssh.config[:verbosity] = config[:verbosity]
       Chef::Config[:verbosity] = config[:verbosity]
       knife_ssh.config[:on_error] = :raise
-      # Run chef-client at maximum niceness to minimize the hit on potentially
-      # heavily loaded nodes.
       knife_ssh.name_args = [
         query_string,
         command
@@ -110,11 +108,12 @@ module ClearwaterKnifePlugins
     # that match the given `query_string`.
     #
     # @param cloud [Symbol] The cloud hosting the devices.
-    # @param query_string [String] A Chef-format query string to match on.
     # @param command [String] The command to send to `astaire`.
     def run_astaire(cloud, command)
       %w{sprout ralf}.each do |role|
-        run_command(cloud, query_string(true, role: role), "sudo service astaire #{command}")
+        if find_active_nodes(role).length > 0
+          run_command(cloud, query_string(true, role: role), "sudo service astaire #{command}")
+        end
       end
     end
   end
