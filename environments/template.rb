@@ -12,6 +12,7 @@ override_attributes "clearwater" => {
   "pstn_number_count" => 0,
   "hss_hostname" => "0.0.0.0",
   "hss_port" => 3868,
+  "hss_realm" => nil,
   "billing_realm" => nil,
   "cassandra_hostname" => "localhost",
 }
