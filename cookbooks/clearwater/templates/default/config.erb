@@ -28,6 +28,9 @@ email_recovery_sender=<%= @node[:clearwater][:email_sender] %>
 <% end %>
 hss_port=<%= @node[:clearwater][:hss_port] %>
 
+# CDF configuration
+<% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
+
 # Database configuration
 cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 
