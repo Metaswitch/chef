@@ -553,6 +553,8 @@ module ClearwaterKnifePlugins
           end
         end
       end
+
+      update_ralf_hostname(config[:environment], config[:cloud].to_sym)
     end
 
     def configure_dns config
