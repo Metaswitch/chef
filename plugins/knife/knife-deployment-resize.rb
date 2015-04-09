@@ -498,6 +498,10 @@ module ClearwaterKnifePlugins
 
         # Kick Astaire to reload - this starts synchronization processing.
         run_astaire(config[:cloud].to_sym, "reload")
+
+        # Kick Chronos to scale - this starts synchronization processing.
+        # Note that "scale-up" and "scale-down" are aliases - we don't need to choose. 
+        run_chronos(config[:cloud].to_sym, "scale-up")
       end
 
       if finish
@@ -528,8 +532,9 @@ module ClearwaterKnifePlugins
         end
 
         if !config[:force]
-          # Make Astaire wait for synchronization to complete.
+          # Make Astaire and Chronos wait for synchronization to complete.
           run_astaire(config[:cloud].to_sym, "wait-sync")
+          run_chronos(config[:cloud].to_sym, "wait-sync")
         end
 
         # Delete quiesced boxes, either because it's safe to do so, or because we've

@@ -69,7 +69,7 @@ module ClearwaterKnifePlugins
     end
 
     # Run the specified `astaire` command on all nodes in the local environment
-    # that match the given `query_string`.
+    # that use memcached.
     #
     # @param cloud [Symbol] The cloud hosting the devices.
     # @param command [String] The command to send to `astaire`.
@@ -80,5 +80,19 @@ module ClearwaterKnifePlugins
         end
       end
     end
+
+    # Run the specified `chronos` command on all nodes in the local environment
+    # that use Chronos.
+    #
+    # @param cloud [Symbol] The cloud hosting the devices.
+    # @param command [String] The command to send to `chronos`.
+    def run_chronos(cloud, command)
+      %w{sprout ralf}.each do |role|
+        if find_active_nodes(role).length > 0
+          run_command(cloud, query_string(true, role: role), "sudo service chronos #{command}")
+        end
+      end
+    end
+ 
   end
 end

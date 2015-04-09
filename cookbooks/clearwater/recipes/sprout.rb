@@ -43,7 +43,9 @@ template "/etc/chronos/chronos.conf" do
   mode 0644
   owner "root"
   group "root"
+  action :create_if_missing
   variables servers: [node],
+            former_servers: [],
             localhost: node.cloud.local_ipv4
 end
 
