@@ -1,0 +1,6 @@
+<tomcat-users>
+        <role rolename="hss_user"/>
+        <role rolename="hss_admin"/>
+        <user name="hssAdmin" password="<%= @node[:clearwater][:signup_key] %>" roles="hss_user,admin"/>
+</tomcat-users>
+

@@ -270,6 +270,7 @@ def hss_security_group_rules
   [
     # Diameter from homestead
     { ip_protocol: :tcp, min: 3868, max: 3868, group: "homestead" },
+    { ip_protocol: :tcp, min: 8080, max: 8080, cidr_ip: "0.0.0.0/0" },
   ]
 end
 
