@@ -33,12 +33,11 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 # Tell apt about the repository server.
-cookbook_file "/etc/apt/sources.list.d/fhoss.list" do
-  mode "0644"
-  source "openimscorehss/fhoss.apt.list"
-end
-
-execute "apt-get update" do
+apt_repository 'fhoss' do
+  uri          'http://ppa.launchpad.net/rkd-u/fhoss/ubuntu'
+  arch         'amd64'
+  distribution 'precise'
+  components   ['main']
 end
 
 # Install the package, using a response_file to configure it with our IP and home domain
@@ -52,9 +51,10 @@ end
 template "/usr/share/java/fhoss-0.2/conf/tomcat-users.xml" do
   mode "0644"
   source "openimscorehss/users.xml"
+  # Restart to pick up that password change
+  notifies :restart, "service[openimscore-fhoss]", :immediately
 end
 
-# Restart to pick up that password change
 service "openimscore-fhoss" do
-  action :restart
+  action :nothing
 end
