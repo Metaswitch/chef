@@ -32,53 +32,29 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-%w{subversion mysql-server libmysqlclient-dev libxml2 libxml2-dev bind9 flex bison libcurl4-openssl-dev openjdk-7-jre-headless openjdk-7-jdk ant}.each do |p|
-  package p do
+# Tell apt about the repository server.
+apt_repository 'fhoss' do
+  uri          'http://ppa.launchpad.net/rkd-u/fhoss/ubuntu'
+  arch         'amd64'
+  distribution 'precise'
+  components   ['main']
+end
+
+# Install the package, using a response_file to configure it with our IP and home domain
+package "openimscore-fhoss" do
     action [:install]
+    response_file 'openimscorehss/debian.preseed.erb'
     options "--force-yes"
-  end
 end
 
-directory "/opt/OpenIMSCore" do
-end
-
-subversion "OpenIMSCore HSS" do
-  repository "http://svn.code.sf.net/p/openimscore/code/FHoSS/trunk"
-  destination "/opt/OpenIMSCore/FHoSS"
-  revision "1193"
-  action :sync
-end
-
-execute "mysql" do
-  command "mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/hss_db.sql && mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/userdata.sql && mysql -uroot --password= </opt/OpenIMSCore/FHoSS/scripts/hss_db_migrate_as_register.sql"
-end
-
-execute "ant" do
-  cwd "/opt/OpenIMSCore/FHoSS"
-  environment ({ "JAVA_TOOL_OPTIONS" => "-Dfile.encoding=UTF-8" })
-  command "ant compile deploy"
-end
-
-domain = if node[:clearwater][:use_subdomain]
-           node.chef_environment + "." + node[:clearwater][:root_domain]
-         else
-           node[:clearwater][:root_domain]
-         end
-
-template "/opt/OpenIMSCore/FHoSS/deploy/DiameterPeerHSS.xml" do
+# Fix up the users so that we just have hssAdmin with a password of the signup key
+template "/usr/share/java/fhoss-0.2/conf/tomcat-users.xml" do
   mode "0644"
-  source "openimscorehss/DiameterPeerHSS.xml.erb"
-  variables domain: domain,
-            node: node
+  source "openimscorehss/users.xml"
+  # Restart to pick up that password change
+  notifies :restart, "service[openimscore-fhoss]", :immediately
 end
 
-cookbook_file "/etc/init.d/openimscorehss" do
-  mode "0755"
-  source "openimscorehss/openimscorehss.init.d"
-  owner "root"
-  group "root"
-end
-
-service "openimscorehss" do
-  action :start
+service "openimscore-fhoss" do
+  action :nothing
 end
