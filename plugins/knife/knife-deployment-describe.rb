@@ -108,9 +108,9 @@ module ClearwaterKnifePlugins
         "clearwater-infrastructure" => ["clearwater-infrastructure"],
         "ellis" => ["ellis"],
         "homer" => ["homer"],
-        "ralf" => ["ralf", "chronos"],
+        "ralf" => ["ralf", "chronos", "astaire"],
         "homestead" => ["homestead"],
-        "sprout" => ["sprout", "sprout-libs", "chronos", "memento"]
+        "sprout" => ["sprout", "sprout-libs", "chronos", "memento", "astaire"]
       }
     end
 

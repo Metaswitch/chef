@@ -56,9 +56,8 @@ module Clearwater
         Chef::Log.debug "Found existing record, value = #{record.value}, ttl = #{record.ttl}"
         if (options[:value] and options[:value] != record.value) or
            (options[:ttl] and options[:ttl] != record.ttl)
-          Chef::Log.info "Destroying incorrect record (#{record.value.join ", "}) for #{name(options)}"
-          record.destroy
-          create_record(options)
+          Chef::Log.info "Modify incorrect record (#{record.value.join ", "}) for #{name(options)}"
+          modify_record(record, options)
         end
       end
     end
@@ -145,24 +144,41 @@ module Clearwater
       @zone
     end
 
-    # Do the work
-    def create_record(options)
+    def log_if_dns_error
       begin
-        record_data = {
-          name: name(options),
-          type: options[:type],
-          value: options[:value],
-          ttl: options[:ttl],
-        }
-
-        Chef::Log.info "Creating record with config: #{record_data}"
-        zone.records.create(record_data)
-
+        yield
       rescue Excon::Errors::BadRequest => e
         msg = Nokogiri::XML(e.response.body).xpath("//xmlns:Message").text
         message = "Creation of #{name(options)} failed: #{msg}"
         Chef::Log.error(message)
         raise e
+      end
+    end
+
+    def make_record_data(options)
+      {
+        name: name(options),
+        type: options[:type],
+        value: options[:value],
+        ttl: options[:ttl],
+      }
+    end
+
+    # Create a new record
+    def create_record(options)
+      log_if_dns_error do
+        record_data = make_record_data(options)
+        Chef::Log.info "Creating record with config: #{record_data}"
+        zone.records.create(record_data)
+      end
+    end
+
+    # Modify an existing record
+    def modify_record(record, options)
+      log_if_dns_error do
+        record_data = make_record_data(options)
+        Chef::Log.info "Updating record with config: #{record_data}"
+        record.modify(record_data)
       end
     end
 
