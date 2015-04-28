@@ -81,6 +81,9 @@ def update_chronos_settings(localhost, nodetype, environment, template_file, fil
   nodes = search(:node,
                  "role:#{nodetype} AND chef_environment:#{environment}")
   nodes.sort_by! { |n| n[:clearwater][:index] }
+  
+  quiescing = nodes.find_all { |s| s[:clearwater][:quiescing] }
+  nonquiescing = nodes.find_all { |s| not s[:clearwater][:quiescing] }
 
   template file do
     source template_file
@@ -88,8 +91,9 @@ def update_chronos_settings(localhost, nodetype, environment, template_file, fil
     owner "root"
     group "root"
     notifies :reload, "service[chronos]", :immediately
-    variables servers: nodes,
-    localhost: localhost
+    variables servers: nonquiescing,
+      former_servers: quiescing,
+      localhost: localhost
   end
 end
 

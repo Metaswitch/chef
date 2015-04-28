@@ -7,3 +7,6 @@ localhost = <%= @localhost %>
 <% for @node in @servers %>
 node = <%= @node.cloud.local_ipv4 %>
 <% end %>
+<% for @node in @former_servers %>
+leaving = <%= @node.cloud.local_ipv4 %>
+<% end %>
