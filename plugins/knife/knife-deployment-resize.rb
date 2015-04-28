@@ -500,8 +500,7 @@ module ClearwaterKnifePlugins
         run_astaire(config[:cloud].to_sym, "reload")
 
         # Kick Chronos to scale - this starts synchronization processing.
-        # Note that "scale-up" and "scale-down" are aliases - we don't need to choose. 
-        run_chronos(config[:cloud].to_sym, "scale-up")
+        run_chronos(config[:cloud].to_sym, "resync")
       end
 
       if finish
