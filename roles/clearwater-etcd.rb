@@ -1,7 +1,7 @@
-# @file sipp.rb
+# @file clearwater-etcd.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,10 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "sipp"
-description "sipp role"
+name "clearwater-etcd"
+description "clearwater-etcd role"
 run_list [
-  "role[clearwater-infrastructure]",
-  "recipe[clearwater::etcd]",
-  "recipe[clearwater::sipp]"
+  "recipe[clearwater::etcd]"
 ]
