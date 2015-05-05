@@ -125,9 +125,15 @@ unless Chef::Config[:solo]
 
   enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
+  # Find all nodes in the deployment that have been marked as clustered. 
+  nodes = search(:node, "chef_environment:#{node.chef_environment}")
+  etcd = nodes.find_all { |s| s[:clearwater][:etcd_cluster] }
+
   # Set up template values for /etc/clearwater/config - any new values should
   # be added for all-in-one and distributed installs
   # Ralf isn't currently part of the all-in-one image
+  # There will also only ever be the local node in the etcd cluster, so we
+  # can set this now
   if node.roles.include? "cw_aio"
     template "/etc/clearwater/config" do
       mode "0644"
@@ -142,7 +148,8 @@ unless Chef::Config[:solo]
                 ralf: "",
                 cdf: "",
                 enum: enum,
-                hss: hss
+                hss: hss,
+                etcd: node[:cloud][:local_ipv4]
     end
     package "clearwater-auto-config-aws" do
       action [:install]
@@ -162,7 +169,8 @@ unless Chef::Config[:solo]
                 ralf: ralf,
                 cdf: cdf,
                 enum: enum,
-                hss: hss
+                hss: hss,
+                etcd: etcd
     end
   end
 end

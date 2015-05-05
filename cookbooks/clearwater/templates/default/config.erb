@@ -55,3 +55,6 @@ signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
 ellis_api_key="<%= @node[:clearwater][:ellis_api_key] %>"
 ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
+
+# etcd configuration
+etcd_cluster=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
