@@ -419,7 +419,7 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
   
-      # Set the etc_cluster value. Mark any files that already exist
+      # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|(node_type, count)| count == 0 }
         Chef::Log.info "Setting the etcd_cluster values"
         %w{sprout ralf homer homestead bono ellis}.each do |node|
@@ -429,10 +429,11 @@ module ClearwaterKnifePlugins
           cluster.each do |s|
             s.set[:clearwater][:etcd_cluster] = true
             s.save
-            trigger_chef_client(config[:cloud], 
-                                "chef_environment:#{config[:environment]}")
           end
         end
+
+        trigger_chef_client(config[:cloud],
+                            "chef_environment:#{config[:environment]}")
       end
 
       # Setup DNS zone record
