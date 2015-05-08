@@ -95,7 +95,7 @@ end
 
 unless Chef::Config[:solo]
 
-  # Setup the clearwater config file
+  # Setup the clearwater local config file
   directory "/etc/clearwater" do
     owner "root"
     group "root"
@@ -103,41 +103,15 @@ unless Chef::Config[:solo]
     action :create
   end
 
-  domain = if node[:clearwater][:use_subdomain]
-             node.chef_environment + "." + node[:clearwater][:root_domain]
-           else
-             node[:clearwater][:root_domain]
-           end
-
-  if node[:clearwater][:seagull]
-    hss = "hss.seagull." + domain
-    cdf = "cdf.seagull." + domain
-  else
-    hss = nil
-    cdf = "cdf." + domain
-  end
-
-  ralf = if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-           "ralf." + domain + ":10888"
-         else
-           ""
-         end
-
-  enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-
-  # Find all nodes in the deployment that have been marked as clustered. 
+  # Find all nodes in the deployment that have been marked as part of the etcd cluster. 
   nodes = search(:node, "chef_environment:#{node.chef_environment}")
   etcd = nodes.find_all { |s| s[:clearwater][:etcd_cluster] }
 
-  # Set up template values for /etc/clearwater/config - any new values should
-  # be added for all-in-one and distributed installs
-  # Ralf isn't currently part of the all-in-one image
-  # There will also only ever be the local node in the etcd cluster, so we
-  # can set this now
   if node.roles.include? "cw_aio"
+    enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
     template "/etc/clearwater/config" do
       mode "0644"
-      source "config.erb"
+      source "aio_config.erb"
       variables domain: "example.com",
                 node: node,
                 sprout: node[:cloud][:public_hostname],
@@ -148,7 +122,7 @@ unless Chef::Config[:solo]
                 ralf: "",
                 cdf: "",
                 enum: enum,
-                hss: hss,
+                hss: "",
                 etcd: node[:cloud][:local_ipv4]
     end
     package "clearwater-auto-config-aws" do
@@ -156,21 +130,11 @@ unless Chef::Config[:solo]
       options "--force-yes"
     end
   else
-    template "/etc/clearwater/config" do
-      mode "0644"
-      source "config.erb"
-      variables domain: domain,
-                node: node,
-                sprout: "sprout." + domain,
-                hs: "hs." + domain + ":8888",
-                hs_prov: "hs." + domain + ":8889",
-                homer: "homer." + domain + ":7888",
-                chronos: node[:cloud][:local_ipv4] + ":7253",
-                ralf: ralf,
-                cdf: cdf,
-                enum: enum,
-                hss: hss,
-                etcd: etcd
+    template "/etc/clearwater/local_config" do
+        mode "0644"
+        source "local_config.erb"
+        variables node: node,
+                  etcd: etcd
     end
   end
 end

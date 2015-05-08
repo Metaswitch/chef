@@ -429,10 +429,68 @@ module ClearwaterKnifePlugins
           cluster.each do |s|
             s.set[:clearwater][:etcd_cluster] = true
             s.save
-            trigger_chef_client(config[:cloud], 
-                                "chef_environment:#{config[:environment]}")
           end
         end
+
+        # Create and upload the shared configuration. This should just be done 
+        # on a single node in the deployment. We choose the first Sprout
+        sprouts = find_nodes(roles: 'sprout')
+        sprouts.sort_by! { |n| n[:clearwater][:index] }
+
+        domain = if node[:clearwater][:use_subdomain]
+                    node.chef_environment + "." + node[:clearwater][:root_domain]
+                 else
+                   node[:clearwater][:root_domain]
+                 end
+
+        if node[:clearwater][:seagull]
+          hss = "hss.seagull." + domain
+          cdf = "cdf.seagull." + domain
+        else
+          hss = nil
+          cdf = "cdf." + domain
+        end
+
+        ralf = if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
+                 "ralf." + domain + ":10888"
+               else
+                 ""
+               end
+
+        enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
+      
+        template "/etc/clearwater/shared_config" do
+        mode "0644"
+        source "shared_config.erb"
+        variables domain: domain,
+                  node: node,
+                  sprout: "sprout." + domain,
+                  hs: "hs." + domain + ":8888",
+                  hs_prov: "hs." + domain + ":8889",
+                  homer: "homer." + domain + ":7888",
+                  ralf: ralf,
+                  cdf: cdf,
+                  enum: enum,
+                  hss: hss
+
+        node = Chef::Node.load sprouts[0]
+        hostname = node.cloud.public_hostname
+        @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+        ssh_options = { keys: @ssh_key }
+
+        # scp cannot copy directly to protected locations so use a temp file
+        ssh.scp.upload! StringIO.new(data), "tmp"
+        ssh.exec! "sudo mv tmp /etc/clearwater/shared_config"
+        ssh.exec! "sudo chown root:root /etc/clearwater/shared_config"
+        ssh.exec! "sudo chmod 644 /etc/clearwater/shared_config"
+        ssh.exec! "upload_shared_config"
+        ssh.exec! "upload_enum_json"
+        ssh.exec! "upload_bgcf_json"
+        ssh.exec! "upload_scscf_json"
+
+        # Finally run chef-client over all nodes
+        trigger_chef_client(config[:cloud],
+                            "chef_environment:#{config[:environment]}")
       end
 
       # Setup DNS zone record

@@ -261,7 +261,6 @@ def quiesce_box(box_name, env)
   # Runs SSH commands on box_name to quiesce it
   # @param [String] box_name the name of the box to quiesce (e.g.
   #   rkd-bono-1)
-  # @param [String] env the Chef environment to use
   node = Chef::Node.load box_name
   hostname = node.cloud.public_hostname
   @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")

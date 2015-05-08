@@ -1,0 +1,10 @@
+# Per node configuration
+<% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
+
+# Local IP configuration
+local_ip=<%= @node[:cloud][:local_ipv4] %>
+public_ip=<%= @node[:cloud][:public_ipv4] %>
+public_hostname=<%= @node[:cloud][:public_hostname] %>
+
+# etcd configuration
+etcd_cluster=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
