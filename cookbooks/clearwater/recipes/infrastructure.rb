@@ -105,7 +105,7 @@ unless Chef::Config[:solo]
 
   # Find all nodes in the deployment that have been marked as part of the etcd cluster. 
   nodes = search(:node, "chef_environment:#{node.chef_environment}")
-  etcd = nodes.find_all { |s| s[:clearwater][:etcd_cluster] }
+  etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
 
   if node.roles.include? "cw_aio"
     enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil

@@ -419,7 +419,7 @@ module ClearwaterKnifePlugins
       # Sleep to let chef catch up _sigh_
       sleep 10
   
-      # Set the etc_cluster value. Mark any files that already exist
+      # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|(node_type, count)| count == 0 }
         Chef::Log.info "Setting the etcd_cluster values"
         %w{sprout ralf homer homestead bono ellis}.each do |node|
@@ -479,6 +479,7 @@ module ClearwaterKnifePlugins
         ssh_options = { keys: @ssh_key }
 
         # scp cannot copy directly to protected locations so use a temp file
+        # TODO The names/locations/parameters? of the scripts need checking
         ssh.scp.upload! StringIO.new(data), "tmp"
         ssh.exec! "sudo mv tmp /etc/clearwater/shared_config"
         ssh.exec! "sudo chown root:root /etc/clearwater/shared_config"
