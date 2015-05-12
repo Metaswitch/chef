@@ -436,14 +436,18 @@ module ClearwaterKnifePlugins
         # on a single node in the deployment. We choose the first Sprout
         sprouts = find_nodes(roles: 'sprout')
         sprouts.sort_by! { |n| n[:clearwater][:index] }
+        s_node = Chef::Node.load sprouts[0]
+        hostname = s_node.cloud.public_hostname
+        @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
+        ssh_options = { keys: @ssh_key }
 
-        domain = if node[:clearwater][:use_subdomain]
-                    node.chef_environment + "." + node[:clearwater][:root_domain]
+        domain = if s_node[:clearwater][:use_subdomain]
+                    s_node.chef_environment + "." + s_node[:clearwater][:root_domain]
                  else
-                   node[:clearwater][:root_domain]
+                   s_node[:clearwater][:root_domain]
                  end
 
-        if node[:clearwater][:seagull]
+        if s_node[:clearwater][:seagull]
           hss = "hss.seagull." + domain
           cdf = "cdf.seagull." + domain
         else
@@ -451,19 +455,20 @@ module ClearwaterKnifePlugins
           cdf = "cdf." + domain
         end
 
-        ralf = if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
+        ralf = if s_node[:clearwater][:ralf] and ((s_node[:clearwater][:ralf] == true) || (s_node[:clearwater][:ralf] > 0))
                  "ralf." + domain + ":10888"
                else
                  ""
                end
 
-        enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
+        enum = Resolv::DNS.open { |dns| dns.getaddress(s_node[:clearwater][:enum_server]).to_s } rescue nil
       
+        # TODO Create the shared_config correctly (wait for actual code)
         template "/etc/clearwater/shared_config" do
         mode "0644"
         source "shared_config.erb"
         variables domain: domain,
-                  node: node,
+                  node: s_node,
                   sprout: "sprout." + domain,
                   hs: "hs." + domain + ":8888",
                   hs_prov: "hs." + domain + ":8889",
@@ -473,8 +478,7 @@ module ClearwaterKnifePlugins
                   enum: enum,
                   hss: hss
 
-        node = Chef::Node.load sprouts[0]
-        hostname = node.cloud.public_hostname
+        hostname = s_node.cloud.public_hostname
         @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
         ssh_options = { keys: @ssh_key }
 
