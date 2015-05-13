@@ -48,16 +48,24 @@ module Clearwater
     end
 
     # Find or create a Security Group by name.
-    def find_or_create_group(name, description = "")
+    def find_or_create_group(name, vpc_id, description = "")
+      name = "#{name}-#{vpc_id}" unless vpc_id.nil?
       sg = sg_api.get(name)
       if sg.nil?
         puts "Creating security group: #{name}"
         sg = sg_api.new(name: name,
+                        vpc_id: vpc_id,
                         description: description)
         sg.save
         sg.reload
       end
       return sg
+    end
+
+    # Find a Security Group by name.
+    def find_group(name, vpc_id)
+      name = "#{name}-#{vpc_id}" unless vpc_id.nil?
+      return sg_api.get(name)
     end
 
     # Add a single rule to a group.
@@ -117,14 +125,16 @@ module Clearwater
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
         sg = find_or_create_group(group_name,
+                                  "vpc-87f3d9e2",
                                   "Security group for #{group_name} nodes")
       end
 
       # Now configure the rules.
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = sg_api.get(group_name)
-        rules = fix_up_deployment_sg_names(rules, groups.keys, environment)
+        sg = find_group(group_name,
+                        "vpc-87f3d9e2")
+        rules = fix_up_deployment_sg_names(rules, groups.keys, environment, "vpc-87f3d9e2")
         update_security_group(sg, rules)
       end
     end
@@ -136,7 +146,7 @@ module Clearwater
       # Since we may have circular dependencies in the groups, de-configure the rules before deleting the groups
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = sg_api.get(group_name)
+        sg = find_group(group_name, "vpc-87f3d9e2")
         if sg
           Chef::Log.info "Deleting rules for #{group_name}"
           update_security_group(sg, [])
@@ -145,7 +155,7 @@ module Clearwater
 
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = sg_api.get(group_name)
+        sg = find_group(group_name, "vpc-87f3d9e2")
         if sg
           Chef::Log.info "Deleting #{group_name}"
           sg.destroy
@@ -161,9 +171,9 @@ module Clearwater
         group.ip_permissions.map do |perm|
           group_rules = perm["groups"].map do |src_group| 
             qualified_group = if group.owner_id == src_group["userId"]
-                                src_group["groupName"]
+                                src_group["groupId"]
                               else
-                                {src_group["userId"] => src_group["groupName"]}
+                                {src_group["userId"] => src_group["groupId"]}
                               end
             { min: perm["fromPort"],
               max: perm["toPort"],
@@ -184,14 +194,21 @@ module Clearwater
     end
 
     # Corrects references to other security groups to include the deployment name
-    def fix_up_deployment_sg_names(rules, known_groups, env)
+    def fix_up_deployment_sg_names(rules, known_groups, env, vpc_id)
       rules.map! do |rule|
         if rule[:group].is_a? String and known_groups.include? rule[:group]
-          rule[:group] = "#{env}-#{rule[:group]}"
+          group = "#{rule[:group]}-#{vpc_id}"
+          rule[:group] = translate_sg_to_id(env, group)
         end
         rule
       end
       rules
+    end
+
+    def translate_sg_to_id(env, sg_name)
+      sg = sg_api.get("#{env}-#{sg_name}")
+      fail if sg.nil?
+      sg.group_id
     end
 
     # The AWS Security Groups API object.

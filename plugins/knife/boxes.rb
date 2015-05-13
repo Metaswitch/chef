@@ -32,11 +32,14 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require_relative "security-groups"
+
 module Clearwater
   class BoxManager
     Chef::Knife::Ec2ServerCreate.load_deps
     Chef::Knife::RackspaceServerCreate.load_deps
     Chef::Knife::OpenstackServerCreate.load_deps
+    include Clearwater::SecurityGroups
 
     def initialize(cloud, environment, attributes, options = {})
       raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
@@ -150,7 +153,9 @@ module Clearwater
       # Cloud specific config
       if @cloud == :ec2
         knife_create.config[:region] = @attributes["region"]
-        knife_create.config[:security_groups] = box[:security_groups].map { |sg| "#{@environment.name}-#{sg}" }
+        knife_create.config[:availability_zone] = "us-east-1b"
+        knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-vpc-87f3d9e2") }
+        knife_create.config[:subnet_id] = "subnet-9c148cc5"
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
       elsif @cloud == :openstack
         knife_create.config[:private_network] = true
@@ -200,6 +205,8 @@ module Clearwater
       knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
       # Finally, create box
+      require 'pry'
+      binding.pry
       knife_create.run
       return knife_create.server
     end
