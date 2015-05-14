@@ -129,6 +129,23 @@ unless Chef::Config[:solo]
   nodes = search(:node, "chef_environment:#{node.chef_environment}")
   etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
 
+  # If we want to do GR testing, split the deployment so that every other node is configured to be
+  # in a different site. (This lets us test GR config is working, without having to set up a VPN or
+  # tunneling to allow traffic between regions or deployments.)
+  if node[:clearwater][:gr]
+    if node[:clearwater][:index] % 2 == 1
+      local_site = "odd_numbers"
+      remote_site = "even_numbers"
+    else
+      local_site = "even_numbers"
+      remote_site = "odd_numbers"
+    end
+  else
+    local_site = "single_site"
+    remote_site = ""
+  end
+
+
   # Set up template values for /etc/clearwater/config - any new values should
   # be added for all-in-one and distributed installs
   # Ralf isn't currently part of the all-in-one image
@@ -149,7 +166,9 @@ unless Chef::Config[:solo]
                 cdf: "",
                 enum: enum,
                 hss: hss,
-                etcd: node[:cloud][:local_ipv4]
+                etcd: node[:cloud][:local_ipv4],
+                local_site: local_site,
+                remote_site: remote_site
     end
     package "clearwater-auto-config-aws" do
       action [:install]
@@ -170,7 +189,9 @@ unless Chef::Config[:solo]
                 cdf: cdf,
                 enum: enum,
                 hss: hss,
-                etcd: etcd
+                etcd: etcd,
+                local_site: local_site,
+                remote_site: remote_site
     end
   end
 end
