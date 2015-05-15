@@ -270,26 +270,24 @@ def quiesce_box(box_name, env)
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     case node.run_list.first.name
     when "sprout"
-      ssh.exec! "sudo monit unmonitor sprout"
-      ssh.exec! "sudo monit unmonitor poll_sprout"
+      ssh.exec! "sudo monit unmonitor -g sprout"
       ssh.exec! "sudo service sprout start-quiesce"
       if node.run_list.include? "memento"
-        ssh.exec! "sudo monit stop memento"
-        ssh.exec! "sudo monit unmonitor cassandra"
+        ssh.exec! "sudo monit stop memento_process"
+        ssh.exec! "sudo monit unmonitor -g cassandra"
         ssh.exec! "nodetool decommission"
         ssh.exec! "sudo service memento start-quiesce"
       end
     when "bono"
-      ssh.exec! "sudo monit unmonitor bono"
-      ssh.exec! "sudo monit unmonitor poll_bono"
+      ssh.exec! "sudo monit unmonitor -g bono"
       ssh.exec! "sudo service bono start-quiesce"
     when "homer"
-      ssh.exec! "sudo monit stop homer"
-      ssh.exec! "sudo monit unmonitor cassandra"
+      ssh.exec! "sudo monit stop homer_process"
+      ssh.exec! "sudo monit unmonitor -g cassandra"
       ssh.exec! "nodetool decommission"
     when "homestead"
-      ssh.exec! "sudo monit stop homestead"
-      ssh.exec! "sudo monit unmonitor cassandra"
+      ssh.exec! "sudo monit stop homestead_process"
+      ssh.exec! "sudo monit unmonitor -g cassandra"
       ssh.exec! "nodetool decommission"
     end
   end
@@ -364,20 +362,20 @@ def unquiesce_box(box_name, env)
     case node.run_list.first.name
     when "sprout"
       ssh.exec! "sudo service sprout unquiesce"
-      ssh.exec! "sudo monit start sprout"
+      ssh.exec! "sudo monit start sprout_process"
       if node.run_list.include? "memento"
         ssh.exec! "sudo chef-client"
-        ssh.exec! "sudo monit start memento"
+        ssh.exec! "sudo monit start memento_process"
       end
     when "bono"
       ssh.exec! "sudo service bono unquiesce"
-      ssh.exec! "sudo monit start bono"
+      ssh.exec! "sudo monit start bono_process"
     when "homer"
       puts ssh.exec! "sudo chef-client"
-      puts ssh.exec! "sudo monit start homer"
+      puts ssh.exec! "sudo monit start homer_process"
     when "homestead"
       ssh.exec! "sudo chef-client"
-      ssh.exec! "sudo monit start homestead"
+      ssh.exec! "sudo monit start homestead_process"
     end
   end
 
