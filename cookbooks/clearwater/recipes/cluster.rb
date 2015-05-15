@@ -192,7 +192,7 @@ if node.roles.include? "cassandra"
     if not tagged?('clustered')
       # Node has never been clustered, clean up old state then restart Cassandra into the new cluster
       execute "monit" do
-        command "monit unmonitor cassandra"
+        command "monit unmonitor -g cassandra"
         user "root"
         retries 8
         retry_delay 5
@@ -271,7 +271,7 @@ if node.roles.include? "cassandra"
 
       # Re-enable monitoring
       execute "monit" do
-        command "monit monitor cassandra"
+        command "monit monitor -g cassandra"
         user "root"
         retries 8
         retry_delay 5
