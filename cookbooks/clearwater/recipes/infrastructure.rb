@@ -133,7 +133,7 @@ unless Chef::Config[:solo]
   # in a different site. (This lets us test GR config is working, without having to set up a VPN or
   # tunneling to allow traffic between regions or deployments.)
   if node[:clearwater][:gr]
-    if node[:clearwater][:index] % 2 == 1
+    if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
       local_site = "odd_numbers"
       remote_site = "even_numbers"
     else
