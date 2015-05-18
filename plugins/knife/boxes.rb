@@ -273,12 +273,10 @@ def quiesce_box(box_name, env)
     ssh.exec! "sudo service clearwater-etcd decommission"
     case node.run_list.first.name
     when "sprout"
-      ssh.exec! "sudo monit unmonitor sprout"
-      ssh.exec! "sudo monit unmonitor poll_sprout"
+      ssh.exec! "sudo monit unmonitor -g sprout"
       ssh.exec! "sudo service sprout start-quiesce"
     when "bono"
-      ssh.exec! "sudo monit unmonitor bono"
-      ssh.exec! "sudo monit unmonitor poll_bono"
+      ssh.exec! "sudo monit unmonitor -g bono"
       ssh.exec! "sudo service bono start-quiesce"
     end
   end
