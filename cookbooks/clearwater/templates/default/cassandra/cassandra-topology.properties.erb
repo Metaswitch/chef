@@ -1,3 +1,0 @@
-<% @gr_cluster_nodes.each do |node| %>
-<%=@is_gr ? node.cloud.public_ipv4 : node.cloud.local_ipv4%>=<%=node.chef_environment%>:rack1
-<% end %>

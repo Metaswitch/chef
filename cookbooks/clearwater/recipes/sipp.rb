@@ -37,11 +37,6 @@ bonos = search(:node,
 bonos.sort! { |a,b| a[:clearwater][:index] <=> b[:clearwater][:index] }
 bonos.map! { |n| n[:cloud][:local_ipv4] }
 
-template "/etc/clearwater/cluster_settings" do
-  source "sipp/cluster_settings.erb"
-  variables server_list: bonos
-end
-
 package "clearwater-sip-stress" do
   action [:install]
   options "--force-yes"

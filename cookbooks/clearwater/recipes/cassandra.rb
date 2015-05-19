@@ -37,3 +37,9 @@ package "clearwater-cassandra" do
   options "--force-yes"
 end
 
+template "/etc/cassandra/cassandra-env.sh" do
+  source "cassandra/cassandra-env.sh.erb"
+  mode "0644"
+  owner "root"
+  group "root"
+end

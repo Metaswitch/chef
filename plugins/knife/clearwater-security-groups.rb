@@ -47,6 +47,9 @@ def base_security_group_rules
     { ip_protocol: :udp, min: 161, max: 161, cidr_ip: "0.0.0.0/0" },
     # Monit
     { ip_protocol: :tcp, min: 2812, max: 2812, group: "mmonit" },
+    # etcd
+    { ip_protocol: :tcp, min: 2380, max: 2380, group: "base" },
+    { ip_protocol: :tcp, min: 4000, max: 4000, group: "base" },
   ]
 end
 
@@ -69,8 +72,6 @@ def bono_external_security_group_rules
     { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
     # SIP/Websockets
     { ip_protocol: :tcp, min: 5062, max: 5062, cidr_ip: "0.0.0.0/0" },
-    # Statistics interface
-    { ip_protocol: :tcp, min: 6669, max: 6669, cidr_ip: "0.0.0.0/0" },
     # RTP
     { ip_protocol: :udp, min: 32768, max: 65535, cidr_ip: "0.0.0.0/0" },
   ]
@@ -136,8 +137,6 @@ def sprout_security_group_rules
       { ip_protocol: :udp, min: 5052, max: 5052, group: "internal-sip" },
       # Memcached interface
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
-      # Statistics interface
-      { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
       # Chronos interface
       { ip_protocol: :tcp, min: 7253, max: 7253, group: "sprout" },
       { ip_protocol: :tcp, min: 9888, max: 9888, group: "sprout" },
@@ -156,10 +155,6 @@ def homestead_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
-      # Statistics interface - 'homestead' publishes to 6668 and homestead-prov
-      # to 6667.
-      { ip_protocol: :tcp, min: 6668, max: 6668, cidr_ip: "0.0.0.0/0" },
-      { ip_protocol: :tcp, min: 6667, max: 6667, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
@@ -171,21 +166,17 @@ def homer_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homer" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homer" },
-      # Statistics interface
-      { ip_protocol: :tcp, min: 6665, max: 6665, cidr_ip: "0.0.0.0/0" },
     ]
 end
 
 def ralf_security_group_rules
   ipsec_security_group_rules +
     [
-     { ip_protocol: :tcp, min: 10888, max: 10888, group: "internal-sip" },
-     { ip_protocol: :tcp, min: 10888, max: 10888, group: "ralf" },
-     { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
-     # Memcached interface
-     { ip_protocol: :tcp, min: 11211, max: 11211, group: "ralf" },
-     # Statistics interface
-     { ip_protocol: :tcp, min: 6664, max: 6664, cidr_ip: "0.0.0.0/0" },
+      { ip_protocol: :tcp, min: 10888, max: 10888, group: "internal-sip" },
+      { ip_protocol: :tcp, min: 10888, max: 10888, group: "ralf" },
+      { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
+      # Memcached interface
+      { ip_protocol: :tcp, min: 11211, max: 11211, group: "ralf" },
     ]
 end
 
@@ -286,8 +277,6 @@ end
 def cw_aio_security_group_rules
   bono_external_security_group_rules + ellis_security_group_rules +
   [
-    # Statistics interface
-    { ip_protocol: :tcp, min: 6665, max: 6669, cidr_ip: "0.0.0.0/0" },
   ]
 end
 

@@ -39,14 +39,12 @@ directory "/etc/chronos/" do
 end
 
 template "/etc/chronos/chronos.conf" do
-  source "cluster/chronos.conf.erb"
+  source "chronos.conf.erb"
   mode 0644
   owner "root"
   group "root"
   action :create_if_missing
-  variables servers: [node],
-            former_servers: [],
-            localhost: node.cloud.local_ipv4
+  variables localhost: node.cloud.local_ipv4
 end
 
 package "chronos" do
