@@ -58,3 +58,5 @@ ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
 
 # etcd configuration
 etcd_cluster=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
+local_site_name=<%= @local_site %>
+remote_site_name=<%= @remote_site %>
