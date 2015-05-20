@@ -149,7 +149,7 @@ module Clearwater
         yield
       rescue Excon::Errors::BadRequest => e
         msg = Nokogiri::XML(e.response.body).xpath("//xmlns:Message").text
-        message = "Creation of #{name(options)} failed: #{msg}"
+        message = "Creation of DNS record failed: #{msg}"
         Chef::Log.error(message)
         raise e
       end

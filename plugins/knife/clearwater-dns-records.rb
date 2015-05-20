@@ -45,6 +45,18 @@ def dns_records
       :ttl   => "60"
     },
 
+   "_sip._tcp.sprout" => {
+      :type  => "SRV",
+      :value => scscf_srv(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+   "_sip._tcp.sprout-icscf" => {
+      :type  => "SRV",
+      :value => icscf_srv(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
     "hs" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("homestead")),
@@ -131,6 +143,29 @@ end
 def ipv4s_local(boxes)
   boxes.map {|n| n[:cloud][:local_ipv4]}
 end
+
+def icscf_srv(boxes)
+  boxes.map  do |n|
+    priority = if n[:clearwater][:index] % 2 == 1
+                 1
+               else
+                 2
+               end
+    "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
+  end
+end
+
+def scscf_srv(boxes)
+  boxes.map  do |n|
+    priority = if n[:clearwater][:index] % 2 == 1
+                 1
+               else
+                 2
+               end
+    "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
+  end
+end
+
 
 def public_hostnames(boxes)
   boxes.map {|n| n[:cloud][:public_hostname] + "."}
