@@ -197,6 +197,10 @@ def dns_records
   return dns
 end
 
+def in_site_1?(n)
+  (n[:clearwater][:index] || 1) % 2 == 1
+end
+
 def ipv4s(boxes)
   boxes.map {|n| n[:cloud][:public_ipv4]}
 end
@@ -206,37 +210,37 @@ def ipv4s_local(boxes)
 end
 
 def ipv4s_local_site1(boxes)
-  boxes.select { |n| n[:clearwater][:index] % 2 == 1 }.map {|n| n[:cloud][:local_ipv4]}
+  boxes.select { |n| in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
 end
 
 def ipv4s_local_site2(boxes)
-  boxes.select { |n| n[:clearwater][:index] % 2 != 1 }.map {|n| n[:cloud][:local_ipv4]}
+  boxes.select { |n| not in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
 end
 
 def icscf_srv_site1(boxes)
   boxes.map  do |n|
-    priority = if n[:clearwater][:index] % 2 == 1 then 1 else 2 end
+    priority = if in_site_1?(n) then 1 else 2 end
     "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
   end
 end
 
 def scscf_srv_site1(boxes)
   boxes.map  do |n|
-    priority = if n[:clearwater][:index] % 2 == 1 then 1 else 2 end
+    priority = if in_site_1?(n) then 1 else 2 end
     "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
   end
 end
 
 def icscf_srv_site2(boxes)
   boxes.map  do |n|
-    priority = if n[:clearwater][:index] % 2 == 1 then 2 else 1 end
+    priority = if in_site_1?(n) then 2 else 1 end
     "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
   end
 end
 
 def scscf_srv_site2(boxes)
   boxes.map  do |n|
-    priority = if n[:clearwater][:index] % 2 == 1 then 2 else 1 end
+    priority = if in_site_1?(n) then 2 else 1 end
     "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
   end
 end
@@ -254,8 +258,6 @@ def scscf_srv_flat(boxes)
     "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
   end
 end
-
-
 
 def public_hostnames(boxes)
   boxes.map {|n| n[:cloud][:public_hostname] + "."}
