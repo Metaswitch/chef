@@ -1,5 +1,5 @@
 # Deployment definitions
-home_domain=<%= @node[:clearwater][:gr_home_domain] or @domain %>
+home_domain=<%= @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
 chronos_hostname=<%= @chronos %>
@@ -46,12 +46,11 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 <% else %>upstream_hostname=<%= @sprout_icscf %>
 <% end %>
 <% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %>
-<% else %>
-  <% if @node[:clearwater][:gr] %>upstream_port=0
-<% else %>upstream_port=5052
+<% else %>upstream_port=0
 <% end %>
+<% if @scscf_uri %>
+scscf_uri="<%= @scscf_uri %>"
 <% end %>
-scscf_uri="sip:<%= @sprout %>;transport=tcp"
 
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 

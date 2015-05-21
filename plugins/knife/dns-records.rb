@@ -50,6 +50,10 @@ module Clearwater
 
       # Try to get the record
       record = find_by_name_and_type(options)
+      if options[:value] == []
+        Chef::Log.info "Skipping empty record"
+        return
+      end
       if record.nil?
         create_record(options)
       else
