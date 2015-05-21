@@ -167,7 +167,7 @@ unless Chef::Config[:solo]
       action [:install]
       options "--force-yes"
     end
-  elsif node[:clearwater][:gr] and node[:clearwater][:index] % 2 == 1
+  elsif node[:clearwater][:gr] and node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
     # If we want to do GR testing, split the deployment so that every other node is configured to be
     # in a different site. (This lets us test GR config is working, without having to set up a VPN or
     # tunneling to allow traffic between regions or deployments.)
@@ -194,7 +194,7 @@ unless Chef::Config[:solo]
         local_site: "odd_numbers",
         remote_site: "even_numbers"
     end
-  elsif node[:clearwater][:gr] and node[:clearwater][:index] % 2 != 1
+  elsif node[:clearwater][:gr] and node[:clearwater][:index] and node[:clearwater][:index] % 2 != 1
     template "/etc/clearwater/config" do
       mode "0644"
       source "config.erb"
