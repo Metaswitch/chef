@@ -144,7 +144,7 @@ module Clearwater
       @zone
     end
 
-    def log_if_dns_error
+    def log_if_dns_error(options)
       begin
         yield
       rescue Excon::Errors::BadRequest => e
@@ -166,7 +166,7 @@ module Clearwater
 
     # Create a new record
     def create_record(options)
-      log_if_dns_error do
+      log_if_dns_error(options) do
         record_data = make_record_data(options)
         Chef::Log.info "Creating record with config: #{record_data}"
         zone.records.create(record_data)
@@ -175,7 +175,7 @@ module Clearwater
 
     # Modify an existing record
     def modify_record(record, options)
-      log_if_dns_error do
+      log_if_dns_error(options) do
         record_data = make_record_data(options)
         Chef::Log.info "Updating record with config: #{record_data}"
         record.modify(record_data)
