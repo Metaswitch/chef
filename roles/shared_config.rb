@@ -1,7 +1,7 @@
-# @file etcd.rb
+# @file shared_config.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2015  Metaswitch Networks Ltd
+# Copyright (C) 2013  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,17 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "clearwater-etcd" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-cluster-manager" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-config-manager" do
-  action [:install]
-  options "--force-yes"
-end
+name "shared_config"
+description "Role to provide bootstrapped shared config"
+run_list [
+  "role[clearwater-infrastructure]",
+  "recipe[clearwater::shared_config]"
+]

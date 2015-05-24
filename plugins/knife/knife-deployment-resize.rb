@@ -351,10 +351,10 @@ module ClearwaterKnifePlugins
 
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
-  
+
       # Initialize status object
       init_status
-  
+
       # Create security groups
       status["Security Groups"][:status] = "Configuring..."
       Chef::Log.info "Creating security groups..."
@@ -372,7 +372,7 @@ module ClearwaterKnifePlugins
       # If an essential node type currently has no boxes, make sure we
       # create one.
       seagull_count = (config[:seagull] ? 1 : 0)
-  
+
       new_counts = {
         ellis: 1,
         bono: config[:bono_count] || [old_counts[:bono], 1].max,
@@ -386,7 +386,7 @@ module ClearwaterKnifePlugins
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
-  
+
       # Create boxes
       node_list = create_cluster(new_counts)
       create_node_list = calculate_boxes_to_create(env, node_list)
@@ -394,19 +394,19 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?
       launch_boxes(create_node_list)
       set_progress 50
-  
+
       prepare_to_quiesce_extra_boxes(env.name, node_list)
-  
+
       if not in_stable_state? env
         Chef::Log.info "Removing nodes from DNS before quiescing..."
         configure_dns config
         Chef::Log.info "Waiting 60s for DNS to propagate..."
         sleep 60
       end
-  
+
       quiesce_extra_boxes(env.name, node_list)
       set_progress 60
-  
+
       # Now that all the boxes are in place, cleanup any that failed
       Chef::Log.info "Cleaning deployment..."
       deployment_clean = DeploymentClean.new("-E #{config[:environment]}".split)
@@ -418,12 +418,12 @@ module ClearwaterKnifePlugins
 
       # Sleep to let chef catch up _sigh_
       sleep 10
-  
+
       # Set the etcd_cluster value. Mark any files that already exist.
-      if old_counts.all? {|(node_type, count)| count == 0 }
-        Chef::Log.info "Setting the etcd_cluster values"
+      if old_counts.all? {|node_type, count| count == 0 }
+        Chef::Log.info "Initializing etcd cluster"
         %w{sprout ralf homer homestead bono ellis}.each do |node|
-          # Get the list of nodes and iterate over them adding the 
+          # Get the list of nodes and iterate over them adding the
           # etcd_cluster attribute
           cluster = find_nodes(roles: node)
           cluster.each do |s|
@@ -432,70 +432,59 @@ module ClearwaterKnifePlugins
           end
         end
 
-        # Create and upload the shared configuration. This should just be done 
-        # on a single node in the deployment. We choose the first Sprout
-        sprouts = find_nodes(roles: 'sprout')
-        sprouts.sort_by! { |n| n[:clearwater][:index] }
-        s_node = Chef::Node.load sprouts[0]
-        hostname = s_node.cloud.public_hostname
-        @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
-        ssh_options = { keys: @ssh_key }
-
-        domain = if s_node[:clearwater][:use_subdomain]
-                    s_node.chef_environment + "." + s_node[:clearwater][:root_domain]
-                 else
-                   s_node[:clearwater][:root_domain]
-                 end
-
-        if s_node[:clearwater][:seagull]
-          hss = "hss.seagull." + domain
-          cdf = "cdf.seagull." + domain
-        else
-          hss = nil
-          cdf = "cdf." + domain
-        end
-
-        ralf = if s_node[:clearwater][:ralf] and ((s_node[:clearwater][:ralf] == true) || (s_node[:clearwater][:ralf] > 0))
-                 "ralf." + domain + ":10888"
-               else
-                 ""
-               end
-
-        enum = Resolv::DNS.open { |dns| dns.getaddress(s_node[:clearwater][:enum_server]).to_s } rescue nil
-      
-        # TODO Create the shared_config correctly (wait for actual code)
-        template "/etc/clearwater/shared_config" do
-        mode "0644"
-        source "shared_config.erb"
-        variables domain: domain,
-                  node: s_node,
-                  sprout: "sprout." + domain,
-                  hs: "hs." + domain + ":8888",
-                  hs_prov: "hs." + domain + ":8889",
-                  homer: "homer." + domain + ":7888",
-                  ralf: ralf,
-                  cdf: cdf,
-                  enum: enum,
-                  hss: hss
-
-        hostname = s_node.cloud.public_hostname
-        @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
-        ssh_options = { keys: @ssh_key }
-
-        # scp cannot copy directly to protected locations so use a temp file
-        # TODO The names/locations/parameters? of the scripts need checking
-        ssh.scp.upload! StringIO.new(data), "tmp"
-        ssh.exec! "sudo mv tmp /etc/clearwater/shared_config"
-        ssh.exec! "sudo chown root:root /etc/clearwater/shared_config"
-        ssh.exec! "sudo chmod 644 /etc/clearwater/shared_config"
-        ssh.exec! "upload_shared_config"
-        ssh.exec! "upload_enum_json"
-        ssh.exec! "upload_bgcf_json"
-        ssh.exec! "upload_scscf_json"
-
-        # Finally run chef-client over all nodes
+        # Run chef client to set up the etcd_cluster environemnt variable.
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]}")
+
+        # Create and upload the shared configuration. This should just be done
+        # on a single node in the deployment. We choose the first Sprout.
+        sprouts = find_nodes(roles: 'sprout')
+        sprouts.sort_by! { |n| n[:clearwater][:index] }
+        s_node = sprouts[0]
+        s_node.run_list << "role[shared_config]"
+        s_node.save
+        trigger_chef_client(config[:cloud],
+                            "chef_environment:#{config[:environment]} AND name:#{s_node.name}")
+
+        if false
+          domain = if s_node[:clearwater][:use_subdomain]
+                      s_node.chef_environment + "." + s_node[:clearwater][:root_domain]
+                   else
+                     s_node[:clearwater][:root_domain]
+                   end
+
+          if s_node[:clearwater][:seagull]
+            hss = "hss.seagull." + domain
+            cdf = "cdf.seagull." + domain
+          else
+            hss = nil
+            cdf = "cdf." + domain
+          end
+
+          ralf = if s_node[:clearwater][:ralf] and ((s_node[:clearwater][:ralf] == true) || (s_node[:clearwater][:ralf] > 0))
+                   "ralf." + domain + ":10888"
+                 else
+                   ""
+                 end
+
+          enum = Resolv::DNS.open { |dns| dns.getaddress(s_node[:clearwater][:enum_server]).to_s } rescue nil
+
+          # TODO Create the shared_config correctly (wait for actual code)
+          template "/etc/clearwater/shared_config" do
+            mode "0644"
+            source "shared_config.erb"
+            variables domain: domain,
+                      node: s_node,
+                      sprout: "sprout." + domain,
+                      hs: "hs." + domain + ":8888",
+                      hs_prov: "hs." + domain + ":8889",
+                      homer: "homer." + domain + ":7888",
+                      ralf: ralf,
+                      cdf: cdf,
+                      enum: enum,
+                      hss: hss
+          end
+        end
       end
 
       # Setup DNS zone record

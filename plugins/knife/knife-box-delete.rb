@@ -33,9 +33,9 @@
 # as those licenses appear in the file LICENSE-OPENSSL.
 
 require_relative 'knife-clearwater-utils'
-require 'chef/knife/ec2_server_create'
-require 'chef/knife/rackspace_server_create'
-require 'chef/knife/openstack_server_create'
+require 'chef/knife/ec2_server_delete'
+require 'chef/knife/rackspace_server_delete'
+require 'chef/knife/openstack_server_delete'
 Chef::Knife::Ec2ServerDelete.load_deps
 Chef::Knife::RackspaceServerDelete.load_deps
 Chef::Knife::OpenstackServerDelete.load_deps

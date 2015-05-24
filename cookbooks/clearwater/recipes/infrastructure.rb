@@ -158,7 +158,7 @@ unless Chef::Config[:solo]
         mode "0644"
         source "local_config.erb"
         variables node: node,
-                  etcd: etcd
+                  etcd: etcd,
                   local_site: local_site,
                   remote_site: remote_site
     end
