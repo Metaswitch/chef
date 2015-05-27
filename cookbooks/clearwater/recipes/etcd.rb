@@ -32,17 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "clearwater-etcd" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-cluster-manager" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-config-manager" do
+package "clearwater-management" do
   action [:install]
   options "--force-yes"
 end
