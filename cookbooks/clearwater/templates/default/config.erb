@@ -1,5 +1,5 @@
 # Deployment definitions
-home_domain=<%= @node[:clearwater][:gr_home_domain] or @domain %>
+home_domain=<%= @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
 chronos_hostname=<%= @chronos %>
@@ -10,6 +10,7 @@ cdf_identity=<%= @cdf %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 <% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
+alias_list=<%= @alias_list %>
 
 # Local IP configuration
 local_ip=<%= @node[:cloud][:local_ipv4] %>
@@ -42,10 +43,13 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
 <% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %>
-<% else %>upstream_hostname=<%= @sprout %>
+<% else %>upstream_hostname=<%= @sprout_icscf %>
 <% end %>
 <% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %>
-<% else %>upstream_port=5052
+<% else %>upstream_port=0
+<% end %>
+<% if @scscf_uri %>
+scscf_uri="<%= @scscf_uri %>"
 <% end %>
 
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"

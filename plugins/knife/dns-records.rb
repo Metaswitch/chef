@@ -50,6 +50,10 @@ module Clearwater
 
       # Try to get the record
       record = find_by_name_and_type(options)
+      if options[:value] == []
+        Chef::Log.info "Skipping empty record"
+        return
+      end
       if record.nil?
         create_record(options)
       else
@@ -149,7 +153,7 @@ module Clearwater
         yield
       rescue Excon::Errors::BadRequest => e
         msg = Nokogiri::XML(e.response.body).xpath("//xmlns:Message").text
-        message = "Creation of #{name(options)} failed: #{msg}"
+        message = "Creation of DNS record failed: #{msg}"
         Chef::Log.error(message)
         raise e
       end
