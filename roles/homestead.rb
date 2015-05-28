@@ -36,7 +36,7 @@ name "homestead"
 description "homestead role"
 run_list [
   "role[clearwater-infrastructure]",
-  "recipe[clearwater::etcd]",
   "role[cassandra]",
-  "recipe[clearwater::homestead]"
+  "recipe[clearwater::homestead]",
+  "role[clearwater-etcd]",
 ]
