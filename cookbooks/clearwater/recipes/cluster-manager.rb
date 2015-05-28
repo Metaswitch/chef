@@ -1,7 +1,7 @@
-# @file sprout.rb
+# @file cluster-manager.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,15 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "sprout"
-description "sprout role"
-run_list [
-  "role[clearwater-infrastructure]",
-  "recipe[clearwater::sprout]",
-  "role[clearwater-etcd]",
-]
+package "clearwater-cluster-manager" do
+  action [:install]
+  options "--force-yes"
+end
 
-override_attributes "clearwater" => {
-  "icscf" => 5052,
-  "scscf" => 5054,
-}
