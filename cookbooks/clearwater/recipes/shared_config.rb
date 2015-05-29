@@ -81,7 +81,7 @@ template "/etc/clearwater/shared_config" do
     chronos: node[:cloud][:local_ipv4] + ":7253",
     ralf: if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
             "ralf#{site_suffix}.#{domain}:10888"
-          end
+          end,
     cdf: cdf,
     enum: enum,
     hss: hss

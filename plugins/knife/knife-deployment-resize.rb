@@ -437,14 +437,23 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]}")
 
         # Create and upload the shared configuration. This should just be done
-        # on a single node in the deployment. We choose the first Sprout.
+        # on a single node in each site. We choose the first Sprout.
         sprouts = find_nodes(roles: 'sprout')
         sprouts.sort_by! { |n| n[:clearwater][:index] }
-        s_node = sprouts[0]
-        s_node.run_list << "role[shared_config]"
-        s_node.save
+        if attributes["gr"]
+          s_nodes = sprouts[0..1]
+        else
+          s_nodes = sprouts[0..0]
+        end
+
+        for s_node in s_nodes
+          s_node.run_list << "role[shared_config]"
+          s_node.save
+        end
+
+        query_strings = s_nodes.map { |n| "name:#{n.name}" }
         trigger_chef_client(config[:cloud],
-                            "chef_environment:#{config[:environment]} AND name:#{s_node.name}")
+                            "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end
 
       # Setup DNS zone record
