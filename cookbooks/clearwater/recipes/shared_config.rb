@@ -46,25 +46,42 @@ else
   cdf = "cdf." + domain
 end
 
-ralf = if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-         "ralf." + domain + ":10888"
-       else
-         ""
-       end
+site_suffix = if node[:clearwater][:gr]
+  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
+    "-site1"
+  else
+    "-site2"
+  end
+else
+  ""
+end
+
+sprout_aliases = ["sprout-icscf." + domain,
+                  "sprout-icscf-site1." + domain,
+                  "sprout-icscf-site2." + domain,
+                  "sprout-site1." + domain,
+                  "sprout-site2." + domain]
 
 enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
-# TODO Create the shared_config correctly (wait for actual code)
 template "/etc/clearwater/shared_config" do
   mode "0644"
   source "shared_config.erb"
   variables domain: domain,
     node: node,
-    sprout: "sprout." + domain,
-    hs: "hs." + domain + ":8888",
-    hs_prov: "hs." + domain + ":8889",
-    homer: "homer." + domain + ":7888",
-    ralf: ralf,
+    sprout: "sprout#{site_suffix}.#{domain}",
+    sprout_icscf: "sprout-icscf#{site_suffix}.#{domain}",
+    scscf_uri: "sip:sprout#{site_suffix}.#{domain};transport=tcp",
+    alias_list: if node.roles.include? "sprout"
+                  sprout_aliases.join(",")
+                end,
+    hs: "hs#{site_suffix}.#{domain}:8888",
+    hs_prov: "hs#{site_suffix}.#{domain}:8889",
+    homer: "homer#{site_suffix}.#{domain}:7888",
+    chronos: node[:cloud][:local_ipv4] + ":7253",
+    ralf: if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
+            "ralf#{site_suffix}.#{domain}:10888"
+          end
     cdf: cdf,
     enum: enum,
     hss: hss

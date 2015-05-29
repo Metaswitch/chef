@@ -103,13 +103,7 @@ unless Chef::Config[:solo]
     action :create
   end
 
-  # Find all nodes in the deployment that have been marked as part of the etcd cluster. 
-  nodes = search(:node, "chef_environment:#{node.chef_environment}")
-  etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-  # If we want to do GR testing, split the deployment so that every other node is configured to be
-  # in a different site. (This lets us test GR config is working, without having to set up a VPN or
-  # tunneling to allow traffic between regions or deployments.)
+  # Determine GR site names
   if node[:clearwater][:gr]
     if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
       local_site = "odd_numbers"
@@ -123,6 +117,10 @@ unless Chef::Config[:solo]
     remote_site = ""
   end
 
+
+  # Find all nodes in the deployment that have been marked as part of the etcd cluster.
+  nodes = search(:node, "chef_environment:#{node.chef_environment}")
+  etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
 
   # Set up template values for /etc/clearwater/config - any new values should
   # be added for all-in-one and distributed installs
@@ -146,14 +144,16 @@ unless Chef::Config[:solo]
                 enum: enum,
                 hss: hss,
                 etcd: node[:cloud][:local_ipv4],
-                local_site: local_site,
-                remote_site: remote_site
+                local_site: "single_site",
+                remote_site: ""
     end
     package "clearwater-auto-config-aws" do
       action [:install]
       options "--force-yes"
     end
+
   else
+    # Just create local_config
     template "/etc/clearwater/local_config" do
         mode "0644"
         source "local_config.erb"

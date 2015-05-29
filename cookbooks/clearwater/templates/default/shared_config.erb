@@ -1,5 +1,5 @@
 # Deployment definitions
-home_domain=<%= @node[:clearwater][:gr_home_domain] or @domain %>
+home_domain=<%= @domain %>
 sprout_hostname=<%= @sprout %>
 hs_hostname=<%= @hs %>
 hs_provisioning_hostname=<%= @hs_prov %>
@@ -9,6 +9,7 @@ cdf_identity=<%= @cdf %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 <% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
 <% if not @node[:clearwater][:index].nil? %>node_idx=<%= @node[:clearwater][:index] %><% end %>
+alias_list=<%= @alias_list %>
 
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
@@ -17,9 +18,7 @@ smtp_password=<%= @node[:clearwater][:smtp_password] %>
 email_recovery_sender=<%= @node[:clearwater][:email_sender] %>
 
 # HSS configuration
-<% if not @hss.nil? %>hss_hostname=<%= @hss %>
-<% else %>hss_hostname=<%= @node[:clearwater][:hss_hostname] %>
-<% end %>
+<% if not @hss.nil? %>hss_hostname=<%= @hss %><% else %>hss_hostname=<%= @node[:clearwater][:hss_hostname] %><% end %>
 hss_port=<%= @node[:clearwater][:hss_port] %>
 <% if not @node[:clearwater][:hss_realm].nil? %>hss_realm=<%= @node[:clearwater][:hss_realm] %><% end %>
 
@@ -35,12 +34,9 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 # I-CSCF/S-CSCF configuration
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
-<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %>
-<% else %>upstream_hostname=<%= @sprout %>
-<% end %>
-<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %>
-<% else %>upstream_port=5052
-<% end %>
+<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %><% else %>upstream_hostname=<%= @sprout_icscf %><% end %>
+<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %><% else %>upstream_port=0<% end %>
+<% if @scscf_uri %>scscf_uri=<%= @scscf_uri %><% end %>
 
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 
