@@ -445,46 +445,6 @@ module ClearwaterKnifePlugins
         s_node.save
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]} AND name:#{s_node.name}")
-
-        if false
-          domain = if s_node[:clearwater][:use_subdomain]
-                      s_node.chef_environment + "." + s_node[:clearwater][:root_domain]
-                   else
-                     s_node[:clearwater][:root_domain]
-                   end
-
-          if s_node[:clearwater][:seagull]
-            hss = "hss.seagull." + domain
-            cdf = "cdf.seagull." + domain
-          else
-            hss = nil
-            cdf = "cdf." + domain
-          end
-
-          ralf = if s_node[:clearwater][:ralf] and ((s_node[:clearwater][:ralf] == true) || (s_node[:clearwater][:ralf] > 0))
-                   "ralf." + domain + ":10888"
-                 else
-                   ""
-                 end
-
-          enum = Resolv::DNS.open { |dns| dns.getaddress(s_node[:clearwater][:enum_server]).to_s } rescue nil
-
-          # TODO Create the shared_config correctly (wait for actual code)
-          template "/etc/clearwater/shared_config" do
-            mode "0644"
-            source "shared_config.erb"
-            variables domain: domain,
-                      node: s_node,
-                      sprout: "sprout." + domain,
-                      hs: "hs." + domain + ":8888",
-                      hs_prov: "hs." + domain + ":8889",
-                      homer: "homer." + domain + ":7888",
-                      ralf: ralf,
-                      cdf: cdf,
-                      enum: enum,
-                      hss: hss
-          end
-        end
       end
 
       # Setup DNS zone record
