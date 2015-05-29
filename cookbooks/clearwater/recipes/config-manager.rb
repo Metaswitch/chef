@@ -31,3 +31,9 @@
 # "OpenSSL Licenses" means the OpenSSL License and Original SSLeay License
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
+
+package "clearwater-config-manager" do
+  action [:install]
+  options "--force-yes"
+end
+
