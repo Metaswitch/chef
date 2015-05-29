@@ -267,7 +267,7 @@ def quiesce_box(box_name, env)
   ssh_options = { keys: @ssh_key }
   
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
-    ssh.exec! "sudo monit unmonitor clearwater-etcd"
+    ssh.exec! "sudo monit unmonitor -g etcd"
     ssh.exec! "sudo monit unmonitor clearwater-config-manager"
     ssh.exec! "sudo monit unmonitor clearwater-cluster-manager"
     ssh.exec! "sudo service clearwater-etcd decommission"
