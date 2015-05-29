@@ -1,4 +1,4 @@
-# @file cluster-manager.rb
+# @file config-manager.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2015  Metaswitch Networks Ltd
@@ -32,7 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "clearwater-cluster-manager" do
+package "clearwater-config-manager" do
   action [:install]
   options "--force-yes"
 end

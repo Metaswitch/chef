@@ -37,5 +37,5 @@ description "ellis role"
 run_list [
   "role[clearwater-infrastructure]",
   "recipe[clearwater::ellis]",
-  "role[clearwater-cluster-manager]"
+  "role[clearwater-config-manager]"
 ]
