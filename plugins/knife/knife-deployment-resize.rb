@@ -456,6 +456,11 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end
 
+      # Shared config should be synchronized now, run chef-client one last time
+      # to pick up the final state.
+      trigger_chef_client(config[:cloud],
+                          "chef_environment:#{config[:environment]}")
+
       # Setup DNS zone record
       status["DNS"][:status] = "Configuring..."
       Chef::Log.info "Creating zone record..."

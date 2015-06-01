@@ -32,6 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require 'socket'
+
 domain = if node[:clearwater][:use_subdomain]
            node.chef_environment + "." + node[:clearwater][:root_domain]
          else
@@ -85,15 +87,37 @@ template "/etc/clearwater/shared_config" do
     cdf: cdf,
     enum: enum,
     hss: hss
+  notifies :run, "ruby_block[wait_for_etcd]", :immediately
+end
+
+ruby_block "wait_for_etcd" do
+  block do
+    loop do
+      begin
+        s = TCPSocket.new(node[:cloud][:local_ipv4], 4000)
+        break
+      rescue SystemCallError
+        sleep 1
+      end
+    end
+  end
   notifies :run, "execute[upload_shared_config]", :immediately
   notifies :run, "execute[upload_enum_json]", :immediately
   notifies :run, "execute[upload_bgcf_json]", :immediately
   notifies :run, "execute[upload_scscf_json]", :immediately
+  action :nothing
 end
 
 execute "upload_shared_config" do
   user "root"
   command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config"
+  notifies :run, "execute[apply_shared_config]", :immediately
+  action :nothing
+end
+
+execute "apply_shared_config" do
+  user "root"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/apply_shared_config"
   action :nothing
 end
 

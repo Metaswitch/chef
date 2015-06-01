@@ -40,7 +40,7 @@ end
 # Perform daily backup of database
 cron "backup" do
   minute 0
-  hour 0 
+  hour 0
   command "/usr/share/clearwater/ellis/backup/do_backup.sh"
 end
 
@@ -49,10 +49,12 @@ execute "create_numbers" do
   cwd "/usr/share/clearwater/ellis/"
   command "env/bin/python src/metaswitch/ellis/tools/create_numbers.py --start #{node[:clearwater][:number_start]} --count #{node[:clearwater][:number_count]}"
   user "root"
+  only_if { ::File.exists?('/etc/clearwater/shared_config') }
 end
 
 execute "create_pstn_numbers" do
   cwd "/usr/share/clearwater/ellis/"
   command "env/bin/python src/metaswitch/ellis/tools/create_numbers.py --start #{node[:clearwater][:pstn_number_start]} --count #{node[:clearwater][:pstn_number_count]} --pstn"
   user "root"
+  only_if { ::File.exists?('/etc/clearwater/shared_config') }
 end
