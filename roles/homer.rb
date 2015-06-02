@@ -36,6 +36,6 @@ name "homer"
 description "homer role"
 run_list [
   "role[cassandra]",
-  "recipe[clearwater::etcd]",
   "recipe[clearwater::homer]",
+  "role[clearwater-etcd]",
 ]

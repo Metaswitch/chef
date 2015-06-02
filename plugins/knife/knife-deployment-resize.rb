@@ -351,10 +351,10 @@ module ClearwaterKnifePlugins
 
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
-  
+
       # Initialize status object
       init_status
-  
+
       # Create security groups
       status["Security Groups"][:status] = "Configuring..."
       Chef::Log.info "Creating security groups..."
@@ -372,7 +372,7 @@ module ClearwaterKnifePlugins
       # If an essential node type currently has no boxes, make sure we
       # create one.
       seagull_count = (config[:seagull] ? 1 : 0)
-  
+
       new_counts = {
         ellis: 1,
         bono: config[:bono_count] || [old_counts[:bono], 1].max,
@@ -386,7 +386,7 @@ module ClearwaterKnifePlugins
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
-  
+
       # Create boxes
       node_list = create_cluster(new_counts)
       create_node_list = calculate_boxes_to_create(env, node_list)
@@ -394,19 +394,19 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?
       launch_boxes(create_node_list)
       set_progress 50
-  
+
       prepare_to_quiesce_extra_boxes(env.name, node_list)
-  
+
       if not in_stable_state? env
         Chef::Log.info "Removing nodes from DNS before quiescing..."
         configure_dns config
         Chef::Log.info "Waiting 60s for DNS to propagate..."
         sleep 60
       end
-  
+
       quiesce_extra_boxes(env.name, node_list)
       set_progress 60
-  
+
       # Now that all the boxes are in place, cleanup any that failed
       Chef::Log.info "Cleaning deployment..."
       deployment_clean = DeploymentClean.new("-E #{config[:environment]}".split)
@@ -418,12 +418,12 @@ module ClearwaterKnifePlugins
 
       # Sleep to let chef catch up _sigh_
       sleep 10
-  
+
       # Set the etcd_cluster value. Mark any files that already exist.
-      if old_counts.all? {|(node_type, count)| count == 0 }
-        Chef::Log.info "Setting the etcd_cluster values"
+      if old_counts.all? {|node_type, count| count == 0 }
+        Chef::Log.info "Initializing etcd cluster"
         %w{sprout ralf homer homestead bono ellis}.each do |node|
-          # Get the list of nodes and iterate over them adding the 
+          # Get the list of nodes and iterate over them adding the
           # etcd_cluster attribute
           cluster = find_nodes(roles: node)
           cluster.each do |s|
@@ -432,9 +432,34 @@ module ClearwaterKnifePlugins
           end
         end
 
+        # Run chef client to set up the etcd_cluster environemnt variable.
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]}")
+
+        # Create and upload the shared configuration. This should just be done
+        # on a single node in each site. We choose the first Sprout.
+        sprouts = find_nodes(roles: 'sprout')
+        sprouts.sort_by! { |n| n[:clearwater][:index] }
+        if attributes["gr"]
+          s_nodes = sprouts[0..1]
+        else
+          s_nodes = sprouts[0..0]
+        end
+
+        for s_node in s_nodes
+          s_node.run_list << "role[shared_config]"
+          s_node.save
+        end
+
+        query_strings = s_nodes.map { |n| "name:#{n.name}" }
+        trigger_chef_client(config[:cloud],
+                            "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end
+
+      # Shared config should be synchronized now, run chef-client one last time
+      # to pick up the final state.
+      trigger_chef_client(config[:cloud],
+                          "chef_environment:#{config[:environment]}")
 
       # Setup DNS zone record
       status["DNS"][:status] = "Configuring..."

@@ -95,7 +95,7 @@ end
 
 unless Chef::Config[:solo]
 
-  # Setup the clearwater config file
+  # Setup the clearwater local config file
   directory "/etc/clearwater" do
     owner "root"
     group "root"
@@ -103,41 +103,24 @@ unless Chef::Config[:solo]
     action :create
   end
 
-  domain = if node[:clearwater][:use_subdomain]
-             node.chef_environment + "." + node[:clearwater][:root_domain]
-           else
-             node[:clearwater][:root_domain]
-           end
-
-  if node[:clearwater][:seagull]
-    hss = "hss.seagull." + domain
-    cdf = "cdf.seagull." + domain
+  # Determine GR site names
+  if node[:clearwater][:gr]
+    if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
+      local_site = "odd_numbers"
+      remote_site = "even_numbers"
+    else
+      local_site = "even_numbers"
+      remote_site = "odd_numbers"
+    end
   else
-    hss = nil
-    cdf = "cdf." + domain
+    local_site = "single_site"
+    remote_site = ""
   end
 
-  if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-    ralf = "ralf." + domain + ":10888"
-    ralf_site1 = "ralf-site1." + domain + ":10888"
-    ralf_site2 = "ralf-site2." + domain + ":10888"
-  else
-    ralf = ""
-    ralf_site1 = ""
-    ralf_site2 = ""
-  end
 
-  enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-
-  # Find all nodes in the deployment that have been marked as clustered. 
+  # Find all nodes in the deployment that have been marked as part of the etcd cluster.
   nodes = search(:node, "chef_environment:#{node.chef_environment}")
   etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-  sprout_aliases = ["sprout-icscf." + domain,
-                    "sprout-icscf-site1." + domain,
-                    "sprout-icscf-site2." + domain,
-                    "sprout-site1." + domain,
-                    "sprout-site2." + domain]
 
   # Set up template values for /etc/clearwater/config - any new values should
   # be added for all-in-one and distributed installs
@@ -145,9 +128,10 @@ unless Chef::Config[:solo]
   # There will also only ever be the local node in the etcd cluster, so we
   # can set this now
   if node.roles.include? "cw_aio"
+    enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
     template "/etc/clearwater/config" do
       mode "0644"
-      source "config.erb"
+      source "aio_config.erb"
       variables domain: "example.com",
                 node: node,
                 sprout: node[:cloud][:public_hostname],
@@ -167,80 +151,16 @@ unless Chef::Config[:solo]
       action [:install]
       options "--force-yes"
     end
-  elsif node[:clearwater][:gr] and node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    # If we want to do GR testing, split the deployment so that every other node is configured to be
-    # in a different site. (This lets us test GR config is working, without having to set up a VPN or
-    # tunneling to allow traffic between regions or deployments.)
-    template "/etc/clearwater/config" do
-      mode "0644"
-      source "config.erb"
-      variables domain: domain,
-        node: node,
-        sprout: "sprout-site1." + domain,
-        sprout_icscf: "sprout-icscf-site1." + domain,
-        scscf_uri: "sip:sprout-site1.#{domain};transport=tcp",
-      alias_list: if node.roles.include? "sprout"
-                    sprout_aliases.join(",")
-      end,
-        hs: "hs-site1." + domain + ":8888",
-        hs_prov: "hs-site1." + domain + ":8889",
-        homer: "homer-site1." + domain + ":7888",
-        chronos: node[:cloud][:local_ipv4] + ":7253",
-        ralf: ralf_site1,
-        cdf: cdf,
-        enum: enum,
-        hss: hss,
-        etcd: etcd,
-        local_site: "odd_numbers",
-        remote_site: "even_numbers"
-    end
-  elsif node[:clearwater][:gr] and node[:clearwater][:index] and node[:clearwater][:index] % 2 != 1
-    template "/etc/clearwater/config" do
-      mode "0644"
-      source "config.erb"
-      variables domain: domain,
-        node: node,
-        sprout: "sprout-site2." + domain,
-        sprout_icscf: "sprout-icscf-site2." + domain,
-        scscf_uri: "sip:sprout-site2.#{domain};transport=tcp",
-      alias_list: if node.roles.include? "sprout"
-                    sprout_aliases.join(",")
-      end,
-        hs: "hs-site2." + domain + ":8888",
-        hs_prov: "hs-site2." + domain + ":8889",
-        homer: "homer-site2." + domain + ":7888",
-        chronos: node[:cloud][:local_ipv4] + ":7253",
-        ralf: ralf_site2,
-        cdf: cdf,
-        enum: enum,
-        hss: hss,
-        etcd: etcd,
-        local_site: "even_numbers",
-        remote_site: "odd_numbers"
-    end
+
   else
-    template "/etc/clearwater/config" do
-      mode "0644"
-      source "config.erb"
-      variables domain: domain,
-        node: node,
-        sprout: "sprout." + domain,
-        sprout_icscf: "sprout-icscf." + domain,
-        scscf_uri: "sip:sprout.#{domain};transport=tcp",
-      alias_list: if node.roles.include? "sprout"
-                    sprout_aliases.join(",")
-      end,
-        hs: "hs." + domain + ":8888",
-        hs_prov: "hs." + domain + ":8889",
-        homer: "homer." + domain + ":7888",
-        chronos: node[:cloud][:local_ipv4] + ":7253",
-        ralf: ralf,
-        cdf: cdf,
-        enum: enum,
-        hss: hss,
-        etcd: etcd,
-        local_site: "single_site",
-        remote_site: ""
+    # Just create local_config
+    template "/etc/clearwater/local_config" do
+        mode "0644"
+        source "local_config.erb"
+        variables node: node,
+                  etcd: etcd,
+                  local_site: local_site,
+                  remote_site: remote_site
     end
   end
 end

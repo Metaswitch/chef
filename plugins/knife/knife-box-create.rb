@@ -145,7 +145,6 @@ module ClearwaterKnifePlugins
         box_delete.config[:verbosity] = config[:verbosity]
         box_delete.run(true)
       end
-
     end
   end
 end

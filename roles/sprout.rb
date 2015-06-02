@@ -36,8 +36,8 @@ name "sprout"
 description "sprout role"
 run_list [
   "role[clearwater-infrastructure]",
-  "recipe[clearwater::etcd]",
-  "recipe[clearwater::sprout]"
+  "recipe[clearwater::sprout]",
+  "role[clearwater-etcd]",
 ]
 
 override_attributes "clearwater" => {

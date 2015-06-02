@@ -36,6 +36,6 @@ name "ellis"
 description "ellis role"
 run_list [
   "role[clearwater-infrastructure]",
-  "recipe[clearwater::etcd]",
-  "recipe[clearwater::ellis]"
+  "recipe[clearwater::ellis]",
+  "role[clearwater-config-manager]"
 ]

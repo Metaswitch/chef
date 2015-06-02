@@ -36,6 +36,6 @@ name "ralf"
 description "ralf role"
 run_list [
   "role[clearwater-infrastructure]",
-  "recipe[clearwater::etcd]",
-  "recipe[clearwater::ralf]"
+  "recipe[clearwater::ralf]",
+  "role[clearwater-etcd]"
 ]

@@ -1,7 +1,7 @@
-# @file ellis.rb
+# @file shared_config.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,29 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "ellis" do
-  action [:install]
-  options "--force-yes"
-end
-
-# Perform daily backup of database
-cron "backup" do
-  minute 0
-  hour 0
-  command "/usr/share/clearwater/ellis/backup/do_backup.sh"
-end
-
-# Create number pools (first normal, then PSTN)
-execute "create_numbers" do
-  cwd "/usr/share/clearwater/ellis/"
-  command "env/bin/python src/metaswitch/ellis/tools/create_numbers.py --start #{node[:clearwater][:number_start]} --count #{node[:clearwater][:number_count]}"
-  user "root"
-  only_if { ::File.exists?('/etc/clearwater/shared_config') }
-end
-
-execute "create_pstn_numbers" do
-  cwd "/usr/share/clearwater/ellis/"
-  command "env/bin/python src/metaswitch/ellis/tools/create_numbers.py --start #{node[:clearwater][:pstn_number_start]} --count #{node[:clearwater][:pstn_number_count]} --pstn"
-  user "root"
-  only_if { ::File.exists?('/etc/clearwater/shared_config') }
-end
+name "shared_config"
+description "Role to provide bootstrapped shared config"
+run_list [
+  "role[clearwater-infrastructure]",
+  "recipe[clearwater::shared_config]"
+]

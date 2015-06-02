@@ -261,14 +261,14 @@ def quiesce_box(box_name, env)
   # Runs SSH commands on box_name to quiesce it
   # @param [String] box_name the name of the box to quiesce (e.g.
   #   rkd-bono-1)
-  # @param [String] env the Chef environment to use
   node = Chef::Node.load box_name
   hostname = node.cloud.public_hostname
   @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
   ssh_options = { keys: @ssh_key }
   
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
-    ssh.exec! "sudo monit unmonitor clearwater-etcd"
+    ssh.exec! "sudo monit unmonitor -g etcd"
+    ssh.exec! "sudo monit unmonitor clearwater-config-manager"
     ssh.exec! "sudo monit unmonitor clearwater-cluster-manager"
     ssh.exec! "sudo service clearwater-etcd decommission"
     case node.run_list.first.name
