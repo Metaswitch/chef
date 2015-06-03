@@ -142,7 +142,7 @@ unless Chef::Config[:solo]
                 ralf: "",
                 cdf: "",
                 enum: enum,
-                hss: hss,
+                hss: "",
                 etcd: node[:cloud][:local_ipv4],
                 local_site: "single_site",
                 remote_site: ""
