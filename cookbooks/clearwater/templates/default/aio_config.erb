@@ -57,4 +57,4 @@ ellis_api_key="<%= @node[:clearwater][:ellis_api_key] %>"
 ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
 
 # etcd configuration
-etcd_cluster=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
+etcd_cluster=<%= @etcd %>
