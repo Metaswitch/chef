@@ -61,7 +61,7 @@ module ClearwaterKnifePlugins
       puts "Searching for node #{name_glob} in #{env}..."
       # Protect against deleting nodes not created by Chef, eg dev boxes by requiring
       # that the role clearwater-infrastructure is present
-      puts "No such node" unless not find_nodes(name: name_glob, roles: "clearwater-infrastructure").each do |node|
+      puts "No such node" unless not find_nodes(name: name_glob, roles: "security").each do |node|
         provider = node[:cloud][:provider]
         fail "No provider found for node #{node.name}" if provider.nil?
         provider = provider.to_sym

@@ -32,7 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "clearwater-auto-config-aws" do
-  action [:install]
-  options "--force-yes"
+# Install all the clearwater packages. Use the AWS configuration package
+
+execute "install-clearwater-aio" do
+  user "root"
+  command "curl -L https://raw.githubusercontent.com/Metaswitch/clearwater-infrastructure/master/scripts/clearwater-aio-install.sh | sudo bash -s clearwater-auto-config-aws #{node[:clearwater][:repo_server]} #{node[:clearwater][:number_start]} #{node[:clearwater][:number_count]}"
 end

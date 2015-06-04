@@ -1,7 +1,7 @@
-# @file infrastructure.rb
+# @file security.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,68 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-require 'resolv'
-require 'uri'
+name "security"
+description "security role"
+run_list [
+  "recipe[clearwater::security]"
+]
 
-unless Chef::Config[:solo]
-
-  # Setup the clearwater local config file
-  directory "/etc/clearwater" do
-    owner "root"
-    group "root"
-    mode "0755"
-    action :create
-  end
-
-  # Set up the local config file
-
-  # Determine GR site names
-  if node[:clearwater][:gr]
-    if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-      local_site = "odd_numbers"
-      remote_site = "even_numbers"
-    else
-      local_site = "even_numbers"
-      remote_site = "odd_numbers"
-    end
-  else
-    local_site = "single_site"
-    remote_site = ""
-  end
-
-  # Find all nodes in the deployment that have been marked as part of the etcd cluster.
-  nodes = search(:node, "chef_environment:#{node.chef_environment}")
-  etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-  # Create local_config
-  template "/etc/clearwater/local_config" do
-      mode "0644"
-      source "local_config.erb"
-      variables node: node,
-                etcd: etcd,
-                local_site: local_site,
-                remote_site: remote_site
-  end
-end
-
-package "clearwater-infrastructure" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-snmpd" do
-  action [:install]
-  options "--force-yes"
-end
-
-if node[:clearwater][:package_update_minutes]
-  package "clearwater-auto-upgrade" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  cron "package update" do
-    minute ("*/" + node[:clearwater][:package_update_minutes].to_s)
-    command "service clearwater-auto-upgrade restart"
-  end
-end

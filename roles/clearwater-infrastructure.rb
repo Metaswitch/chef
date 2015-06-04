@@ -38,6 +38,7 @@ run_list [
   "recipe[clearwater::ec2_metadata]",
   "recipe[apt]",
   "recipe[chef-solo-search]",
+  "role[security]",
   "recipe[clearwater::infrastructure]"
 ]
 default_attributes "clearwater" => {

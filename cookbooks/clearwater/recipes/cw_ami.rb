@@ -32,8 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-# The steps in this recipe anonymise the current system, removing anu
-# potentially dangerous/private information frmm the newly built image
+# The steps in this recipe anonymise the current system, removing any
+# potentially dangerous/private information from the newly built image
 # prior to capturing an AMI from it.  
 # The steps are based onm those recommended in the EC2 documentation,
 
@@ -61,6 +61,6 @@ bash "remove_authorized_keys" do
   code 'find / -name authorized_keys -exec rm -f {} \; || true'
 end
 
-# It is not  possible to delete the credentials used by chef at this point as chef will 
+# It is not possible to delete the credentials used by chef at this point as chef will 
 # immediately fail. Such files are deleted from the clearwater-auto-config init.d when
 # the server goes down, which will be the next step in creating an AMI.
