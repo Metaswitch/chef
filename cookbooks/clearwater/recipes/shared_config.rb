@@ -80,7 +80,6 @@ template "/etc/clearwater/shared_config" do
     hs: "hs#{site_suffix}.#{domain}:8888",
     hs_prov: "hs#{site_suffix}.#{domain}:8889",
     homer: "homer#{site_suffix}.#{domain}:7888",
-    chronos: node[:cloud][:local_ipv4] + ":7253",
     ralf: if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
             "ralf#{site_suffix}.#{domain}:10888"
           end,
