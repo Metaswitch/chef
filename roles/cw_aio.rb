@@ -35,5 +35,6 @@
 name "cw_aio"
 description "cw_aio role"
 run_list [
+  "role[security]",
   "recipe[clearwater::cw_aio]"
 ]
