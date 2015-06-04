@@ -103,6 +103,8 @@ unless Chef::Config[:solo]
     action :create
   end
 
+  # Set up the local config file
+
   # Determine GR site names
   if node[:clearwater][:gr]
     if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
@@ -117,51 +119,18 @@ unless Chef::Config[:solo]
     remote_site = ""
   end
 
-
   # Find all nodes in the deployment that have been marked as part of the etcd cluster.
   nodes = search(:node, "chef_environment:#{node.chef_environment}")
   etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
 
-  # Set up template values for /etc/clearwater/config - any new values should
-  # be added for all-in-one and distributed installs
-  # Ralf isn't currently part of the all-in-one image
-  # There will also only ever be the local node in the etcd cluster, so we
-  # can set this now
-  if node.roles.include? "cw_aio"
-    enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-    template "/etc/clearwater/config" do
+  # Create local_config
+  template "/etc/clearwater/local_config" do
       mode "0644"
-      source "aio_config.erb"
-      variables domain: "example.com",
-                node: node,
-                sprout: node[:cloud][:public_hostname],
-                hs: node[:cloud][:local_ipv4] + ":8888",
-                hs_prov: node[:cloud][:local_ipv4] + ":8889",
-                homer: node[:cloud][:local_ipv4] + ":7888",
-                chronos: node[:cloud][:local_ipv4] + ":7253",
-                ralf: "",
-                cdf: "",
-                enum: enum,
-                hss: "",
-                etcd: node[:cloud][:local_ipv4],
-                local_site: "single_site",
-                remote_site: ""
-    end
-    package "clearwater-auto-config-aws" do
-      action [:install]
-      options "--force-yes"
-    end
-
-  else
-    # Just create local_config
-    template "/etc/clearwater/local_config" do
-        mode "0644"
-        source "local_config.erb"
-        variables node: node,
-                  etcd: etcd,
-                  local_site: local_site,
-                  remote_site: remote_site
-    end
+      source "local_config.erb"
+      variables node: node,
+                etcd: etcd,
+                local_site: local_site,
+                remote_site: remote_site
   end
 end
 

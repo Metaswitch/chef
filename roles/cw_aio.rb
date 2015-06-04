@@ -35,9 +35,5 @@
 name "cw_aio"
 description "cw_aio role"
 run_list [
-  "role[bono]",
-  "role[sprout]",
-  "role[ellis]",
-  "role[homer]",
-  "role[homestead]"
+  "recipe[clearwater::cw_aio]"
 ]
