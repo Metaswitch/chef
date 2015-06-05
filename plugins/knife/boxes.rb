@@ -155,6 +155,8 @@ module Clearwater
         knife_create.config[:region] = @attributes["region"]
         knife_create.config[:availability_zone] = "us-east-1b"
         knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-vpc-87f3d9e2") }
+        knife_create.config[:associate_public_ip] = true
+        knife_create.config[:server_connect_attribute] = "public_ip_address"
         knife_create.config[:subnet_id] = "subnet-9c148cc5"
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
       elsif @cloud == :openstack
