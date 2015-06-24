@@ -207,8 +207,6 @@ module Clearwater
       knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
       # Finally, create box
-      require 'pry'
-      binding.pry
       knife_create.run
       return knife_create.server
     end
