@@ -217,7 +217,7 @@ module Clearwater
 
     def translate_sg_to_id(env, sg_name)
       sg = sg_api.get("#{env}-#{sg_name}")
-      fail "Couldn't find secuity group #{env}-#{sg_name}" if sg.nil?
+      fail "Couldn't find security group #{env}-#{sg_name}" if sg.nil?
       sg.group_id
     end
 

@@ -153,7 +153,7 @@ module Clearwater
       # Cloud specific config
       if @cloud == :ec2
         knife_create.config[:region] = @attributes["region"]
-        knife_create.config[:availability_zone] = "us-east-1b"
+        knife_create.config[:availability_zone] = @attributes["availability_zones"].sample
 
         # If we're running in a VPC, configure the instance appropriately
         unless @attributes["vpc"].nil?

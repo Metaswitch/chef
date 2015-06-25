@@ -49,10 +49,11 @@ If you have existing VPCs and subnets and want to deploy Clearwater into them (f
 
 ## Updating your Chef environment
 
-Regardless of whether you've used the vanilla configuration or a custom setup, you should have chosen a VPC and a subnet.  Using the EC2 console, determine the ID for each of these (e.g. `vpc-123456789` and `subnet-987654321`).  Update your chef environment file (`environments/<env>.rb`) to include
+Regardless of whether you've used the vanilla configuration or a custom setup, you should have chosen a VPC and a subnet.  Using the EC2 console, determine the ID for each of these (e.g. `vpc-123456789` and `subnet-987654321`) and the availability zone of the subnet (e.g. `us-east-1a`).  Update your chef environment file (`environments/<env>.rb`) to include
 
     override_attributes "clearwater" => {
       ...
+      "availability_zones" => ["<availability_zone>"],
       "vpc" => { "vpc_id" => "<vpc_id>", "subnet_id" => "<subnet_id>" },
       ...
     }

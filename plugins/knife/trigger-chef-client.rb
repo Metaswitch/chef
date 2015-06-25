@@ -47,6 +47,8 @@ module ClearwaterKnifePlugins
       knife_ssh = Chef::Knife::Ssh.new
       knife_ssh.merge_configs
       knife_ssh.config[:ssh_user] = 'ubuntu'
+
+      # Always SSH in over the public IP address
       knife_ssh.config[:attribute] = 'cloud.public_ipv4'
       if cloud == :openstack
         # Guard against boxes which do not have a public hostname
