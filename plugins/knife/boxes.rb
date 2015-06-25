@@ -154,10 +154,17 @@ module Clearwater
       if @cloud == :ec2
         knife_create.config[:region] = @attributes["region"]
         knife_create.config[:availability_zone] = "us-east-1b"
-        knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-vpc-87f3d9e2") }
-        knife_create.config[:associate_public_ip] = true
-        knife_create.config[:server_connect_attribute] = "public_ip_address"
-        knife_create.config[:subnet_id] = "subnet-9c148cc5"
+
+        # If we're running in a VPC, configure the instance appropriately
+        unless @attributes["vpc"].nil?
+          fail "Must specify a VPC ID to use VPC support" if @attributes["vpc"]["vpc_id"].nil?
+          fail "Must specify a subnet to use VPC support" if @attributes["vpc"]["subnet_id"].nil?
+          knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-#{@attributes["vpc"]["vpc_id"]}") }
+          knife_create.config[:associate_public_ip] = true
+          knife_create.config[:server_connect_attribute] = "public_ip_address"
+          knife_create.config[:subnet_id] = @attributes["vpc"]["subnet_id"]
+        end
+
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
       elsif @cloud == :openstack
         knife_create.config[:private_network] = true

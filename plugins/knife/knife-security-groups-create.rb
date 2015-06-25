@@ -51,7 +51,7 @@ module ClearwaterKnifePlugins
 
     def run
       commission_security_groups(clearwater_security_groups,
-                                 env.name,
+                                 env,
                                  attributes["region"])
     end
   end

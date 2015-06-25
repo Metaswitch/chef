@@ -53,9 +53,14 @@ module Clearwater
       sg = sg_api.get(name)
       if sg.nil?
         puts "Creating security group: #{name}"
-        sg = sg_api.new(name: name,
-                        vpc_id: vpc_id,
-                        description: description)
+        if vpc_id.nil?
+          sg = sg_api.new(name: name,
+                          description: description)
+        else
+          sg = sg_api.new(name: name,
+                          vpc_id: vpc_id,
+                          description: description)
+        end
         sg.save
         sg.reload
       end
@@ -120,21 +125,21 @@ module Clearwater
     # Warning: Does not remove other security groups. 
     def commission_security_groups(groups, environment, region)
       @region = region
+      vpc_id = environment.override_attributes["clearwater"]["vpc"]["vpc_id"] rescue nil
 
       # Create the groups with no rules.
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
         sg = find_or_create_group(group_name,
-                                  "vpc-87f3d9e2",
+                                  vpc_id,
                                   "Security group for #{group_name} nodes")
       end
 
       # Now configure the rules.
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = find_group(group_name,
-                        "vpc-87f3d9e2")
-        rules = fix_up_deployment_sg_names(rules, groups.keys, environment, "vpc-87f3d9e2")
+        sg = find_group(group_name, vpc_id)
+        rules = fix_up_deployment_sg_names(rules, groups.keys, environment, vpc_id)
         update_security_group(sg, rules)
       end
     end
@@ -142,11 +147,12 @@ module Clearwater
     # Remove the given security groups for a deployment.
     def delete_security_groups(groups, environment, region)
       @region = region
+      vpc_id = environment.override_attributes["clearwater"]["vpc"]["vpc_id"] rescue nil
 
       # Since we may have circular dependencies in the groups, de-configure the rules before deleting the groups
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = find_group(group_name, "vpc-87f3d9e2")
+        sg = find_group(group_name, vpc_id)
         if sg
           Chef::Log.info "Deleting rules for #{group_name}"
           update_security_group(sg, [])
@@ -155,7 +161,7 @@ module Clearwater
 
       groups.each do |group_name, rules|
         group_name = "#{environment}-#{group_name}"
-        sg = find_group(group_name, "vpc-87f3d9e2")
+        sg = find_group(group_name, vpc_id)
         if sg
           Chef::Log.info "Deleting #{group_name}"
           sg.destroy
@@ -197,7 +203,11 @@ module Clearwater
     def fix_up_deployment_sg_names(rules, known_groups, env, vpc_id)
       rules.map! do |rule|
         if rule[:group].is_a? String and known_groups.include? rule[:group]
-          group = "#{rule[:group]}-#{vpc_id}"
+          if vpc_id.nil?
+            group = rule[:group]
+          else
+            group = "#{rule[:group]}-#{vpc_id}"
+          end
           rule[:group] = translate_sg_to_id(env, group)
         end
         rule
@@ -207,7 +217,7 @@ module Clearwater
 
     def translate_sg_to_id(env, sg_name)
       sg = sg_api.get("#{env}-#{sg_name}")
-      fail if sg.nil?
+      fail "Couldn't find secuity group #{env}-#{sg_name}" if sg.nil?
       sg.group_id
     end
 
