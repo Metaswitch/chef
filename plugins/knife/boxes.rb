@@ -142,9 +142,9 @@ module Clearwater
         @attributes[(role + "_flavor")]
       elsif (memento and @attributes["memento_flavor"])
         @attributes["memento_flavor"]
-      elsif (gemini and @attributes[:gemini_flavor])
+      elsif (gemini and @attributes["gemini_flavor"])
         @attributes["gemini_flavor"]
-      elsif (cdiv_as and @attributes[:cdiv_as_flavor])
+      elsif (cdiv_as and @attributes["cdiv_as_flavor"])
         @attributes["cdiv_as_flavor"]
       elsif @attributes["flavor"]
         @attributes["flavor"]
