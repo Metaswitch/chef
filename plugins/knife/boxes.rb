@@ -163,7 +163,7 @@ module Clearwater
       end
     end
 
-    def choose_image()
+    def choose_image(options)
       cloud = @cloud
 
       if @attributes["vpc"] and @cloud == :ec2
@@ -205,7 +205,7 @@ module Clearwater
 
       # Box description
       knife_create.config[:flavor] = choose_flavor(role)
-      knife_create.config[:image] = choose_image()
+      knife_create.config[:image] = choose_image(options)
       # Work around issue in knife-ec2 parameters validation
       # Have submitted patch: https://github.com/felixpalmer/knife-ec2
       Chef::Config[:knife][:image] = knife_create.config[:image]
