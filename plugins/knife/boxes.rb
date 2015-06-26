@@ -80,8 +80,14 @@ module Clearwater
 
     @@default_flavor = {
       ec2: "m1.small",
+      ec2_vpc: "t2.small",
       openstack: "2",
       rackspace: "3"
+    }
+
+    @@role_flavors = {
+      # Example:
+      # "ellis" => {ec2_vpc: "t2.micro"},
     }
 
     @@default_image = {
@@ -95,6 +101,10 @@ module Clearwater
         "ap-southeast-2" => "ami-4f274775",
         "sa-east-1" => "ami-5fbb1042",
         default: "ami-84f129f3"
+      },
+      ec2_vpc: {
+        "us-east-1" => "ami-f905f692",
+        default: "ami-f905f692",
       },
       openstack: {
         "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
@@ -112,6 +122,49 @@ module Clearwater
 
     def self.supported_roles
       @@supported_roles
+    end
+
+    def choose_flavor(role)
+      cloud = @cloud
+
+      if @attributes["vpc"] and @cloud == :ec2
+        cloud = :ec2_vpc
+      end
+
+      memento = (role == "sprout" and @attributes["memento_enabled"] == "Y")
+      gemini = (role == "sprout" and @attributes["gemini_enabled"] == "Y")
+      cdiv_as = (role == "sprout" and @attributes["cdiv_as_enabled"] == "Y")
+
+      if @attributes[(role + "_flavor")]
+        @attributes[(role + "_flavor")]
+      elsif (memento and @attributes["memento_flavor"])
+        @attributes["memento_flavor"]
+      elsif (gemini and @attributes["gemini_flavor"])
+        @attributes["gemini_flavor"]
+      elsif (cdiv_as and @attributes["cdiv_as_flavor"])
+        @attributes["cdiv_as_flavor"]
+      elsif @attributes["flavor"]
+        @attributes["flavor"]
+      elsif (@@role_flavors[role] and @@role_flavors[role][@cloud])
+        @@role_flavors[role][@cloud]
+      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][@cloud]))
+        @@role_flavors["memento"][@cloud]
+      else
+        @@default_flavor[@cloud]
+      end
+    end
+
+    def choose_image()
+      cloud = @cloud
+
+      if @attributes["vpc"] and @cloud == :ec2
+        cloud = :ec2_vpc
+      end
+      
+      (options[:image] or
+       @attributes["ec2_image"] or
+       @@default_image[cloud][@attributes["region"]] or
+       @@default_image[cloud][:default])
     end
 
     def create_box(role, options)
@@ -142,10 +195,8 @@ module Clearwater
       knife_create.config[:ssh_user] = "ubuntu"
 
       # Box description
-      knife_create.config[:flavor] = (options[:flavor] or @@default_flavor[@cloud])
-      knife_create.config[:image] = (options[:image] or
-                                     @@default_image[@cloud][@attributes["region"]] or
-                                     @@default_image[@cloud][:default])
+      knife_create.config[:flavor] = choose_flavor(role)
+      knife_create.config[:image] = choose_image()
       # Work around issue in knife-ec2 parameters validation
       # Have submitted patch: https://github.com/felixpalmer/knife-ec2
       Chef::Config[:knife][:image] = knife_create.config[:image]
