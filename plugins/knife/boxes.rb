@@ -92,15 +92,16 @@ module Clearwater
 
     @@default_image = {
       ec2: {
-        "us-east-1" => "ami-d017b2b8",
-        "us-west-1" => "ami-1fe6e95a",
-        "us-west-2" => "ami-d9a1e6e9",
-        "eu-west-1" => "ami-84f129f3",
-        "ap-southeast-1" => "ami-96fda7c4",
-        "ap-northeast-1" => "ami-e5be98e4",
-        "ap-southeast-2" => "ami-4f274775",
-        "sa-east-1" => "ami-5fbb1042",
-        default: "ami-84f129f3"
+        "us-east-1" => "ami-988ad1f0",
+        "us-west-1" => "ami-397d997d",
+        "us-west-2" => "ami-cb1536fb",
+        "eu-west-1" => "ami-fbfd6e8c",
+        "eu-central-1" => "ami-eca694f1",
+        "ap-southeast-1" => "ami-72546220",
+        "ap-northeast-1" => "ami-85876e85",
+        "ap-southeast-2" => "ami-dd4e3fe7",
+        "sa-east-1" => "ami-ad57eeb0",
+        default: "ami-fbfd6e8c"
       },
       ec2_vpc: {
         "us-east-1" => "ami-f905f692",
