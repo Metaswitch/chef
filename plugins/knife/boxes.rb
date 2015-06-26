@@ -104,8 +104,16 @@ module Clearwater
         default: "ami-fbfd6e8c"
       },
       ec2_vpc: {
-        "us-east-1" => "ami-f905f692",
-        default: "ami-f905f692",
+        "us-east-1" => "ami-2f6a8044",
+        "us-west-1" => "ami-f305efb7",
+        "us-west-2" => "ami-a9e2da99",
+        "eu-west-1" => "ami-9b344aec",
+        "eu-central-1" => "ami-ea8db4f7",
+        "ap-southeast-1" => "ami-f6e0daa4",
+        "ap-northeast-1" => "ami-a67da3a6",
+        "ap-southeast-2" => "ami-cb047ff1",
+        "sa-east-1" => "ami-992eae84",
+        default: "ami-9b344aec"
       },
       openstack: {
         "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
