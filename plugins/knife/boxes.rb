@@ -154,12 +154,12 @@ module Clearwater
         @attributes["cdiv_as_flavor"]
       elsif @attributes["flavor"]
         @attributes["flavor"]
-      elsif (@@role_flavors[role] and @@role_flavors[role][@cloud])
-        @@role_flavors[role][@cloud]
-      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][@cloud]))
-        @@role_flavors["memento"][@cloud]
+      elsif (@@role_flavors[role] and @@role_flavors[role][cloud])
+        @@role_flavors[role][cloud]
+      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][cloud]))
+        @@role_flavors["memento"][cloud]
       else
-        @@default_flavor[@cloud]
+        @@default_flavor[cloud]
       end
     end
 
