@@ -80,19 +80,14 @@ module Clearwater
 
     @@default_flavor = {
       ec2: "m1.small",
-      ec2_vpc: "t2.micro",
+      ec2_vpc: "t2.small",
       openstack: "2",
       rackspace: "3"
     }
 
     @@role_flavors = {
-      # Node types that use Cassandra use too much memory for a t2.micro - default those to a
-      # t2.small
-      "homer" => {ec2_vpc: "t2.small"},
-      "homestead" => {ec2_vpc: "t2.small"},
-      "memento" => {ec2_vpc: "t2.small"},
-      "cw_aio" => {ec2_vpc: "t2.small"},
-      "cw_ami" => {ec2_vpc: "t2.small"},
+      # Example:
+      # "ellis" => {ec2_vpc: "t2.micro"},
     }
 
     @@default_image = {
