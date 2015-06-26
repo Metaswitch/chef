@@ -91,6 +91,8 @@ module Clearwater
       "homer" => {ec2_vpc: "t2.small"},
       "homestead" => {ec2_vpc: "t2.small"},
       "memento" => {ec2_vpc: "t2.small"},
+      "cw_aio" => {ec2_vpc: "t2.small"},
+      "cw_ami" => {ec2_vpc: "t2.small"},
     }
 
     @@default_image = {
