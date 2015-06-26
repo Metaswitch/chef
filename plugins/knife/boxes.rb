@@ -32,11 +32,14 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require_relative "security-groups"
+
 module Clearwater
   class BoxManager
     Chef::Knife::Ec2ServerCreate.load_deps
     Chef::Knife::RackspaceServerCreate.load_deps
     Chef::Knife::OpenstackServerCreate.load_deps
+    include Clearwater::SecurityGroups
 
     def initialize(cloud, environment, attributes, options = {})
       raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
@@ -77,21 +80,40 @@ module Clearwater
 
     @@default_flavor = {
       ec2: "m1.small",
+      ec2_vpc: "t2.small",
       openstack: "2",
       rackspace: "3"
     }
 
+    @@role_flavors = {
+      # Example:
+      # "ellis" => {ec2_vpc: "t2.micro"},
+    }
+
     @@default_image = {
       ec2: {
-        "us-east-1" => "ami-d017b2b8",
-        "us-west-1" => "ami-1fe6e95a",
-        "us-west-2" => "ami-d9a1e6e9",
-        "eu-west-1" => "ami-84f129f3",
-        "ap-southeast-1" => "ami-96fda7c4",
-        "ap-northeast-1" => "ami-e5be98e4",
-        "ap-southeast-2" => "ami-4f274775",
-        "sa-east-1" => "ami-5fbb1042",
-        default: "ami-84f129f3"
+        "us-east-1" => "ami-988ad1f0",
+        "us-west-1" => "ami-397d997d",
+        "us-west-2" => "ami-cb1536fb",
+        "eu-west-1" => "ami-fbfd6e8c",
+        "eu-central-1" => "ami-eca694f1",
+        "ap-southeast-1" => "ami-72546220",
+        "ap-northeast-1" => "ami-85876e85",
+        "ap-southeast-2" => "ami-dd4e3fe7",
+        "sa-east-1" => "ami-ad57eeb0",
+        default: "ami-fbfd6e8c"
+      },
+      ec2_vpc: {
+        "us-east-1" => "ami-2f6a8044",
+        "us-west-1" => "ami-f305efb7",
+        "us-west-2" => "ami-a9e2da99",
+        "eu-west-1" => "ami-9b344aec",
+        "eu-central-1" => "ami-ea8db4f7",
+        "ap-southeast-1" => "ami-f6e0daa4",
+        "ap-northeast-1" => "ami-a67da3a6",
+        "ap-southeast-2" => "ami-cb047ff1",
+        "sa-east-1" => "ami-992eae84",
+        default: "ami-9b344aec"
       },
       openstack: {
         "dfw" => "5da88e4f-418f-4c5f-b148-b625071f20e6",
@@ -109,6 +131,49 @@ module Clearwater
 
     def self.supported_roles
       @@supported_roles
+    end
+
+    def choose_flavor(role)
+      cloud = @cloud
+
+      if @attributes["vpc"] and @cloud == :ec2
+        cloud = :ec2_vpc
+      end
+
+      memento = (role == "sprout" and @attributes["memento_enabled"] == "Y")
+      gemini = (role == "sprout" and @attributes["gemini_enabled"] == "Y")
+      cdiv_as = (role == "sprout" and @attributes["cdiv_as_enabled"] == "Y")
+
+      if @attributes[(role + "_flavor")]
+        @attributes[(role + "_flavor")]
+      elsif (memento and @attributes["memento_flavor"])
+        @attributes["memento_flavor"]
+      elsif (gemini and @attributes["gemini_flavor"])
+        @attributes["gemini_flavor"]
+      elsif (cdiv_as and @attributes["cdiv_as_flavor"])
+        @attributes["cdiv_as_flavor"]
+      elsif @attributes["flavor"]
+        @attributes["flavor"]
+      elsif (@@role_flavors[role] and @@role_flavors[role][cloud])
+        @@role_flavors[role][cloud]
+      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][cloud]))
+        @@role_flavors["memento"][cloud]
+      else
+        @@default_flavor[cloud]
+      end
+    end
+
+    def choose_image(options)
+      cloud = @cloud
+
+      if @attributes["vpc"] and @cloud == :ec2
+        cloud = :ec2_vpc
+      end
+      
+      (options[:image] or
+       @attributes["ec2_image"] or
+       @@default_image[cloud][@attributes["region"]] or
+       @@default_image[cloud][:default])
     end
 
     def create_box(role, options)
@@ -139,10 +204,8 @@ module Clearwater
       knife_create.config[:ssh_user] = "ubuntu"
 
       # Box description
-      knife_create.config[:flavor] = (options[:flavor] or @@default_flavor[@cloud])
-      knife_create.config[:image] = (options[:image] or
-                                     @@default_image[@cloud][@attributes["region"]] or
-                                     @@default_image[@cloud][:default])
+      knife_create.config[:flavor] = choose_flavor(role)
+      knife_create.config[:image] = choose_image(options)
       # Work around issue in knife-ec2 parameters validation
       # Have submitted patch: https://github.com/felixpalmer/knife-ec2
       Chef::Config[:knife][:image] = knife_create.config[:image]
@@ -150,7 +213,18 @@ module Clearwater
       # Cloud specific config
       if @cloud == :ec2
         knife_create.config[:region] = @attributes["region"]
-        knife_create.config[:security_groups] = box[:security_groups].map { |sg| "#{@environment.name}-#{sg}" }
+        knife_create.config[:availability_zone] = @attributes["availability_zones"].sample
+
+        # If we're running in a VPC, configure the instance appropriately
+        unless @attributes["vpc"].nil?
+          fail "Must specify a VPC ID to use VPC support" if @attributes["vpc"]["vpc_id"].nil?
+          fail "Must specify a subnet to use VPC support" if @attributes["vpc"]["subnet_id"].nil?
+          knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-#{@attributes["vpc"]["vpc_id"]}") }
+          knife_create.config[:associate_public_ip] = true
+          knife_create.config[:server_connect_attribute] = "public_ip_address"
+          knife_create.config[:subnet_id] = @attributes["vpc"]["subnet_id"]
+        end
+
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
       elsif @cloud == :openstack
         knife_create.config[:private_network] = true

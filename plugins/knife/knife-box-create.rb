@@ -93,28 +93,8 @@ module ClearwaterKnifePlugins
         exit 1
       end
 
-      flavor_overrides = {
-        bono: nil, # or bono: "m1.large" etc...
-        ellis: nil,
-        homestead: nil,
-        homer: nil,
-        sprout: nil,
-        ibcf: nil,
-        dns: nil,
-        sipp: nil,
-        ralf: nil,
-        enum: nil,
-        cacti: nil,
-        plivo: nil,
-        openimscorehss: nil,
-        mangelwurzel: nil,
-        cw_aio: nil,
-        cw_ami: nil,
-        seagull: nil
-      }
-
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
-      new_box = box_manager.create_box(role, {index: config[:index], flavor: flavor_overrides[role.to_sym], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
+      new_box = box_manager.create_box(role, {index: config[:index], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
       instance_id = new_box.id
 
       if role == "cw_ami"
