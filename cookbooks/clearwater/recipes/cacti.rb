@@ -41,3 +41,23 @@ package "cacti-spine" do
   action [:install]
   options "--force-yes"
 end
+
+remote_directory '/usr/share/clearwater/cacti' do
+  source 'cacti'
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+execute 'reset_database' do
+  command 'mysql cacti < /usr/share/clearwater/cacti/cactidb.sql'
+  user 'root'
+end
+
+execute 'import_templates' do
+  cwd '/usr/share/cacti/cli'
+  command 'find /usr/share/clearwater/cacti/templates -type f -exec php ./import_template.php --filename={} --with-template-rras \;'
+  user 'root'
+end
+
