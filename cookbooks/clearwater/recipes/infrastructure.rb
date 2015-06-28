@@ -86,6 +86,11 @@ package "clearwater-snmpd" do
   options "--force-yes"
 end
 
+package "clearwater-snmp-alarm-agent" do
+  action [:install]
+  options "--force-yes"
+end
+
 if node[:clearwater][:package_update_minutes]
   package "clearwater-auto-upgrade" do
     action [:install]
