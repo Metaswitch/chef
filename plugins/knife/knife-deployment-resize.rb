@@ -461,6 +461,8 @@ module ClearwaterKnifePlugins
       trigger_chef_client(config[:cloud],
                           "chef_environment:#{config[:environment]}")
 
+      Chef::Log.info "Sleeping for 90 seconds before updating DNS to allow cluster to synchronize..."
+      sleep(90)
       # Setup DNS zone record
       status["DNS"][:status] = "Configuring..."
       Chef::Log.info "Creating zone record..."
