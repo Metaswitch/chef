@@ -7,7 +7,7 @@ Project Clearwater is an open-source IMS core, developed by [Metaswitch Networks
 
 For instructions on how to use Chef with Clearwater, see:
 
-* [Installing a Chef client](http://clearwater.readthedocs.org/en/latest/Installing_a_Chef_client/index.html)
+* [Installing a Chef workstation](http://clearwater.readthedocs.org/en/latest/Installing_a_Chef_workstation/index.html)
 * [Installing a Chef server](http://clearwater.readthedocs.org/en/latest/Installing_a_Chef_server/index.html)
 * [Creating a deployment environment](http://clearwater.readthedocs.org/en/latest/Creating_a_deployment_environment/index.html)
 * [Creating a deployment with Chef](http://clearwater.readthedocs.org/en/latest/Creating_a_deployment_with_Chef/index.html)
