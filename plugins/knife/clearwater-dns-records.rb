@@ -220,42 +220,42 @@ end
 def icscf_srv_site1(boxes)
   boxes.map  do |n|
     priority = if in_site_1?(n) then 1 else 2 end
-    "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
   end
 end
 
 def scscf_srv_site1(boxes)
   boxes.map  do |n|
     priority = if in_site_1?(n) then 1 else 2 end
-    "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
   end
 end
 
 def icscf_srv_site2(boxes)
   boxes.map  do |n|
     priority = if in_site_1?(n) then 2 else 1 end
-    "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
   end
 end
 
 def scscf_srv_site2(boxes)
   boxes.map  do |n|
     priority = if in_site_1?(n) then 2 else 1 end
-    "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
   end
 end
 
 def icscf_srv_flat(boxes)
   boxes.map  do |n|
     priority = 1
-    "#{priority} 1 5052 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
   end
 end
 
 def scscf_srv_flat(boxes)
   boxes.map  do |n|
     priority = 1
-    "#{priority} 1 5054 #{n[:cloud][:local_ipv4]}"
+    "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
   end
 end
 
