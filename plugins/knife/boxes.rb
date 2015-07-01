@@ -223,6 +223,8 @@ module Clearwater
           knife_create.config[:associate_public_ip] = true
           knife_create.config[:server_connect_attribute] = "public_ip_address"
           knife_create.config[:subnet_id] = @attributes["vpc"]["subnet_id"]
+        else
+          knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, sg) }
         end
 
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
