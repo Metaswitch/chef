@@ -1,7 +1,7 @@
-# @file cacti.rb
+# @file knife-cacti-update.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015 Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,32 +32,39 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "cacti" do
-  action [:install]
-  options "--force-yes"
-end
+require_relative 'knife-clearwater-utils'
+require_relative 'trigger-chef-client'
 
-package "cacti-spine" do
-  action [:install]
-  options "--force-yes"
-end
+module ClearwaterKnifePlugins
+  class CactiUpdate < Chef::Knife
+    include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::TriggerChefClient
 
-remote_directory '/usr/share/clearwater/cacti' do
-  source 'cacti'
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
+    deps do
+      require 'chef'
+      require 'fog'
+    end
 
-execute 'reset_database' do
-  command 'mysql cacti < /usr/share/clearwater/cacti/cactidb.sql'
-  user 'root'
-end
+    banner "cacti update"
 
-execute 'import_templates' do
-  cwd '/usr/share/cacti/cli'
-  command 'find /usr/share/clearwater/cacti/templates -type f -exec php ./import_template.php --filename={} --with-template-rras \;'
-  user 'root'
-end
+    def run()
 
+      # For each Bono, Sprout and SIPp node, set it up in Cacti and associate it with the
+      # appropriately-named host template
+
+      find_nodes(roles: "clearwater-infrastructure", role: "cacti").each do |cacti|
+        find_nodes(roles: "clearwater-infrastructure", role: "bono").each do |node|
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Bono")
+        end
+
+        find_nodes(roles: "clearwater-infrastructure", role: "sprout").each do |node|
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Sprout")
+        end
+
+        find_nodes(roles: "clearwater-infrastructure", role: "sipp").each do |node|
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} SIPp")
+        end
+      end
+    end
+  end
+end
