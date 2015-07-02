@@ -64,10 +64,7 @@ module ClearwaterKnifePlugins
         find_nodes(roles: "clearwater-infrastructure", role: "sipp").each do |node|
           run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} SIPp")
         end
-
-        end
       end
-
     end
   end
 end
