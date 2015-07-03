@@ -208,14 +208,15 @@ module Clearwater
           else
             group = "#{rule[:group]}-#{vpc_id}"
           end
-          rule[:group] = translate_sg_to_id(env, group)
+          rule[:group] = translate_sg_to_id(env, group, @region)
         end
         rule
       end
       rules
     end
 
-    def translate_sg_to_id(env, sg_name)
+    def translate_sg_to_id(env, sg_name, region)
+      @region = region
       sg = sg_api.get("#{env}-#{sg_name}")
       fail "Couldn't find security group #{env}-#{sg_name}" if sg.nil?
       sg.group_id
