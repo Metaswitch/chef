@@ -219,12 +219,16 @@ module Clearwater
         unless @attributes["vpc"].nil?
           fail "Must specify a VPC ID to use VPC support" if @attributes["vpc"]["vpc_id"].nil?
           fail "Must specify a subnet to use VPC support" if @attributes["vpc"]["subnet_id"].nil?
-          knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, "#{sg}-#{@attributes["vpc"]["vpc_id"]}") }
+          knife_create.config[:security_group_ids] = box[:security_groups].map do |sg|
+            translate_sg_to_id(@environment, "#{sg}-#{@attributes["vpc"]["vpc_id"]}", @attributes["region"])
+          end
           knife_create.config[:associate_public_ip] = true
           knife_create.config[:server_connect_attribute] = "public_ip_address"
           knife_create.config[:subnet_id] = @attributes["vpc"]["subnet_id"]
         else
-          knife_create.config[:security_group_ids] = box[:security_groups].map { |sg| translate_sg_to_id(@environment, sg) }
+          knife_create.config[:security_group_ids] = box[:security_groups].map do |sg|
+            translate_sg_to_id(@environment, sg, @attributes["region"])
+          end
         end
 
         Chef::Config[:knife][:aws_ssh_key_id] = @attributes["keypair"]
