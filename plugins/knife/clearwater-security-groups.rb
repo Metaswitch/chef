@@ -283,11 +283,11 @@ end
 def reformat_custom_groups(map)
   (map.map do |group, ports|
     [{ ip_protocol: :tcp, min: ports[0], max: ports[1], group: group },
-    { ip_protocol: :udp, min: ports[0], max: ports[1], group: group }]
+     { ip_protocol: :udp, min: ports[0], max: ports[1], group: group }]
   end).flatten
 end
 
-def clearwater_security_groups(custom)
+def clearwater_security_groups(extra_internal_sip_groups)
   {
     "base" => base_security_group_rules,
     "repo" => repo_security_group_rules,
@@ -303,7 +303,8 @@ def clearwater_security_groups(custom)
     "cacti" => cacti_security_group_rules,
     "mmonit" => mmonit_security_group_rules,
     "perimeta" => perimeta_security_group_rules,
-    "internal-sip" => internal_sip_security_group_rules + reformat_custom_groups(custom),
+    "internal-sip" => (internal_sip_security_group_rules +
+                       reformat_custom_groups(extra_internal_sip_groups)),
     "plivo" => plivo_security_group_rules,
     "sipp" => sipp_security_group_rules,
     "hss" => hss_security_group_rules,

@@ -50,8 +50,8 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      extra_groups = attributes["extra_groups"] rescue {}
-      groups = clearwater_security_groups(extra_groups)
+      extra_internal_sip_groups = attributes["extra_internal_sip_groups"] rescue {}
+      groups = clearwater_security_groups(extra_internal_sip_groups)
       commission_security_groups(groups,
                                  env,
                                  attributes["region"])
