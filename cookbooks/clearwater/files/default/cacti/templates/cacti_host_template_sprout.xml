@@ -726,7 +726,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Attempts</text_format>
@@ -738,8 +738,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -752,7 +752,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Successes</text_format>
@@ -764,8 +764,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -778,7 +778,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Failures</text_format>
@@ -790,8 +790,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -867,7 +867,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Attempts</text_format>
@@ -879,8 +879,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -893,7 +893,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Successes</text_format>
@@ -905,8 +905,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -919,7 +919,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Failures</text_format>
@@ -931,8 +931,8 @@
 				<color_id>0</color_id>
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
-				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>0</cdef_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -2326,34 +2326,34 @@
 		</items>
 		<data>
 			<item_000>
-				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value></value>
+				<value>.1.2.826.0.1.1578918.9.3.10.1.4.1</value>
 			</item_000>
 			<item_001>
-				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
 				<t_value></t_value>
 				<value></value>
 			</item_001>
 			<item_002>
-				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
 				<t_value></t_value>
 				<value></value>
 			</item_002>
 			<item_003>
-				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
 				<t_value></t_value>
 				<value></value>
 			</item_003>
 			<item_004>
-				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
 				<t_value></t_value>
 				<value></value>
 			</item_004>
 			<item_005>
-				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.3.10.1.2.1</value>
+				<value></value>
 			</item_005>
 			<item_006>
 				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
@@ -2614,6 +2614,26 @@
 			</hash_14002461c518b01c31a3c256e108ca090a75df>
 		</items>
 	</hash_0500246c8229ba49082d39431b4e817f49473f>
+	<hash_05002426922fc7d061c33c023471ede8460ffd>
+		<name>Make Per Hour</name>
+		<items>
+			<hash_140024bd6167a5371c90ab60c830e3a58601bb>
+				<sequence>1</sequence>
+				<type>4</type>
+				<value>CURRENT_DATA_SOURCE</value>
+			</hash_140024bd6167a5371c90ab60c830e3a58601bb>
+			<hash_1400249f9a2ffe7aa89a2c6e1cc5bda17a5309>
+				<sequence>2</sequence>
+				<type>6</type>
+				<value>720</value>
+			</hash_1400249f9a2ffe7aa89a2c6e1cc5bda17a5309>
+			<hash_14002479261135df7706f4cf6970bd18baefbe>
+				<sequence>3</sequence>
+				<type>2</type>
+				<value>3</value>
+			</hash_14002479261135df7706f4cf6970bd18baefbe>
+		</items>
+	</hash_05002426922fc7d061c33c023471ede8460ffd>
 	<hash_060024e9c43831e54eca8069317a2ce8c6f751>
 		<name>Normal</name>
 		<gprint_text>%8.2lf %s</gprint_text>
