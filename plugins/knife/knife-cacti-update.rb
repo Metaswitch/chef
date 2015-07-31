@@ -52,17 +52,19 @@ module ClearwaterKnifePlugins
       # For each Bono, Sprout and SIPp node, set it up in Cacti and associate it with the
       # appropriately-named host template
 
+      # Specify '|| /bin/true' so we don't bail out on a failure
+
       find_nodes(roles: "clearwater-infrastructure", role: "cacti").each do |cacti|
         find_nodes(roles: "clearwater-infrastructure", role: "bono").each do |node|
-          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Bono")
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Bono || /bin/true")
         end
 
         find_nodes(roles: "clearwater-infrastructure", role: "sprout").each do |node|
-          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Sprout")
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Sprout || /bin/true")
         end
 
         find_nodes(roles: "clearwater-infrastructure", role: "sipp").each do |node|
-          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} SIPp")
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} SIPp || /bin/true")
         end
       end
     end
