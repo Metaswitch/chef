@@ -50,14 +50,24 @@ module ClearwaterKnifePlugins
       # Run upload-shared-config on every node that has the shared config role
       # (the first sprout node in each deployment)
       find_nodes(roles: "clearwater-infrastructure", role: "shared_config").each do |node|
-        run_command(options[:cloud], "chef_environment:#{env} AND name:#{node.name}", "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config")
-       run_command(options[:cloud], "chef_environment:#{env} AND name:#{node.name}", "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_bgcf_json")
-       run_command(options[:cloud], "chef_environment:#{env} AND name:#{node.name}", "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_scscf_json")
-       run_command(options[:cloud], "chef_environment:#{env} AND name:#{node.name}", "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_enum_json")
+        run_command(options[:cloud],
+                    "chef_environment:#{env} AND name:#{node.name}",
+                    "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config")
+        run_command(options[:cloud],
+                    "chef_environment:#{env} AND name:#{node.name}",
+                    "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_bgcf_json")
+        run_command(options[:cloud],
+                    "chef_environment:#{env} AND name:#{node.name}",
+                    "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_scscf_json")
+        run_command(options[:cloud],
+                    "chef_environment:#{env} AND name:#{node.name}",
+                    "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_enum_json")
       end
 
       # Now run apply-shared-config on every node.
-      run_command(options[:cloud], "chef_environment:#{env}", "sudo /usr/share/clearwater/clearwater-config-manager/scripts/apply_shared_config")
+      run_command(options[:cloud],
+                  "chef_environment:#{env}",
+                  "sudo /usr/share/clearwater/clearwater-config-manager/scripts/apply_shared_config")
     end
   end
 end

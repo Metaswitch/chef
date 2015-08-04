@@ -43,11 +43,15 @@ module ClearwaterKnifePlugins
     # @param command [String] A shell command to run
     def run_command(cloud, query_string, command)
       Chef::Log.info "Running #{command} on #{query_string}"
-      stdout = StringIO.new
-      stderr = StringIO.new
+
       Chef::Knife::Ssh.load_deps
       knife_ssh = Chef::Knife::Ssh.new
+
+      # Catch the output so that we can log this at debug level not info
+      stdout = StringIO.new
+      stderr = StringIO.new
       knife_ssh.ui = Chef::Knife::UI.new(stdout, stderr, STDIN, {})
+
       knife_ssh.merge_configs
       knife_ssh.config[:ssh_user] = 'ubuntu'
 
