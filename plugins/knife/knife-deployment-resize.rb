@@ -34,6 +34,7 @@
 
 require_relative 'knife-clearwater-utils'
 require_relative 'trigger-chef-client'
+require_relative 'knife-shared-config-update'
 require_relative 'boxes'
 
 module ClearwaterKnifePlugins
@@ -106,6 +107,10 @@ module ClearwaterKnifePlugins
     option :start,
       :long => "--start",
       :description => "Starts a new resize operation."
+
+    option :apply_shared_config,
+      :long => "--apply-shared-config",
+      :description => "Applies shared configuration after a resize operation"
 
     # Auto-scaling parameters
     #
@@ -432,7 +437,7 @@ module ClearwaterKnifePlugins
           end
         end
 
-        # Run chef client to set up the etcd_cluster environemnt variable.
+        # Run chef client to set up the etcd_cluster environment variable.
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]}")
 
@@ -484,6 +489,12 @@ module ClearwaterKnifePlugins
       delete_quiesced_boxes env
 
       update_ralf_hostname(config[:environment], config[:cloud].to_sym)
+
+      # Apply the shared configuration if requested
+      if config[:apply_shared_config]
+        Chef::Log.info "Applying shared configuration..."
+        SharedConfigUpdate.new("-E #{config[:environment]}".split).run
+      end
     end
 
     def configure_dns config
