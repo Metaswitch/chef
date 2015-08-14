@@ -35,6 +35,7 @@
 name "homestead"
 description "homestead role"
 run_list [
+  "recipe[clearwater::local_config]",
   "role[clearwater-infrastructure]",
   "role[cassandra]",
   "recipe[clearwater::homestead]",

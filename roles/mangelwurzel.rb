@@ -35,6 +35,7 @@
 name "mangelwurzel"
 description "mangelwurzel role"
 run_list [
+  "recipe[clearwater::local_config]",
   "role[clearwater-infrastructure]",
   "recipe[clearwater::mangelwurzel]",
   "role[clearwater-etcd]",

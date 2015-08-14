@@ -35,6 +35,7 @@
 name "homer"
 description "homer role"
 run_list [
+  "recipe[clearwater::local_config]",
   "role[cassandra]",
   "recipe[clearwater::homer]",
   "role[clearwater-etcd]",

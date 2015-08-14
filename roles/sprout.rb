@@ -35,6 +35,7 @@
 name "sprout"
 description "sprout role"
 run_list [
+  "recipe[clearwater::local_config]",
   "role[clearwater-infrastructure]",
   "recipe[clearwater::sprout]",
   "role[clearwater-etcd]",
