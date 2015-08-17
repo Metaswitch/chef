@@ -41,21 +41,8 @@ module Clearwater
     Chef::Knife::OpenstackServerCreate.load_deps
     include Clearwater::SecurityGroups
 
-    def initialize(cloud, environment, attributes, options = {})
-      raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
-      @cloud = cloud
-      @environment = environment
-      @attributes = attributes
-      @options = options
-    end
-
-    @@supported_clouds = [
-      :ec2,
-      :openstack,
-      :rackspace
-    ]
-
-    @@supported_boxes = [
+    def initialize(cloud, environment, attributes, options = {}, supported_boxes =
+      [
         {:name => "clearwater-infrastructure", :security_groups => ["base"], :public_ip => true},
         {:name => "cw_aio", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
@@ -74,9 +61,21 @@ module Clearwater
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},
         {:name => "mangelwurzel", :security_groups => ["base", "internal-sip"]},
         {:name => "seagull", :security_groups => ["base", "seagull"]},
-      ]
+      ])
+      raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
+      @cloud = cloud
+      @environment = environment
+      @attributes = attributes
+      @options = options
+      @supported_boxes = supported_boxes
+      @@supported_roles = @supported_boxes.map { |r| r[:name] }
+    end
 
-    @@supported_roles = @@supported_boxes.map { |r| r[:name] }
+    @@supported_clouds = [
+      :ec2,
+      :openstack,
+      :rackspace
+    ]
 
     @@default_flavor = {
       ec2: "m1.small",
@@ -178,7 +177,7 @@ module Clearwater
 
     def create_box(role, options)
       raise ArgumentError.new "role must be one of: #{@@supported_roles.join ', '}. #{role} was passed" unless @@supported_roles.include? role
-      box = @@supported_boxes.select{ |b| b[:name] == role }.first
+      box = @supported_boxes.select{ |b| b[:name] == role }.first
       if @cloud == :ec2
         knife_create = Chef::Knife::Ec2ServerCreate.new
       elsif @cloud == :openstack

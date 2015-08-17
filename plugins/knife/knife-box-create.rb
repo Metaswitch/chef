@@ -80,7 +80,7 @@ module ClearwaterKnifePlugins
       :default => false,
       :description => "Does this deployment have a Ralf?"
 
-    def run()
+    def run(supported_boxes)
       unless name_args.size == 1
         ui.fatal "You need to supply a box role name"
         show_usage
@@ -88,12 +88,12 @@ module ClearwaterKnifePlugins
       end
       role = name_args.first
 
-      unless Clearwater::BoxManager.supported_roles.include? role
-        ui.fatal "#{role} is not a supported box role"
-        exit 1
+      if supported_boxes != []
+        box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes, {}, supported_boxes)
+      else
+        box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
       end
 
-      box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
       new_box = box_manager.create_box(role, {index: config[:index], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
       instance_id = new_box.id
 

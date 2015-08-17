@@ -32,50 +32,6 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-require 'resolv'
-require 'uri'
-
-unless Chef::Config[:solo]
-
-  # Setup the clearwater local config file
-  directory "/etc/clearwater" do
-    owner "root"
-    group "root"
-    mode "0755"
-    action :create
-  end
-
-  # Set up the local config file
-
-  # Determine GR site names
-  if node[:clearwater][:gr]
-    if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-      local_site = "odd_numbers"
-      remote_site = "even_numbers"
-    else
-      local_site = "even_numbers"
-      remote_site = "odd_numbers"
-    end
-  else
-    local_site = "single_site"
-    remote_site = ""
-  end
-
-  # Find all nodes in the deployment that have been marked as part of the etcd cluster.
-  nodes = search(:node, "chef_environment:#{node.chef_environment}")
-  etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-  # Create local_config
-  template "/etc/clearwater/local_config" do
-      mode "0644"
-      source "local_config.erb"
-      variables node: node,
-                etcd: etcd,
-                local_site: local_site,
-                remote_site: remote_site
-  end
-end
-
 package "clearwater-infrastructure" do
   action [:install]
   options "--force-yes"

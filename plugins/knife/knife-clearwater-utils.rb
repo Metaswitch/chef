@@ -103,5 +103,14 @@ module ClearwaterKnifePlugins
       end
     end
 
+    # Expands out hashes of boxes, e.g. {:bono => 3} becomes:
+    # {{:role => "bono", :index => 1}, {:role => "bono", :index = 2}, etc...
+    def expand_hashes(boxes)
+      boxes.map {|box, n| (1..n).map {|i| {:role => box.to_s, :index => i}}}.flatten
+    end
+
+    def node_name_from_definition(environment, role, index)
+      "#{environment}-#{role}-#{index}"
+    end
   end
 end
