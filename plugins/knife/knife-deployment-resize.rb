@@ -206,7 +206,7 @@ module ClearwaterKnifePlugins
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
-      node_list = create_cluster(new_counts)
+      node_list = expand_hashes(new_counts)
       create_node_list = calculate_boxes_to_create(env, node_list)
 
       Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?

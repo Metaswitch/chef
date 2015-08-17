@@ -105,7 +105,7 @@ module ClearwaterKnifePlugins
 
     # Expands out hashes of boxes, e.g. {:bono => 3} becomes:
     # {{:role => "bono", :index => 1}, {:role => "bono", :index = 2}, etc...
-    def create_cluster(boxes)
+    def expand_hashes(boxes)
       boxes.map {|box, n| (1..n).map {|i| {:role => box.to_s, :index => i}}}.flatten
     end
 

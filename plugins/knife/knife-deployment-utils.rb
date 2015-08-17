@@ -39,6 +39,8 @@ require_relative 'boxes'
 module ClearwaterKnifePlugins
   module DeploymentUtils
 
+    # Launch a single box. This will retry if the box fails to be created
+    # (but not if anything else fails)
     def launch_box(box, environment, retries, supported_boxes)
       success = false
 
@@ -87,6 +89,7 @@ module ClearwaterKnifePlugins
       return true
     end
 
+    # Delete any broken clients
     def clean_up_broken_client(box_name, environment)
       client = find_clients(name: box_name)
       client.each do
@@ -98,6 +101,7 @@ module ClearwaterKnifePlugins
       end
     end
 
+    # Delete a box
     def delete_box(box_name, env)
       box_delete = BoxDelete.new("-E #{env}".split)
       box_delete.name_args = [box_name]
@@ -108,6 +112,8 @@ module ClearwaterKnifePlugins
       box_delete.run(true)
     end
 
+    # Launch boxes. This takes an optional array of supported box types
+    # to launch
     def launch_boxes(box_list, supported_boxes = [])
       @fail_count = 0
       results = Parallel.map(box_list, in_threads: box_list.length) do |box|
@@ -185,7 +191,7 @@ module ClearwaterKnifePlugins
     def confirm_changes(old, new, whitelist)
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions(whitelist).map {|v| v.name}
-      new_names = create_cluster(new).map do |n|
+      new_names = expand_hashes(new).map do |n|
         node_name_from_definition(env, n[:role], n[:index])
       end
       create_boxes = new_names - old_names
@@ -255,6 +261,9 @@ module ClearwaterKnifePlugins
       end
     end
 
+    # We create boxes in individual threads. This sets up the status for each
+    # node thread, and an overall progress thread. These will be updated
+    # by the set_progress function as the nodes are created
     def init_status(node_list, single_node_list)
       Thread.current[:progress] = 0
       Thread.current[:status] = {"Nodes" => {}}

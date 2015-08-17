@@ -89,10 +89,8 @@ module ClearwaterKnifePlugins
       role = name_args.first
 
       if supported_boxes != []
-        Chef::Log.error "Adding boxes #{supported_boxes.to_s}"
         box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes, {}, supported_boxes)
       else
-        Chef::Log.error "Not adding boxes"
         box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
       end
 
