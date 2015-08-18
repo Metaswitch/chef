@@ -347,8 +347,8 @@ def quiesce_box(box_name, env)
   
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     ssh.exec! "sudo monit unmonitor -g etcd"
-    ssh.exec! "sudo monit unmonitor clearwater-config-manager"
-    ssh.exec! "sudo monit unmonitor clearwater-cluster-manager"
+    ssh.exec! "sudo monit unmonitor clearwater_config_manager"
+    ssh.exec! "sudo monit unmonitor clearwater_cluster_manager"
     ssh.exec! "sudo service clearwater-etcd decommission"
     case node.run_list.first.name
     when "sprout"
