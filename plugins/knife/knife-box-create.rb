@@ -80,7 +80,7 @@ module ClearwaterKnifePlugins
       :default => false,
       :description => "Does this deployment have a Ralf?"
 
-    def run(supported_boxes)
+    def run(supported_boxes = [])
       unless name_args.size == 1
         ui.fatal "You need to supply a box role name"
         show_usage
