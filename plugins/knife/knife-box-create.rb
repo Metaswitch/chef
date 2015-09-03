@@ -107,7 +107,7 @@ module ClearwaterKnifePlugins
         end
         puts "done"
 
-        result = ec2_conn.create_image(instance_id, config[:image_name], "This AMI contains a Project Clearwater all-in-one node running on Ubuntu 12.04.2")
+        result = ec2_conn.create_image(instance_id, config[:image_name], "This AMI contains a Project Clearwater all-in-one node running on Ubuntu 14.04")
         print "Creating the AMI"
         image_id = result.body["imageId"]
 
