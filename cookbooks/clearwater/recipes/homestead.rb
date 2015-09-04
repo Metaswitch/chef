@@ -47,6 +47,11 @@ package "clearwater-snmp-handler-homestead" do
   options "--force-yes"
 end
 
+package "clearwater-prov-tools" do
+  action [:install]
+  options "--force-yes"
+end
+
 # Perform daily backup of database
 cron "backup" do
   hour 0
