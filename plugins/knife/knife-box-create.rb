@@ -35,10 +35,12 @@
 require_relative 'knife-clearwater-utils'
 require_relative 'boxes'
 require_relative 'knife-box-delete'
+require_relative 'trigger-chef-client'
 
 module ClearwaterKnifePlugins
   class BoxCreate < Chef::Knife
     include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::TriggerChefClient
 
     deps do
       require 'chef'
@@ -80,6 +82,12 @@ module ClearwaterKnifePlugins
       :default => false,
       :description => "Does this deployment have a Ralf?"
 
+    option :standalone,
+      :long => "--standalone",
+      :boolean => true,
+      :default => false,
+      :description => "Used if there are no boxes in this deployment already"
+
     def run(supported_boxes = [])
       unless name_args.size == 1
         ui.fatal "You need to supply a box role name"
@@ -96,6 +104,24 @@ module ClearwaterKnifePlugins
 
       new_box = box_manager.create_box(role, {index: config[:index], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
       instance_id = new_box.id
+
+      if config[:standalone]
+        # The box is a standalone box, so add it now to the etcd cluster,
+        # and create the shared configuration
+        boxes = find_nodes(chef_environment: config[:environment])
+        if boxes.size == 1
+          # Check that there's only one box in this environment; if there's
+          # more then we shouldn't be overriding any etcd settings
+          print "Box is standalone, so updating etcd configuration\n"
+          boxes[0].set[:clearwater][:etcd_cluster] = true
+          boxes[0].run_list << "role[shared_config]"
+          boxes[0].save
+          trigger_chef_client(config[:cloud],
+                              "chef_environment:#{config[:environment]}")
+        else
+          print "Can't use standalone on an existing deployment. No changes have been made to etcd configuration\n"
+        end
+      end
 
       if role == "cw_ami"
         ec2_conn = Fog::Compute::AWS.new(Chef::Config[:knife].select { |k, v| [:aws_secret_access_key, :aws_access_key_id].include? k })
