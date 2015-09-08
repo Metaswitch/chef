@@ -1,14 +1,14 @@
 openimscore-fhoss       openimscore-fhoss/ip_to_use     string <%= @node[:cloud][:local_ipv4] %>
-openimscore-fhoss       openimscore-fhoss/hss_config    select  yes
+openimscore-fhoss       openimscore-fhoss/hss_config    select yes
 openimscore-fhoss       openimscore-fhoss/adding_user   string
-openimscore-fhoss       openimscore-fhoss/where_is_java string  /usr/bin/java
+openimscore-fhoss       openimscore-fhoss/where_is_java string /usr/bin/java
 openimscore-fhoss       openimscore-fhoss/dns_ip_to_use string
-openimscore-fhoss       openimscore-fhoss/domain_to_use string  <%=
+openimscore-fhoss       openimscore-fhoss/domain_to_use string <%=
 if @node[:clearwater][:use_subdomain]
   @node.chef_environment + "." + @node[:clearwater][:root_domain]
 else
   @node[:clearwater][:root_domain]
 end  %>
 openimscore-fhoss       openimscore-fhoss/sql_password  string
-openimscore-fhoss       openimscore-fhoss/sql_data      select  yes
+openimscore-fhoss       openimscore-fhoss/sql_data      select yes
 
