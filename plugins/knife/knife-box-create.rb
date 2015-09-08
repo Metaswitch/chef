@@ -86,7 +86,7 @@ module ClearwaterKnifePlugins
       :long => "--standalone",
       :boolean => true,
       :default => false,
-      :description => "Should this box have etcd configuration applied?"
+      :description => "Used if there are no boxes in this deployment already"
 
     def run(supported_boxes = [])
       unless name_args.size == 1
