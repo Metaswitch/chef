@@ -38,6 +38,7 @@ run_list [
   "recipe[clearwater::local_config]",
   "role[clearwater-infrastructure]",
   "role[cassandra]",
+  "role[alarms]",
   "recipe[clearwater::homestead]",
   "role[clearwater-etcd]",
 ]
