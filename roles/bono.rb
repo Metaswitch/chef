@@ -37,6 +37,7 @@ description "bono role"
 run_list [
   "recipe[clearwater::local_config]",
   "role[clearwater-infrastructure]",
+  "role[alarms]",
   "recipe[clearwater::bono]",
   "role[clearwater-config-manager]"
 ]

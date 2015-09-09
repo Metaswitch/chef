@@ -1,7 +1,7 @@
-# @file call-diversion-as.rb
+# @file alarms.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2014 Metaswitch Networks Ltd
+# Copyright (C) 2015 Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,9 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "call-diversion-as"
-description "call-diversion-as role"
+name "alarms"
+description "alarms role"
 run_list [
-  "role[alarms]",
-  "recipe[clearwater::call-diversion-as]"
+  "recipe[clearwater::alarms]"
 ]
