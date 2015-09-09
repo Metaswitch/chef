@@ -101,9 +101,14 @@ ruby_block "wait_for_etcd" do
     end
   end
   notifies :run, "execute[upload_shared_config]", :immediately
-  notifies :run, "execute[upload_enum_json]", :immediately
-  notifies :run, "execute[upload_bgcf_json]", :immediately
-  notifies :run, "execute[upload_scscf_json]", :immediately
+
+  # Only run the extra etcd scripts if we're on a Sprout node
+  if node.run_list.any? { |s| s.to_s.include?('sprout') }
+    notifies :run, "execute[upload_enum_json]", :immediately
+    notifies :run, "execute[upload_bgcf_json]", :immediately
+    notifies :run, "execute[upload_scscf_json]", :immediately
+  end
+
   action :nothing
 end
 
