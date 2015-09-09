@@ -36,6 +36,5 @@ name "clearwater-base"
 description "clearwater-base role"
 run_list [
   "recipe[clearwater::local_config]",
-  "role[clearwater-infrastructure]",
-  "role[clearwater-etcd]",
+  "role[clearwater-infrastructure]"
 ]
