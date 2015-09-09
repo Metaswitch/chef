@@ -47,11 +47,6 @@ module ClearwaterKnifePlugins
       Chef::Knife::Ssh.load_deps
       knife_ssh = Chef::Knife::Ssh.new
 
-      # Catch the output so that we can log this at debug level not info
-      stdout = StringIO.new
-      stderr = StringIO.new
-      knife_ssh.ui = Chef::Knife::UI.new(stdout, stderr, STDIN, {})
-
       knife_ssh.merge_configs
       knife_ssh.config[:ssh_user] = 'ubuntu'
 
@@ -70,11 +65,6 @@ module ClearwaterKnifePlugins
         command
       ]
       knife_ssh.run
-
-      Chef::Log.debug "Output: #{stdout.string}"
-      if stderr.string != ''
-        Chef::Log.error "Errors: #{stderr.string}"
-      end
     end
 
     # Trigger `chef-client` on all nodes in the local environment that match
