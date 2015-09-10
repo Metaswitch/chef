@@ -90,6 +90,7 @@ template "/etc/clearwater/shared_config" do
 end
 
 ruby_block "wait_for_etcd" do
+  # Check that etcd is listening on port 4000 - we'll do more checks later
   block do
     loop do
       begin
@@ -100,6 +101,7 @@ ruby_block "wait_for_etcd" do
       end
     end
   end
+  notifies :run, "execute[poll_etcd]", :immediately
   notifies :run, "execute[upload_shared_config]", :immediately
 
   # Only run the extra etcd scripts if we're on a Sprout node
@@ -110,6 +112,14 @@ ruby_block "wait_for_etcd" do
   end
 
   action :nothing
+end
+
+# Check that etcd can read/write keys, and well as listen on 4000
+execute "poll_etcd" do
+  user "root"
+  command "/usr/share/clearwater/bin/poll_etcd.sh"
+  retry_delay 1
+  retries 60
 end
 
 execute "upload_shared_config" do
