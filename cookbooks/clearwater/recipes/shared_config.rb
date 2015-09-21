@@ -34,6 +34,11 @@
 
 require 'socket'
 
+package "clearwater-management" do
+  action [:install]
+  options "--force-yes"
+end
+
 domain = if node[:clearwater][:use_subdomain]
            node.chef_environment + "." + node[:clearwater][:root_domain]
          else
