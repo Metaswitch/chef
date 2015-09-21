@@ -4,7 +4,7 @@ cookbook_versions "clearwater" => "= 0.1.0"
 override_attributes "clearwater" => {
   "root_domain" => "<zone>",
   "availability_zones" => ["us-east-1a", "us-east-1b"],
-  "repo_server" => "http://repo.cw-ngv.com/latest",
+  "repo_servers" => ["http://repo.cw-ngv.com/latest"],
   "number_start" => "6505550000",
   "number_count" => 1000,
   "keypair" => "<keypair_name>",
