@@ -40,7 +40,7 @@ directory "/etc/apt/certs/clearwater" do
   recursive true
   notifies :run, "ruby_block[get-secret-key]", :immediately
   notifies :create, "template[/etc/apt/apt.conf.d/45_clearwater_repo]", :immediately
-  only_if { URI(node[:clearwater][:repo_server]).scheme == "https" }
+  only_if { node[:clearwater][:repo_servers].any? do |rs| URI(rs).scheme == "https" end }
 end
 
 ruby_block "get-secret-key" do
@@ -63,7 +63,7 @@ end
 template "/etc/apt/apt.conf.d/45_clearwater_repo" do
   mode "0644"
   source "apt.keys.erb"
-  variables repo_host: URI(node[:clearwater][:repo_server]).host
+  variables repo_hosts: node[:clearwater][:repo_servers].select { |rs| URI(rs).scheme == "https" }.map { |rs| URI(rs).host }
   action :nothing
 end
 
@@ -71,7 +71,7 @@ end
 template "/etc/apt/sources.list.d/clearwater.list" do
   mode "0644"
   source "apt.list.erb"
-  variables hostname: node[:clearwater][:repo_server],
+  variables hostnames: node[:clearwater][:repo_servers],
             repos: ["binary/"]
   notifies :run, "execute[apt-key-clearwater]", :immediately
 end
