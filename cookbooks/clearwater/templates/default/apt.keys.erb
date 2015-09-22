@@ -1,5 +1,7 @@
-Acquire::https::<%= @repo_host %> {
+<% @repo_hosts.each do |host| %>
+Acquire::https::<%= host %> {
 CaInfo "/etc/apt/certs/clearwater/repository-ca.crt";
 SslCert "/etc/apt/certs/clearwater/repository-server.crt";
 SslKey "/etc/apt/certs/clearwater/repository-server.key";
 };
+<%end %>

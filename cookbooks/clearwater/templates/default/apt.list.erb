@@ -1,1 +1,3 @@
-deb <%= @hostname %> <%= @repos.join(' ') %>
+<% @hostnames.each do |hostname| %>
+deb <%= hostname %> <%= @repos.join(' ') %>
+<%end %>
