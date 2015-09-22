@@ -40,7 +40,7 @@ directory "/etc/apt/certs/clearwater" do
   recursive true
   notifies :run, "ruby_block[get-secret-key]", :immediately
   notifies :create, "template[/etc/apt/apt.conf.d/45_clearwater_repo]", :immediately
-  only_if { node[:clearwater][:repo_servers].any? do |rs| URI(rs).scheme == "https" end }
+  only_if { node[:clearwater][:repo_servers].any? { |rs| URI(rs).scheme == "https" } }
 end
 
 ruby_block "get-secret-key" do
