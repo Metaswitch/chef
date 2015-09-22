@@ -57,7 +57,7 @@ default_attributes "clearwater" => {
   "availability_zones" => ["us-east-1a", "us-east-1b"],
 
   # URL for Clearwater debian repo server
-  "repo_server" => "http://repo.cw-ngv.com/stable",
+  "repo_servers" => ["http://repo.cw-ngv.com/stable"],
 
   # Number of numbers to put into number pool in ellis
   "number_start" => "6505550000",
