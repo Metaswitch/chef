@@ -50,6 +50,9 @@ module Clearwater
 
       # Try to get the record
       record = find_by_name_and_type(options)
+      # Sleep to comply with Route53 rate-limit
+      sleep(0.2)
+
       if options[:value] == []
         Chef::Log.info "Skipping empty record"
         return
@@ -174,8 +177,6 @@ module Clearwater
         record_data = make_record_data(options)
         Chef::Log.info "Creating record with config: #{record_data}"
         zone.records.create(record_data)
-        # Sleep to comply with Route53 rate-limit
-        sleep(0.2)
       end
     end
 
@@ -197,11 +198,7 @@ module Clearwater
       if record
         Chef::Log.info "Deleting record for '#{record.name}'"
         record.destroy
-        # Sleep to comply with Route53 rate-limit
-        sleep(0.2)
       end
     end
-
-
   end
 end
