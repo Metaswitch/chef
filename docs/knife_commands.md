@@ -1,7 +1,7 @@
 Knife commands
 ==============
 
-# Modifying a single box
+# Creating/Deleting a single box
 
 To create a single box, run:
 
@@ -21,7 +21,7 @@ To delete a single box, run:
 
 # Modifying a deployment
 
-To create a deployment, run:
+To create or resize a deployment, run:
 
     knife deployment resize -E <env>
 
