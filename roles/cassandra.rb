@@ -35,6 +35,5 @@
 name "cassandra"
 description "cassandra role"
 run_list [
-  "role[clearwater-infrastructure]",
-  "recipe[clearwater::cassandra]"
+  # Do nothing - this role is just retained for backwards-compatibility
 ]
