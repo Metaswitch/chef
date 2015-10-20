@@ -122,7 +122,7 @@ end
 # Check that etcd can read/write keys, and well as listen on 4000
 execute "poll_etcd" do
   user "root"
-  command "/usr/share/clearwater/bin/poll_etcd.sh"
+  command "/usr/share/clearwater/bin/poll_etcd.sh --quorum"
   retry_delay 1
   retries 60
 end
