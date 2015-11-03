@@ -1299,7 +1299,7 @@
 		<name>Clearwater - Chronos REG Counts</name>
 		<graph>
 			<t_title></t_title>
-			<title>|host_description| - Chronos Global Counts</title>
+			<title>|host_description| - Chronos REG Counts</title>
 			<t_image_format_id></t_image_format_id>
 			<image_format_id>1</image_format_id>
 			<t_height></t_height>
