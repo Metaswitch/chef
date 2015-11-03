@@ -1,7 +1,7 @@
 <cacti>	
 	<hash_02002449ec01eb94b62f8044481d16910683b2>
 		<name>Sprout</name>
-		<graph_templates>hash_000024e334bdcf821cd27270a4cc945e80915e|hash_000024be275639d5680e94c72c0ebb4e19056d|hash_000024940f66eb4710b78588eff84d5507b22b|hash_0000242c69a6420b723b558f828d7b9d9065ce|hash_0000245816ca76408e36618e8648e84649dde1|hash_000024355e269cfd622122bd5f8d43c8a5ccdd|hash_00002497d1bd4a394dcec51be1524a026874cd</graph_templates>
+		<graph_templates>hash_000024e334bdcf821cd27270a4cc945e80915e|hash_000024be275639d5680e94c72c0ebb4e19056d|hash_000024940f66eb4710b78588eff84d5507b22b|hash_0000242c69a6420b723b558f828d7b9d9065ce|hash_0000245816ca76408e36618e8648e84649dde1|hash_000024355e269cfd622122bd5f8d43c8a5ccdd|hash_00002497d1bd4a394dcec51be1524a026874cd|hash_0000243ba032906d5fe2e396b2e4b6366a853c|hash_0000240e338d97bf62ded620fb7f5822842ff7</graph_templates>
 		<data_queries></data_queries>
 	</hash_02002449ec01eb94b62f8044481d16910683b2>
 	<hash_000024e334bdcf821cd27270a4cc945e80915e>
@@ -1291,10 +1291,356 @@
 				<name>Data Source [chronos_count_var]</name>
 				<description></description>
 				<column_name>task_item_id</column_name>
-				<items>hash_00002496b9e8254101f3c235034137db3f7901|hash_000024cc9cc068a06d9fd23abf170ce07eef31</items>
+				<items>hash_000024cc9cc068a06d9fd23abf170ce07eef31|hash_00002496b9e8254101f3c235034137db3f7901</items>
 			</hash_090024581bf0c7a6b53e94a3ee5151e153ecb5>
 		</inputs>
 	</hash_00002497d1bd4a394dcec51be1524a026874cd>
+	<hash_0000243ba032906d5fe2e396b2e4b6366a853c>
+		<name>Clearwater - Chronos REG Counts</name>
+		<graph>
+			<t_title></t_title>
+			<title>|host_description| - Chronos Global Counts</title>
+			<t_image_format_id></t_image_format_id>
+			<image_format_id>1</image_format_id>
+			<t_height></t_height>
+			<height>120</height>
+			<t_width></t_width>
+			<width>500</width>
+			<t_slope_mode></t_slope_mode>
+			<slope_mode>on</slope_mode>
+			<t_auto_scale></t_auto_scale>
+			<auto_scale>on</auto_scale>
+			<t_auto_scale_opts></t_auto_scale_opts>
+			<auto_scale_opts>2</auto_scale_opts>
+			<t_auto_scale_log></t_auto_scale_log>
+			<auto_scale_log></auto_scale_log>
+			<t_scale_log_units></t_scale_log_units>
+			<scale_log_units></scale_log_units>
+			<t_auto_scale_rigid></t_auto_scale_rigid>
+			<auto_scale_rigid></auto_scale_rigid>
+			<t_auto_padding></t_auto_padding>
+			<auto_padding>on</auto_padding>
+			<t_export></t_export>
+			<export>on</export>
+			<t_upper_limit></t_upper_limit>
+			<upper_limit>100</upper_limit>
+			<t_lower_limit></t_lower_limit>
+			<lower_limit>0</lower_limit>
+			<t_base_value></t_base_value>
+			<base_value>1000</base_value>
+			<t_unit_value></t_unit_value>
+			<unit_value></unit_value>
+			<t_unit_exponent_value></t_unit_exponent_value>
+			<unit_exponent_value></unit_exponent_value>
+			<t_vertical_label></t_vertical_label>
+			<vertical_label>count</vertical_label>
+		</graph>
+		<items>
+			<hash_100024d73c3477fb379e9bfe0fbc517660d773>
+				<task_item_id>hash_08002417a5f5ab57426ddbfaf13895664ab8df</task_item_id>
+				<color_id>FF0000</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Average</text_format>
+				<hard_return></hard_return>
+				<sequence>1</sequence>
+			</hash_100024d73c3477fb379e9bfe0fbc517660d773>
+			<hash_10002454942e5ccdd0911896a1d26072dfa073>
+				<task_item_id>hash_08002417a5f5ab57426ddbfaf13895664ab8df</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>2</sequence>
+			</hash_10002454942e5ccdd0911896a1d26072dfa073>
+			<hash_1000248d0f2bfa00b40440615f345cf376fbd1>
+				<task_item_id>hash_080024fc0b63a3b417a3a8c6613bc4fc1af79e</task_item_id>
+				<color_id>0000FF</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Low-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>3</sequence>
+			</hash_1000248d0f2bfa00b40440615f345cf376fbd1>
+			<hash_100024e93ffd3bff2b993e1c68b781d61c7527>
+				<task_item_id>hash_080024fc0b63a3b417a3a8c6613bc4fc1af79e</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>4</sequence>
+			</hash_100024e93ffd3bff2b993e1c68b781d61c7527>
+			<hash_1000245a22e746d02aa1911373a84f85468095>
+				<task_item_id>hash_08002426b670b4a2c5311c4af4264f0fe8064c</task_item_id>
+				<color_id>00FF00</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>High-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>5</sequence>
+			</hash_1000245a22e746d02aa1911373a84f85468095>
+			<hash_10002497f17cb1ba0d60cab861e5f0cb9c82ca>
+				<task_item_id>hash_08002426b670b4a2c5311c4af4264f0fe8064c</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>6</sequence>
+			</hash_10002497f17cb1ba0d60cab861e5f0cb9c82ca>
+			<hash_1000248392a3aac7f73c46b38be9024addfe8b>
+				<task_item_id>hash_08002400883e19e96ba9ac6d9be25aa04722c5</task_item_id>
+				<color_id>FFF200</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Standard deviation</text_format>
+				<hard_return></hard_return>
+				<sequence>7</sequence>
+			</hash_1000248392a3aac7f73c46b38be9024addfe8b>
+			<hash_100024880c5e7d1c1fdc5ce96d2197506e2e51>
+				<task_item_id>hash_08002400883e19e96ba9ac6d9be25aa04722c5</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>8</sequence>
+			</hash_100024880c5e7d1c1fdc5ce96d2197506e2e51>
+		</items>
+		<inputs>
+			<hash_090024eb245bff10b1e7bfc08664c713a5d02a>
+				<name>Data Source [chronos_REG_avg]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024d73c3477fb379e9bfe0fbc517660d773|hash_00002454942e5ccdd0911896a1d26072dfa073</items>
+			</hash_090024eb245bff10b1e7bfc08664c713a5d02a>
+			<hash_09002468c52330b1f6cdab14074314b7f8a87e>
+				<name>Data Source [chronos_REG_LWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000248d0f2bfa00b40440615f345cf376fbd1|hash_000024e93ffd3bff2b993e1c68b781d61c7527</items>
+			</hash_09002468c52330b1f6cdab14074314b7f8a87e>
+			<hash_09002489d5a7be12c9632a02a91af1464ca599>
+				<name>Data Source [chronos_REG_HWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000245a22e746d02aa1911373a84f85468095|hash_00002497f17cb1ba0d60cab861e5f0cb9c82ca</items>
+			</hash_09002489d5a7be12c9632a02a91af1464ca599>
+			<hash_090024c71fd9c7903e19d7378b8dff94ca5dbd>
+				<name>Data Source [chronos_REG_var]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000248392a3aac7f73c46b38be9024addfe8b|hash_000024880c5e7d1c1fdc5ce96d2197506e2e51</items>
+			</hash_090024c71fd9c7903e19d7378b8dff94ca5dbd>
+		</inputs>
+	</hash_0000243ba032906d5fe2e396b2e4b6366a853c>
+	<hash_0000240e338d97bf62ded620fb7f5822842ff7>
+		<name>Clearwater - Chronos SUB Counts</name>
+		<graph>
+			<t_title></t_title>
+			<title>|host_description| - Chronos SUB Counts</title>
+			<t_image_format_id></t_image_format_id>
+			<image_format_id>1</image_format_id>
+			<t_height></t_height>
+			<height>120</height>
+			<t_width></t_width>
+			<width>500</width>
+			<t_slope_mode></t_slope_mode>
+			<slope_mode>on</slope_mode>
+			<t_auto_scale></t_auto_scale>
+			<auto_scale>on</auto_scale>
+			<t_auto_scale_opts></t_auto_scale_opts>
+			<auto_scale_opts>2</auto_scale_opts>
+			<t_auto_scale_log></t_auto_scale_log>
+			<auto_scale_log></auto_scale_log>
+			<t_scale_log_units></t_scale_log_units>
+			<scale_log_units></scale_log_units>
+			<t_auto_scale_rigid></t_auto_scale_rigid>
+			<auto_scale_rigid></auto_scale_rigid>
+			<t_auto_padding></t_auto_padding>
+			<auto_padding>on</auto_padding>
+			<t_export></t_export>
+			<export>on</export>
+			<t_upper_limit></t_upper_limit>
+			<upper_limit>100</upper_limit>
+			<t_lower_limit></t_lower_limit>
+			<lower_limit>0</lower_limit>
+			<t_base_value></t_base_value>
+			<base_value>1000</base_value>
+			<t_unit_value></t_unit_value>
+			<unit_value></unit_value>
+			<t_unit_exponent_value></t_unit_exponent_value>
+			<unit_exponent_value></unit_exponent_value>
+			<t_vertical_label></t_vertical_label>
+			<vertical_label>count</vertical_label>
+		</graph>
+		<items>
+			<hash_100024d6a12d82c6c16906f26c64735de3661e>
+				<task_item_id>hash_0800246f30abf0c6a105f4ec62993175f876b3</task_item_id>
+				<color_id>FF0000</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Average</text_format>
+				<hard_return></hard_return>
+				<sequence>1</sequence>
+			</hash_100024d6a12d82c6c16906f26c64735de3661e>
+			<hash_100024ded696baff4e0fa39d4f2154b4827c5d>
+				<task_item_id>hash_0800246f30abf0c6a105f4ec62993175f876b3</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>2</sequence>
+			</hash_100024ded696baff4e0fa39d4f2154b4827c5d>
+			<hash_1000240313e1bd78339094a9f5f33d5242ddb3>
+				<task_item_id>hash_080024316a666df01e1aad9429eb9840862fea</task_item_id>
+				<color_id>0000FF</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Low-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>3</sequence>
+			</hash_1000240313e1bd78339094a9f5f33d5242ddb3>
+			<hash_1000243850ff5c572efd276684123798d12d2e>
+				<task_item_id>hash_080024316a666df01e1aad9429eb9840862fea</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>4</sequence>
+			</hash_1000243850ff5c572efd276684123798d12d2e>
+			<hash_100024c2ab7688139aa87af98a2caa5daffe1e>
+				<task_item_id>hash_0800245694c4e7fa5eb4c3522fecf6274f87af</task_item_id>
+				<color_id>00FF00</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>High-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>5</sequence>
+			</hash_100024c2ab7688139aa87af98a2caa5daffe1e>
+			<hash_1000241355d3d38e51ecae7734a153909d6630>
+				<task_item_id>hash_0800245694c4e7fa5eb4c3522fecf6274f87af</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>6</sequence>
+			</hash_1000241355d3d38e51ecae7734a153909d6630>
+			<hash_100024dacd65c2cb49391b82fd0cf5d83347dc>
+				<task_item_id>hash_080024f27ede6dffc010e9645f25ca3b28f072</task_item_id>
+				<color_id>FFF200</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Standard deviation</text_format>
+				<hard_return></hard_return>
+				<sequence>7</sequence>
+			</hash_100024dacd65c2cb49391b82fd0cf5d83347dc>
+			<hash_100024d91bcbc5da45a6b2688d360419236547>
+				<task_item_id>hash_080024f27ede6dffc010e9645f25ca3b28f072</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>8</sequence>
+			</hash_100024d91bcbc5da45a6b2688d360419236547>
+		</items>
+		<inputs>
+			<hash_090024fc71f47131a5c07f9fb95cbf10fef5a5>
+				<name>Data Source [chronos_SUB_avg]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024d6a12d82c6c16906f26c64735de3661e|hash_000024ded696baff4e0fa39d4f2154b4827c5d</items>
+			</hash_090024fc71f47131a5c07f9fb95cbf10fef5a5>
+			<hash_09002409981261b3e0498dd166825de9d9b89a>
+				<name>Data Source [chronos_SUB_LWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000240313e1bd78339094a9f5f33d5242ddb3|hash_0000243850ff5c572efd276684123798d12d2e</items>
+			</hash_09002409981261b3e0498dd166825de9d9b89a>
+			<hash_09002419c1a2fcc0faa3bf228120daee342533>
+				<name>Data Source [chronos_SUB_HWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024c2ab7688139aa87af98a2caa5daffe1e|hash_0000241355d3d38e51ecae7734a153909d6630</items>
+			</hash_09002419c1a2fcc0faa3bf228120daee342533>
+			<hash_090024b39ed04b474d5577d56afedaf6ce354c>
+				<name>Data Source [chronos_SUB_var]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024dacd65c2cb49391b82fd0cf5d83347dc|hash_000024d91bcbc5da45a6b2688d360419236547</items>
+			</hash_090024b39ed04b474d5577d56afedaf6ce354c>
+		</inputs>
+	</hash_0000240e338d97bf62ded620fb7f5822842ff7>
 	<hash_010024cdfed2d401723d2f41fc239d4ce249c7>
 		<name>ucd/net - CPU Usage - System</name>
 		<ds>
@@ -1319,7 +1665,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>2</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_0800247bee7987bbf30a3bc429d2a67c6b2595>
@@ -1401,7 +1747,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>2</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_080024ddccd7fbdece499da0235b4098b87f9e>
@@ -1483,7 +1829,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>2</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_080024122ab2097f8c6403b7b90cde7b9e2bc2>
@@ -1549,10 +1895,10 @@
 			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
 			<t_rra_id></t_rra_id>
 			<t_rrd_step></t_rrd_step>
-			<rrd_step>60</rrd_step>
+			<rrd_step>300</rrd_step>
 			<t_active></t_active>
 			<active>on</active>
-			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+			<rra_items>hash_150024c21df5178e5c955013591239eb0afd46|hash_1500240d9c0af8b8acdc7807943937b3208e29|hash_1500246fc2d038fb42950138b0ce3e9874cc60|hash_150024e36f3adb9f152adfa5dc50fd2b23337e|hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
 		</ds>
 		<items>
 			<hash_0800249835d9e1a8c78aa2475d752e8fa74812>
@@ -1565,7 +1911,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>1</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_0800249835d9e1a8c78aa2475d752e8fa74812>
@@ -1611,10 +1957,10 @@
 			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
 			<t_rra_id></t_rra_id>
 			<t_rrd_step></t_rrd_step>
-			<rrd_step>60</rrd_step>
+			<rrd_step>300</rrd_step>
 			<t_active></t_active>
 			<active>on</active>
-			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+			<rra_items>hash_150024c21df5178e5c955013591239eb0afd46|hash_1500240d9c0af8b8acdc7807943937b3208e29|hash_1500246fc2d038fb42950138b0ce3e9874cc60|hash_150024e36f3adb9f152adfa5dc50fd2b23337e|hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
 		</ds>
 		<items>
 			<hash_0800249c78dc1981bcea841b8c827c6dc0d26c>
@@ -1627,7 +1973,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>1</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_0800249c78dc1981bcea841b8c827c6dc0d26c>
@@ -1673,10 +2019,10 @@
 			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
 			<t_rra_id></t_rra_id>
 			<t_rrd_step></t_rrd_step>
-			<rrd_step>60</rrd_step>
+			<rrd_step>300</rrd_step>
 			<t_active></t_active>
 			<active>on</active>
-			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+			<rra_items>hash_150024c21df5178e5c955013591239eb0afd46|hash_1500240d9c0af8b8acdc7807943937b3208e29|hash_1500246fc2d038fb42950138b0ce3e9874cc60|hash_150024e36f3adb9f152adfa5dc50fd2b23337e|hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
 		</ds>
 		<items>
 			<hash_0800247a6ca455bbeff99ca891371bc77d5cf9>
@@ -1689,7 +2035,7 @@
 				<t_data_source_type_id></t_data_source_type_id>
 				<data_source_type_id>1</data_source_type_id>
 				<t_rrd_heartbeat></t_rrd_heartbeat>
-				<rrd_heartbeat>120</rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
 				<t_data_input_field_id></t_data_input_field_id>
 				<data_input_field_id>0</data_input_field_id>
 			</hash_0800247a6ca455bbeff99ca891371bc77d5cf9>
@@ -3203,6 +3549,662 @@
 			</item_009>
 		</data>
 	</hash_01002427e08497e118ba5e60b59422e30cbf7f>
+	<hash_010024507c0840b61c00625faaf5185511183f>
+		<name>Clearwater - Chronos REG Counts (average)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos REG Counts (average)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_08002417a5f5ab57426ddbfaf13895664ab8df>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>avg</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_08002417a5f5ab57426ddbfaf13895664ab8df>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.5.1.2.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024507c0840b61c00625faaf5185511183f>
+	<hash_01002484f1baf8ef167ff1c401034c0ec4bd89>
+		<name>Clearwater - Chronos REG Counts (HWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos REG Counts (HWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_08002426b670b4a2c5311c4af4264f0fe8064c>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>HWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_08002426b670b4a2c5311c4af4264f0fe8064c>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.5.1.4.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_01002484f1baf8ef167ff1c401034c0ec4bd89>
+	<hash_010024fd4813daa38fd977b0498abf8b163657>
+		<name>Clearwater - Chronos REG Counts (LWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos REG Counts (LWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_080024fc0b63a3b417a3a8c6613bc4fc1af79e>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>LWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_080024fc0b63a3b417a3a8c6613bc4fc1af79e>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.5.1.5.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024fd4813daa38fd977b0498abf8b163657>
+	<hash_010024cc7a8f48fe40dccf265f20ab825a356d>
+		<name>Clearwater - Chronos REG Counts (variance)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos REG Counts (variance)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_08002400883e19e96ba9ac6d9be25aa04722c5>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>var</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_08002400883e19e96ba9ac6d9be25aa04722c5>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.5.1.3.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024cc7a8f48fe40dccf265f20ab825a356d>
+	<hash_0100249a2cd89e3d80fbdd73ad5faf38a948eb>
+		<name>Clearwater - Chronos SUB Counts (average)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos SUB Counts (average)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_0800246f30abf0c6a105f4ec62993175f876b3>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>avg</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_0800246f30abf0c6a105f4ec62993175f876b3>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.7.1.2.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_0100249a2cd89e3d80fbdd73ad5faf38a948eb>
+	<hash_0100241ca280e705067049eb5f62dc8c223cb1>
+		<name>Clearwater - Chronos SUB Counts (HWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos SUB Counts (HWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_0800245694c4e7fa5eb4c3522fecf6274f87af>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>HWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_0800245694c4e7fa5eb4c3522fecf6274f87af>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.7.1.4.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_0100241ca280e705067049eb5f62dc8c223cb1>
+	<hash_010024762ff92e658e281444d15fe106919ea2>
+		<name>Clearwater - Chronos SUB Counts (LWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos SUB Counts (LWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_080024316a666df01e1aad9429eb9840862fea>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>LWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_080024316a666df01e1aad9429eb9840862fea>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.7.1.5.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024762ff92e658e281444d15fe106919ea2>
+	<hash_0100241726c1e4d392f7cdf3c0ce9cc40b49be>
+		<name>Clearwater - Chronos SUB Counts (variance)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos SUB Counts (variance)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_080024f27ede6dffc010e9645f25ca3b28f072>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>var</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_080024f27ede6dffc010e9645f25ca3b28f072>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.7.1.3.1</value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_0100241726c1e4d392f7cdf3c0ce9cc40b49be>
 	<hash_0300243eb92bb845b9660a7445cf9740726522>
 		<name>Get SNMP Data</name>
 		<type_id>2</type_id>
@@ -3308,6 +4310,38 @@
 		<timespan>14400</timespan>
 		<cf_items>1|3</cf_items>
 	</hash_150024283ea2bf1634d92ce081ec82a634f513>
+	<hash_150024c21df5178e5c955013591239eb0afd46>
+		<name>Daily (5 Minute Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>1</steps>
+		<rows>600</rows>
+		<timespan>86400</timespan>
+		<cf_items>1|3</cf_items>
+	</hash_150024c21df5178e5c955013591239eb0afd46>
+	<hash_1500240d9c0af8b8acdc7807943937b3208e29>
+		<name>Weekly (30 Minute Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>6</steps>
+		<rows>700</rows>
+		<timespan>604800</timespan>
+		<cf_items>1|3</cf_items>
+	</hash_1500240d9c0af8b8acdc7807943937b3208e29>
+	<hash_1500246fc2d038fb42950138b0ce3e9874cc60>
+		<name>Monthly (2 Hour Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>24</steps>
+		<rows>775</rows>
+		<timespan>2678400</timespan>
+		<cf_items>1|3</cf_items>
+	</hash_1500246fc2d038fb42950138b0ce3e9874cc60>
+	<hash_150024e36f3adb9f152adfa5dc50fd2b23337e>
+		<name>Yearly (1 Day Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>288</steps>
+		<rows>797</rows>
+		<timespan>33053184</timespan>
+		<cf_items>1|3</cf_items>
+	</hash_150024e36f3adb9f152adfa5dc50fd2b23337e>
 	<hash_050024f1ac79f05f255c02f914c920f1038c54>
 		<name>Total All Data Sources</name>
 		<items>
