@@ -270,7 +270,9 @@ module ClearwaterKnifePlugins
       end
 
       # Shared config should be synchronized now, run chef-client one last time
-      # to pick up the final state.
+      # to pick up the final state. Sleep for 10 to give Ellis a chance to have
+      # recovered from restarting
+      sleep(10)
       trigger_chef_client(config[:cloud],
                           "chef_environment:#{config[:environment]}")
 
