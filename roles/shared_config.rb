@@ -35,6 +35,6 @@
 name "shared_config"
 description "Role to provide bootstrapped shared config"
 run_list [
-  "role[clearwater-basee]",
+  "role[clearwater-base]",
   "recipe[clearwater::shared_config]"
 ]
