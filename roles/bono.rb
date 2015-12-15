@@ -39,5 +39,5 @@ run_list [
   "role[clearwater-infrastructure]",
   "role[alarms]",
   "recipe[clearwater::bono]",
-  "role[clearwater-config-manager]"
+  "role[clearwater-etcd]"
 ]

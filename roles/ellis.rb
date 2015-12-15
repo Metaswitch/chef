@@ -38,5 +38,5 @@ run_list [
   "role[local_config]",
   "role[clearwater-infrastructure]",
   "recipe[clearwater::ellis]",
-  "role[clearwater-config-manager]"
+  "role[clearwater-etcd]"
 ]
