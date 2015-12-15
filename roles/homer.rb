@@ -37,6 +37,7 @@ description "homer role"
 run_list [
   "role[local_config]",
   "role[clearwater-infrastructure]",
+  "role[alarms]",
   "recipe[clearwater::homer]",
   "role[clearwater-etcd]",
 ]
