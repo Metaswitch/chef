@@ -1,7 +1,7 @@
-# @file homer.rb
+# @file local_config.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2015  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,11 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "homer"
-description "homer role"
+name "local_config"
+description "local_config role"
 run_list [
-  "role[local_config]",
-  "role[clearwater-infrastructure]",
-  "recipe[clearwater::homer]",
-  "role[clearwater-etcd]",
+  "recipe[clearwater::local_config]",
 ]

@@ -35,7 +35,7 @@
 name "sipp"
 description "sipp role"
 run_list [
-  "recipe[clearwater::local_config]",
+  "role[local_config]",
   "role[clearwater-infrastructure]",
   "recipe[clearwater::etcd]",
   "recipe[clearwater::sipp]"
