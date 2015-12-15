@@ -35,7 +35,6 @@
 name "memento"
 description "memento role"
 run_list [
-  "role[clearwater-infrastructure]",
-  "role[alarms]",
+  "role[clearwater-base]",
   "recipe[clearwater::memento]"
 ]

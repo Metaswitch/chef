@@ -59,7 +59,7 @@ module ClearwaterKnifePlugins
       ui.msg "Will destroy:"
       ui.msg " - Cluster DNS entries"
       ui.msg " - Box-specific DNS entries"
-      victims = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" and
+      victims = find_nodes.select { |n| n.roles.include? "clearwater-base" and
                                         not n.roles.include? "cw_aio" }
                           .map { |n| n.name }
       victims.each { |n| ui.msg " - #{n}" }
@@ -71,7 +71,7 @@ module ClearwaterKnifePlugins
       dns_manager.delete_deployment_records(dns_records, env.name, attributes)
 
       Chef::Log.info "Deleting node DNS entries..."
-      nodes = find_nodes.select { |n| n.roles.include? "clearwater-infrastructure" }
+      nodes = find_nodes.select { |n| n.roles.include? "clearwater-base" }
       dns_manager.delete_node_records(nodes)
       
       Chef::Log.info "Deleting server instances..."

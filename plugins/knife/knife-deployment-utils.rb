@@ -133,7 +133,7 @@ module ClearwaterKnifePlugins
     end
 
     def potential_deletions whitelist
-      victims = find_nodes(roles: "clearwater-infrastructure")
+      victims = find_nodes(roles: "clearwater-base")
       # Only delete nodes with roles contained in this whitelist
       victims.select! { |v| not (v.roles & whitelist).empty? }
       # Don't delete any AIO/AMI nodes
@@ -179,7 +179,7 @@ module ClearwaterKnifePlugins
     end
 
     def calculate_boxes_to_create(env, nodes)
-      current_nodes = find_nodes(roles: "clearwater-infrastructure")
+      current_nodes = find_nodes(roles: "clearwater-base")
 
       result = nodes.select do |node|
         not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:index]) }

@@ -35,6 +35,5 @@
 name "clearwater-etcd"
 description "clearwater-etcd role"
 run_list [
-  "role[alarms]",
   "recipe[clearwater::etcd]"
 ]

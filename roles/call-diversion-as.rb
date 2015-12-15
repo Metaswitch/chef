@@ -35,6 +35,5 @@
 name "call-diversion-as"
 description "call-diversion-as role"
 run_list [
-  "role[alarms]",
   "recipe[clearwater::call-diversion-as]"
 ]

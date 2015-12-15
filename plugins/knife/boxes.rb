@@ -43,7 +43,7 @@ module Clearwater
 
     def initialize(cloud, environment, attributes, options = {}, supported_boxes =
       [
-        {:name => "clearwater-infrastructure", :security_groups => ["base"], :public_ip => true},
+        {:name => "clearwater-base", :security_groups => ["base"], :public_ip => true},
         {:name => "clearwater-base", :security_groups => ["base"], :public_ip => true},
         {:name => "cw_aio", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
@@ -365,7 +365,7 @@ end
 def find_quiescing_nodes(env)
   # Finds all nodes in env which are managed by Chef and which are quiescing
   # @param [String] env the Chef environment to use
-  find_nodes(roles: "clearwater-infrastructure", chef_environment: env).select {|n| n[:clearwater].include? "quiescing"}
+  find_nodes(roles: "clearwater-base", chef_environment: env).select {|n| n[:clearwater].include? "quiescing"}
 end
 
 def find_active_nodes(role)

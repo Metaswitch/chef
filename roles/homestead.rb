@@ -35,9 +35,8 @@
 name "homestead"
 description "homestead role"
 run_list [
-  "recipe[clearwater::local_config]",
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "role[alarms]",
   "recipe[clearwater::homestead]",
-  "role[clearwater-etcd]",
+  "role[clearwater-etcd]"
 ]

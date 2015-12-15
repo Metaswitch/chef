@@ -1,4 +1,4 @@
-# @file clearwater-config-manager.rb
+# @file local_config.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2015  Metaswitch Networks Ltd
@@ -32,9 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "clearwater-config-manager"
-description "clearwater-config-manager role"
+name "local_config"
+description "local_config role"
 run_list [
-  # Do nothing. All new work should utilise the clearwater-etcd role.
-  # This file is kept simply for back-compatibility.
+  "recipe[clearwater::local_config]",
 ]

@@ -35,6 +35,6 @@
 name "plivo"
 description "plivo role"
 run_list [
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "recipe[clearwater::plivo]"
 ]
