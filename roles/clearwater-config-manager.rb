@@ -35,6 +35,6 @@
 name "clearwater-config-manager"
 description "clearwater-config-manager role"
 run_list [
-  "role[alarms]",
-  "recipe[clearwater::config-manager]"
+  # Do nothing. All new work should utilise the clearwater-etcd role.
+  # This file is kept simply for back-compatibility.
 ]
