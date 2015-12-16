@@ -33,7 +33,7 @@ You can optionally add:
 As well as passing in parameters to the `deployment resize` command, you can also set options in the `override_attributes` section of the environment file. The available options are discussed [here](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment/index.html#creating-the-environment); the notable ones are:
 
 * `"repo_servers" => [<"repo_server">]` - This controls what source the nodes downloads the Clearwater debian packages from
-* `"gr" => true` - If this is set, the nodes will be created in two sites (to mimic a geographically redundant site). Odd indexed nodes will be in the `odd_numbers` site, and even indexed nodes will be in the `even_numbers` site. Deployments created using this method won't have a long latency between sites though.
+* `"gr" => number_of_GR_sites` - If this is set, the nodes will be created in multiple sites (to mimic geographically redundant deployment). Nodes will be in "siteX" where X is the node's index modulo the specified number of sites. Deployments created using this method won't have a long latency between sites though.
 * `"vpc" => { "vpc_id" => "<vpc ID>", "subnet_id" => "<subnet ID>" }` - If this is set, the nodes will be installed in the requested [VPC](https://aws.amazon.com/vpc/)
 * `"memento_enabled" => "Y"` - If this is set, then [Memento](https://github.com/Metaswitch/memento) is installed on all Sprout nodes
 * `"gemini_enabled" => "Y"` - If this is set, then [Gemini](https://github.com/Metaswitch/gemini) is installed on all Sprout nodes

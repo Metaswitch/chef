@@ -42,22 +42,41 @@ end
 
 # Set up the local config file
 
-# Determine GR site names
-if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    local_site = "odd_numbers"
-    remote_site = "even_numbers"
-  else
-    local_site = "even_numbers"
-    remote_site = "odd_numbers"
+nodes = search(:node, "chef_environment:#{node.chef_environment}")
+
+# Check if we have a GR deployment, and setup the correct configuration if we do.
+if node[:clearwater][:gr] && node[:clearwater][:gr] > 1 && node[:clearwater][:index]
+  number_of_sites = node[:clearwater][:gr]
+
+  # Set up an array of all the sites.
+  sites = Array.new(number_of_sites)
+  for i in 0...number_of_sites
+      sites[i] = "site#{i}"
+  end
+
+  # Work out which site this node is in based on its index.
+  local_site_index = node[:clearwater][:index] % number_of_sites
+  local_site = sites[local_site_index]
+
+  # Remove the local site to get the list of remote sites.
+  sites.delete_at(local_site_index)
+  remote_sites = sites.join(",")
+
+  # List all nodes in the remote sites as the remote_cassandra_nodes
+  remote_cassandra_nodes = nodes.select do |n|
+    n[:clearwater] &&
+      n[:clearwater][:index] &&
+      n[:clearwater][:index] % number_of_sites != local_site_index &&
+      n[:roles] &&
+      n[:roles].sort == node[:roles].sort
   end
 else
   local_site = "single_site"
-  remote_site = ""
+  remote_sites = ""
+  remote_cassandra_nodes = []
 end
 
 # Find all nodes in the deployment that have been marked as part of the etcd cluster.
-nodes = search(:node, "chef_environment:#{node.chef_environment}")
 etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
 
 # Create local_config
@@ -67,5 +86,6 @@ template "/etc/clearwater/local_config" do
     variables node: node,
               etcd: etcd,
               local_site: local_site,
-              remote_site: remote_site
+              remote_sites: remote_sites,
+              remote_cassandra_nodes: remote_cassandra_nodes
 end

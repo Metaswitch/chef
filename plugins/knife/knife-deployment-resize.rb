@@ -253,8 +253,8 @@ module ClearwaterKnifePlugins
         # on a single node in each site. We choose the first Sprout.
         sprouts = find_nodes(roles: 'sprout')
         sprouts.sort_by! { |n| n[:clearwater][:index] }
-        if attributes["gr"]
-          s_nodes = sprouts[0..1]
+        if attributes["gr"] && attributes["gr"] > 1
+          s_nodes = sprouts[0...attributes["gr"]]
         else
           s_nodes = sprouts[0..0]
         end

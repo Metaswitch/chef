@@ -53,12 +53,9 @@ else
   cdf = "cdf." + domain
 end
 
-site_suffix = if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    "-site1"
-  else
-    "-site2"
-  end
+site_suffix = if node[:clearwater][:gr] && node[:clearwater][:gr] > 1
+  site_index = node[:clearwater][:index] % node[:clearwater][:gr]
+  "-site#{site_index}"
 else
   ""
 end
