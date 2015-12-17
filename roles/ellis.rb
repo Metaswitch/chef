@@ -35,8 +35,7 @@
 name "ellis"
 description "ellis role"
 run_list [
-  "role[local_config]",
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "role[alarms]",
   "recipe[clearwater::ellis]",
   "role[clearwater-etcd]"

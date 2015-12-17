@@ -49,7 +49,7 @@ module ClearwaterKnifePlugins
     def run
       # Run upload-shared-config on every node that has the shared config role
       # (the first sprout node in each deployment)
-      find_nodes(roles: "clearwater-infrastructure", role: "shared_config").each do |node|
+      find_nodes(roles: "chef-base", role: "shared_config").each do |node|
         run_command(options[:cloud],
                     "chef_environment:#{env} AND name:#{node.name}",
                     "sudo /usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config")

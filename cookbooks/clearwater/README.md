@@ -4,7 +4,8 @@ Description
 Recipes for setting up a Clearwater deployment
 
 The general pattern is to have one recipe per Clearwater component. 
-All components inherit from clearwater-infrastructure
+All components apply local config and inherit from chef-base.
+They do this by inheriting from clearwater-base.
 
 Requirements
 ============
@@ -19,11 +20,14 @@ Usage
 =====
 
 To create a role for a component add the recipe for the component to the
-run list, preceding it with the clearwater-infrastructure role, e.g.
+run list, preceding it with the clearwater-base role, e.g.
 
     name "ellis"
     description "ellis role"
     run_list [
-        "role[clearwater-infrastructure]",
+        "role[clearwater-base]",
         "recipe[clearwater::ellis]"
         ] 
+
+Also consider whether the component should have the alarms role,
+or the etcd role (which installs clearwater management).

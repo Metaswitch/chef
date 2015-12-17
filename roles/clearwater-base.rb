@@ -36,5 +36,5 @@ name "clearwater-base"
 description "clearwater-base role"
 run_list [
   "role[local_config]",
-  "role[clearwater-infrastructure]"
+  "role[chef-base]"
 ]
