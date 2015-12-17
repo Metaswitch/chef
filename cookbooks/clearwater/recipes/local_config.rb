@@ -45,8 +45,8 @@ end
 nodes = search(:node, "chef_environment:#{node.chef_environment}")
 
 # Check if we have a GR deployment, and setup the correct configuration if we do.
-if node[:clearwater][:gr] && node[:clearwater][:gr] > 1 && node[:clearwater][:index]
-  number_of_sites = node[:clearwater][:gr]
+if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:index]
+  number_of_sites = node[:clearwater][:num_gr_sites]
 
   # Set up an array of all the sites.
   sites = Array.new(number_of_sites)
@@ -62,13 +62,14 @@ if node[:clearwater][:gr] && node[:clearwater][:gr] > 1 && node[:clearwater][:in
   sites.delete_at(local_site_index)
   remote_sites = sites.join(",")
 
-  # List all nodes in the remote sites as the remote_cassandra_nodes
+  # List all nodes in the remote sites as the remote_cassandra_nodes. This means
+  # remote_cassandra_seeds will be set on all nodes (even though it's only ever
+  # used on nodes with Cassandra).
   remote_cassandra_nodes = nodes.select do |n|
-    n[:clearwater] &&
-      n[:clearwater][:index] &&
-      n[:clearwater][:index] % number_of_sites != local_site_index &&
-      n[:roles] &&
-      n[:roles].sort == node[:roles].sort
+    if n[:clearwater] && n[:clearwater][:index] && n[:roles]
+      site_index = n[:clearwater][:index] % number_of_sites
+      site_index != local_site_index && n[:roles].sort == node[:roles].sort
+    end
   end
 else
   local_site = "single_site"

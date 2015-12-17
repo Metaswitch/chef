@@ -53,8 +53,8 @@ else
   cdf = "cdf." + domain
 end
 
-site_suffix = if node[:clearwater][:gr] && node[:clearwater][:gr] > 1
-  site_index = node[:clearwater][:index] % node[:clearwater][:gr]
+site_suffix = if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1
+  site_index = node[:clearwater][:index] % node[:clearwater][:num_gr_sites]
   "-site#{site_index}"
 else
   ""

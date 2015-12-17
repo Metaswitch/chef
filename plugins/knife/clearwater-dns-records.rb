@@ -75,8 +75,8 @@ def dns_records
     },
   }
 
-  if attributes["gr"] && attributes["gr"] > 1
-    number_of_sites = attributes["gr"]
+  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+    number_of_sites = attributes["num_gr_sites"]
     for i in 0...number_of_sites
       base_gr_dns = {
         "hs-site#{i}" => {
@@ -123,8 +123,8 @@ def dns_records
     }
   }
 
-  if attributes[:gr] && attributes[:gr] > 1
-    number_of_sites = attributes[:gr]
+  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+    number_of_sites = attributes["num_gr_sites"]
     for i in 0...number_of_sites
       ralf_gr_dns = {
         "ralf-site#{i}" => {
