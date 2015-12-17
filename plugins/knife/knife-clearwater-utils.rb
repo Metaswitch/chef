@@ -63,7 +63,7 @@ module ClearwaterKnifePlugins
       if @attributes
         @attributes
       else
-        base_att = Chef::Role.load("clearwater-base").default_attributes["clearwater"]
+        base_att = Chef::Role.load("chef-base").default_attributes["clearwater"]
         env_att = env.override_attributes["clearwater"]
         if env_att.nil?
           @attributes = base_att
