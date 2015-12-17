@@ -1,4 +1,4 @@
-# @file clearwater-base.rb
+# @file chef-base.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -32,10 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "clearwater-base"
-description "clearwater-base role"
+name "chef-base"
+description "chef-base role"
 run_list [
-  "role[local_config]",
   "recipe[clearwater::ec2_metadata]",
   "recipe[apt]",
   "recipe[chef-solo-search]",
