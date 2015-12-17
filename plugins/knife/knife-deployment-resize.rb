@@ -120,18 +120,18 @@ module ClearwaterKnifePlugins
     def get_current_counts
       result = Hash.new(0)
       %w{bono ellis ibcf homer homestead sprout sipp ralf seagull}.each do |node|
-        result[node.to_sym] = find_nodes(roles: "clearwater-base", role: node).length
+        result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
       end
       return result
     end
 
     def update_ralf_hostname environment, cloud
-      ralfs = find_nodes(roles: "clearwater-base", role: "ralf").length
+      ralfs = find_nodes(roles: "chef-base", role: "ralf").length
 
       changed_nodes = []
 
       %w{bono ibcf sprout ralf}.each do |node_type|
-        find_nodes(roles: "clearwater-base", role: node_type).each do |node|
+        find_nodes(roles: "chef-base", role: node_type).each do |node|
           has_ralf = node[:clearwater][:ralf]
           Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
           if (ralfs == 0) && has_ralf

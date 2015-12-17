@@ -4,7 +4,8 @@ Description
 Recipes for setting up a Clearwater deployment
 
 The general pattern is to have one recipe per Clearwater component. 
-All components inherit from clearwater-base
+All components apply local config and inherit from chef-base.
+They do this by inheriting from clearwater-base.
 
 Requirements
 ============

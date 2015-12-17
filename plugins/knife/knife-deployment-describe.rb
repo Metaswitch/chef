@@ -62,7 +62,7 @@ module ClearwaterKnifePlugins
         versions = repos.map { |r| fetch_package_versions r }
         repos.each_with_index { |repo, i| puts RedGreen::Color.color(i, repo) }
       end
-      nodes = find_nodes.select { |n| n.roles.include? "clearwater-base" }
+      nodes = find_nodes.select { |n| n.roles.include? "chef-base" }
       nodes.sort_by(&:name).each { |n| describe_node n, versions }
     end
 
@@ -105,7 +105,6 @@ module ClearwaterKnifePlugins
     def package_lookup
       {
         "bono" => ["bono", "restund", "sprout-libs"],
-        "clearwater-base" => ["clearwater-base"],
         "ellis" => ["ellis"],
         "homer" => ["homer"],
         "ralf" => ["ralf", "chronos", "astaire"],

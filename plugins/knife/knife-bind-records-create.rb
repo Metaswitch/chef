@@ -50,7 +50,7 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      nodes = find_nodes.select { |n| n.roles.include? "clearwater-base" }
+      nodes = find_nodes.select { |n| n.roles.include? "chef-base" }
       domain = if attributes["use_subdomain"]
                  "#{env.name}.#{attributes["root_domain"]}"
                else
