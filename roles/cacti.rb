@@ -35,6 +35,6 @@
 name "cacti"
 description "cacti role"
 run_list [
-  "role[clearwater-base]",
+  "role[chef-base]",
   "recipe[clearwater::cacti]"
 ]
