@@ -35,7 +35,6 @@
 name "seagull"
 description "seagull role"
 run_list [
-  "role[local_config]",
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "recipe[clearwater::seagull]"
 ]

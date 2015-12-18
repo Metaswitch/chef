@@ -35,11 +35,10 @@
 name "sprout"
 description "sprout role"
 run_list [
-  "role[local_config]",
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "role[alarms]",
   "recipe[clearwater::sprout]",
-  "role[clearwater-etcd]",
+  "role[clearwater-etcd]"
 ]
 
 override_attributes "clearwater" => {

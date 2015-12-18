@@ -35,6 +35,6 @@
 name "dns"
 description "dns role"
 run_list [
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "recipe[clearwater::dns]"
 ]

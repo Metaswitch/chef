@@ -1,4 +1,4 @@
-# @file clearwater-infrastructure.rb
+# @file chef-base.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2013  Metaswitch Networks Ltd
@@ -32,14 +32,13 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "clearwater-infrastructure"
-description "clearwater-infrastructure role"
+name "chef-base"
+description "chef-base role"
 run_list [
   "recipe[clearwater::ec2_metadata]",
   "recipe[apt]",
   "recipe[chef-solo-search]",
-  "role[security]",
-  "recipe[clearwater::infrastructure]"
+  "role[security]"
 ]
 default_attributes "clearwater" => {
   # This is the domain name of the DNS zone we create.

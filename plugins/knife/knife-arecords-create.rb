@@ -49,7 +49,7 @@ module ClearwaterKnifePlugins
 
     def run
       record_manager = Clearwater::DnsRecordManager.new(attributes["root_domain"])
-      find_nodes(roles: "clearwater-infrastructure").each do |node|
+      find_nodes(roles: "chef-base").each do |node|
         options = {}
         options[:value] = [ node[:cloud][:public_ipv4] ]
         options[:type] = "A"

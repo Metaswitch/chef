@@ -35,8 +35,7 @@
 name "bono"
 description "bono role"
 run_list [
-  "role[local_config]",
-  "role[clearwater-infrastructure]",
+  "role[clearwater-base]",
   "role[alarms]",
   "recipe[clearwater::bono]",
   "role[clearwater-etcd]"
