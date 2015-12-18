@@ -43,7 +43,7 @@ module Clearwater
 
     def initialize(cloud, environment, attributes, options = {}, supported_boxes =
       [
-        {:name => "chef-base", :security_groups => ["base"], :public_ip => true},
+        {:name => "clearwater-base", :security_groups => ["base"], :public_ip => true},
         {:name => "chef-base", :security_groups => ["base"], :public_ip => true},
         {:name => "cw_aio", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
