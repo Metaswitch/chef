@@ -71,14 +71,28 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
       site_index != local_site_index && n[:roles].sort == node[:roles].sort
     end
   end
+
+  # Find all nodes in this site that have been marked as part of the etcd
+  # cluster.
+  etcd = nodes.select do |n|
+    if n[:clearwater] && n[:clearwater][:index]
+      site_index = n[:clearwater][:index] % number_of_sites
+      n[:clearwater][:etcd_cluster] && site_index == local_site_index
+    end
+  end
 else
   local_site = "single_site"
   remote_sites = ""
   remote_cassandra_nodes = []
-end
 
-# Find all nodes in the deployment that have been marked as part of the etcd cluster.
-etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
+  # Find all nodes in the deployment that have been marked as part of the etcd
+  # cluster.
+  etcd = nodes.select do |n|
+    if n[:clearwater]
+      n[:clearwater][:etcd_cluster]
+    end
+  end
+end
 
 # Create local_config
 template "/etc/clearwater/local_config" do
