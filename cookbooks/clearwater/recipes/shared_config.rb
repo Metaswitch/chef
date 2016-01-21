@@ -148,13 +148,6 @@ end
 execute "upload_shared_config" do
   user "root"
   command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config"
-  notifies :run, "execute[apply_shared_config]", :immediately
-  action :nothing
-end
-
-execute "apply_shared_config" do
-  user "root"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/apply_shared_config"
   action :nothing
 end
 
