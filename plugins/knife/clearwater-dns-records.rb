@@ -91,6 +91,12 @@ def dns_records
           :ttl   => "60"
         },
 
+        "sprout-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("sprout"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
         "_sip._tcp.sprout-site#{i}" => {
           :type  => "SRV",
           :value => scscf_srv_site(find_active_nodes("sprout"), i, number_of_sites),
@@ -133,8 +139,8 @@ def dns_records
           :ttl   => "60"
         }
       }
+      ralf_dns = ralf_dns.merge(ralf_gr_dns)
     end
-    ralf_dns = ralf_dns.merge(ralf_gr_dns)
   end
 
   memento_dns = {
