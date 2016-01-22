@@ -45,6 +45,12 @@ cron "backup" do
 end
 
 # Create number pools (first normal, then PSTN)
+execute "infra_script" do
+  command "service clearwater-infrastructure restart"
+  user "root"
+  only_if { ::File.exists?('/etc/clearwater/shared_config') }
+end
+
 execute "create_numbers" do
   cwd "/usr/share/clearwater/ellis/"
   command "env/bin/python src/metaswitch/ellis/tools/create_numbers.py --start #{node[:clearwater][:number_start]} --count #{node[:clearwater][:number_count]}"
