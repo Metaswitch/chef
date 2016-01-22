@@ -137,6 +137,8 @@ def sprout_security_group_rules
       { ip_protocol: :udp, min: 5052, max: 5052, group: "internal-sip" },
       # Memcached interface
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "sprout" },
+      # Astaire interface
+      { ip_protocol: :tcp, min: 11311, max: 11311, group: "sprout" },
       # Chronos interface
       { ip_protocol: :tcp, min: 7253, max: 7253, group: "sprout" },
       { ip_protocol: :tcp, min: 9888, max: 9888, group: "sprout" },
@@ -177,6 +179,8 @@ def ralf_security_group_rules
       { ip_protocol: :tcp, min: 7253, max: 7253, group: "ralf" },
       # Memcached interface
       { ip_protocol: :tcp, min: 11211, max: 11211, group: "ralf" },
+      # Astaire interface
+      { ip_protocol: :tcp, min: 11311, max: 11311, group: "sprout" },
     ]
 end
 
