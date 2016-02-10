@@ -1,7 +1,7 @@
 <cacti>	
 	<hash_02002449ec01eb94b62f8044481d16910683b2>
 		<name>Sprout</name>
-		<graph_templates>hash_000024e334bdcf821cd27270a4cc945e80915e|hash_000024be275639d5680e94c72c0ebb4e19056d|hash_000024940f66eb4710b78588eff84d5507b22b|hash_0000242c69a6420b723b558f828d7b9d9065ce|hash_0000245816ca76408e36618e8648e84649dde1|hash_000024355e269cfd622122bd5f8d43c8a5ccdd|hash_00002497d1bd4a394dcec51be1524a026874cd|hash_0000243ba032906d5fe2e396b2e4b6366a853c|hash_0000240e338d97bf62ded620fb7f5822842ff7</graph_templates>
+		<graph_templates>hash_000024e334bdcf821cd27270a4cc945e80915e|hash_000024be275639d5680e94c72c0ebb4e19056d|hash_000024940f66eb4710b78588eff84d5507b22b|hash_0000242c69a6420b723b558f828d7b9d9065ce|hash_0000245816ca76408e36618e8648e84649dde1|hash_000024355e269cfd622122bd5f8d43c8a5ccdd|hash_00002497d1bd4a394dcec51be1524a026874cd|hash_0000243ba032906d5fe2e396b2e4b6366a853c|hash_0000240e338d97bf62ded620fb7f5822842ff7|hash_000024a9bd94a383aa5170df79bef2ed3568be</graph_templates>
 		<data_queries></data_queries>
 	</hash_02002449ec01eb94b62f8044481d16910683b2>
 	<hash_000024e334bdcf821cd27270a4cc945e80915e>
@@ -714,7 +714,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Attempts</text_format>
@@ -727,7 +727,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -740,7 +740,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Successes</text_format>
@@ -753,7 +753,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -766,7 +766,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Failures</text_format>
@@ -779,7 +779,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -855,7 +855,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Attempts</text_format>
@@ -868,7 +868,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -881,7 +881,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Successes</text_format>
@@ -894,7 +894,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -907,7 +907,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>4</graph_type_id>
 				<consolidation_function_id>1</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format>Failures</text_format>
@@ -920,7 +920,7 @@
 				<alpha>FF</alpha>
 				<graph_type_id>9</graph_type_id>
 				<consolidation_function_id>4</consolidation_function_id>
-				<cdef_id>hash_05002426922fc7d061c33c023471ede8460ffd</cdef_id>
+				<cdef_id>0</cdef_id>
 				<value></value>
 				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
 				<text_format></text_format>
@@ -1705,6 +1705,211 @@
 			</hash_090024d32f731cc18182a82dff52bb14517256>
 		</inputs>
 	</hash_0000240e338d97bf62ded620fb7f5822842ff7>
+	<hash_000024a9bd94a383aa5170df79bef2ed3568be>
+		<name>Clearwater - Chronos BIND Counts</name>
+		<graph>
+			<t_title></t_title>
+			<title>|host_description| - Chronos BIND Counts</title>
+			<t_image_format_id></t_image_format_id>
+			<image_format_id>1</image_format_id>
+			<t_height></t_height>
+			<height>120</height>
+			<t_width></t_width>
+			<width>500</width>
+			<t_slope_mode></t_slope_mode>
+			<slope_mode>on</slope_mode>
+			<t_auto_scale></t_auto_scale>
+			<auto_scale>on</auto_scale>
+			<t_auto_scale_opts></t_auto_scale_opts>
+			<auto_scale_opts>2</auto_scale_opts>
+			<t_auto_scale_log></t_auto_scale_log>
+			<auto_scale_log></auto_scale_log>
+			<t_scale_log_units></t_scale_log_units>
+			<scale_log_units></scale_log_units>
+			<t_auto_scale_rigid></t_auto_scale_rigid>
+			<auto_scale_rigid></auto_scale_rigid>
+			<t_auto_padding></t_auto_padding>
+			<auto_padding>on</auto_padding>
+			<t_export></t_export>
+			<export>on</export>
+			<t_upper_limit></t_upper_limit>
+			<upper_limit>100</upper_limit>
+			<t_lower_limit></t_lower_limit>
+			<lower_limit>0</lower_limit>
+			<t_base_value></t_base_value>
+			<base_value>1000</base_value>
+			<t_unit_value></t_unit_value>
+			<unit_value></unit_value>
+			<t_unit_exponent_value></t_unit_exponent_value>
+			<unit_exponent_value></unit_exponent_value>
+			<t_vertical_label></t_vertical_label>
+			<vertical_label>count</vertical_label>
+		</graph>
+		<items>
+			<hash_10002437d3a88ef32beee7927a9ec13eff8831>
+				<task_item_id>hash_0800249c59c18b80ea51c358c78c373e122c78</task_item_id>
+				<color_id>FF0000</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Average</text_format>
+				<hard_return></hard_return>
+				<sequence>1</sequence>
+			</hash_10002437d3a88ef32beee7927a9ec13eff8831>
+			<hash_100024944aa1144d66b0fd44295683018c1c9a>
+				<task_item_id>hash_0800249c59c18b80ea51c358c78c373e122c78</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>2</sequence>
+			</hash_100024944aa1144d66b0fd44295683018c1c9a>
+			<hash_100024dd889af92ad7b0312c29088962ce685e>
+				<task_item_id>hash_0800249176f27b052f916d117e22137da07f41</task_item_id>
+				<color_id>0000FF</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Low-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>3</sequence>
+			</hash_100024dd889af92ad7b0312c29088962ce685e>
+			<hash_1000241cbf95390b56963082b8652e53452a91>
+				<task_item_id>hash_0800249176f27b052f916d117e22137da07f41</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>4</sequence>
+			</hash_1000241cbf95390b56963082b8652e53452a91>
+			<hash_1000247aabe10a0aea4d105af89218fb92cf68>
+				<task_item_id>hash_08002410706d97e8e9ce3416948506efe6f227</task_item_id>
+				<color_id>00FF00</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>High-water mark</text_format>
+				<hard_return></hard_return>
+				<sequence>5</sequence>
+			</hash_1000247aabe10a0aea4d105af89218fb92cf68>
+			<hash_1000247ff8a2964628a1c6ebf30e71d6f809fd>
+				<task_item_id>hash_08002410706d97e8e9ce3416948506efe6f227</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>6</sequence>
+			</hash_1000247ff8a2964628a1c6ebf30e71d6f809fd>
+			<hash_100024d50ffd90a7e84062b68cd7e44b764b44>
+				<task_item_id>hash_08002410b079d588e52f20fcd3be11569fdc35</task_item_id>
+				<color_id>FFF200</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Standard deviation</text_format>
+				<hard_return></hard_return>
+				<sequence>7</sequence>
+			</hash_100024d50ffd90a7e84062b68cd7e44b764b44>
+			<hash_100024c6645bf0738efdc7d8056e837fe6d040>
+				<task_item_id>hash_08002410b079d588e52f20fcd3be11569fdc35</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>hash_050024c710fd79cce6abfeb380b4be93db8489</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>8</sequence>
+			</hash_100024c6645bf0738efdc7d8056e837fe6d040>
+			<hash_1000244bc96b6f9ea994855dc65c4f83a04de9>
+				<task_item_id>hash_0800249bdf891eccae9021f29a91fbb6cc0baf</task_item_id>
+				<color_id>000000</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>4</graph_type_id>
+				<consolidation_function_id>1</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format>Instantaneous</text_format>
+				<hard_return></hard_return>
+				<sequence>9</sequence>
+			</hash_1000244bc96b6f9ea994855dc65c4f83a04de9>
+			<hash_100024988308542eaae9081c200a8979fbb1ad>
+				<task_item_id>hash_0800249bdf891eccae9021f29a91fbb6cc0baf</task_item_id>
+				<color_id>0</color_id>
+				<alpha>FF</alpha>
+				<graph_type_id>9</graph_type_id>
+				<consolidation_function_id>4</consolidation_function_id>
+				<cdef_id>0</cdef_id>
+				<value></value>
+				<gprint_id>hash_060024e9c43831e54eca8069317a2ce8c6f751</gprint_id>
+				<text_format></text_format>
+				<hard_return>on</hard_return>
+				<sequence>10</sequence>
+			</hash_100024988308542eaae9081c200a8979fbb1ad>
+		</items>
+		<inputs>
+			<hash_0900242739828339266952f6a71344c621be47>
+				<name>Data Source [Chronos_BIND_avg]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_00002437d3a88ef32beee7927a9ec13eff8831|hash_000024944aa1144d66b0fd44295683018c1c9a</items>
+			</hash_0900242739828339266952f6a71344c621be47>
+			<hash_090024021206da490953b6ad686f869a8c4f8f>
+				<name>Data Source [Chronos_BIND_LWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024dd889af92ad7b0312c29088962ce685e|hash_0000241cbf95390b56963082b8652e53452a91</items>
+			</hash_090024021206da490953b6ad686f869a8c4f8f>
+			<hash_0900245ee5cade299844ba5ccc5e13029a1cf5>
+				<name>Data Source [Chronos_BIND_HWM]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000247aabe10a0aea4d105af89218fb92cf68|hash_0000247ff8a2964628a1c6ebf30e71d6f809fd</items>
+			</hash_0900245ee5cade299844ba5ccc5e13029a1cf5>
+			<hash_090024e3a109e80a0f2403d26bbf433c982ea0>
+				<name>Data Source [Chronos_BIND_var]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_000024d50ffd90a7e84062b68cd7e44b764b44|hash_000024c6645bf0738efdc7d8056e837fe6d040</items>
+			</hash_090024e3a109e80a0f2403d26bbf433c982ea0>
+			<hash_09002469e2d8fac3a1d1b2553176b122da96a1>
+				<name>Data Source [Chronos_BIND_inst]</name>
+				<description></description>
+				<column_name>task_item_id</column_name>
+				<items>hash_0000244bc96b6f9ea994855dc65c4f83a04de9|hash_000024988308542eaae9081c200a8979fbb1ad</items>
+			</hash_09002469e2d8fac3a1d1b2553176b122da96a1>
+		</inputs>
+	</hash_000024a9bd94a383aa5170df79bef2ed3568be>
 	<hash_010024cdfed2d401723d2f41fc239d4ce249c7>
 		<name>ucd/net - CPU Usage - System</name>
 		<ds>
@@ -3646,7 +3851,7 @@
 			<item_000>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.5.1.2.1</value>
+				<value>.1.2.826.0.1.1578918.9.10.9.1.2.1</value>
 			</item_000>
 			<item_001>
 				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
@@ -3753,7 +3958,7 @@
 			<item_005>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.5.1.4.1</value>
+				<value>.1.2.826.0.1.1578918.9.10.9.1.4.1</value>
 			</item_005>
 			<item_006>
 				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
@@ -3810,7 +4015,7 @@
 			<item_000>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.5.1.5.1</value>
+				<value>.1.2.826.0.1.1578918.9.10.9.1.5.1</value>
 			</item_000>
 			<item_001>
 				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
@@ -3917,7 +4122,7 @@
 			<item_005>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.5.1.3.1</value>
+				<value>.1.2.826.0.1.1578918.9.10.9.1.3.1</value>
 			</item_005>
 			<item_006>
 				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
@@ -3999,7 +4204,7 @@
 			<item_005>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.8.1.0</value>
+				<value>.1.2.826.0.1.1578918.9.10.5.4.0</value>
 			</item_005>
 			<item_006>
 				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
@@ -4384,7 +4589,7 @@
 			<item_000>
 				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
 				<t_value></t_value>
-				<value>.1.2.826.0.1.1578918.9.10.8.3.0</value>
+				<value>.1.2.826.0.1.1578918.9.10.5.2.0</value>
 			</item_000>
 			<item_001>
 				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
@@ -4433,6 +4638,416 @@
 			</item_009>
 		</data>
 	</hash_01002429b9e427fbfb301c83045c8125606caa>
+	<hash_01002430093a079f796b51b9ed21ef24c4b4a9>
+		<name>Clearwater - Chronos Instantaneous BIND Count</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos Instantaneous BIND Count</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_0800249bdf891eccae9021f29a91fbb6cc0baf>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>Instantaneous</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_0800249bdf891eccae9021f29a91fbb6cc0baf>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.5.3.0</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_01002430093a079f796b51b9ed21ef24c4b4a9>
+	<hash_010024f5b1051ca51356bc2722717f4cef8378>
+		<name>Clearwater - Chronos BIND Counts (average)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos BIND Counts (average)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_0800249c59c18b80ea51c358c78c373e122c78>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>avg</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_0800249c59c18b80ea51c358c78c373e122c78>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.8.1.2.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024f5b1051ca51356bc2722717f4cef8378>
+	<hash_0100245e3ada9431d4cfd620c15892ad701d19>
+		<name>Clearwater - Chronos BIND Counts (HWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos BIND Counts (HWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_08002410706d97e8e9ce3416948506efe6f227>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>HWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_08002410706d97e8e9ce3416948506efe6f227>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.8.1.4.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_0100245e3ada9431d4cfd620c15892ad701d19>
+	<hash_01002403bffcfbe3905fb5046d2a1f940770c4>
+		<name>Clearwater - Chronos BIND Counts (LWM)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos BIND Counts (LWM)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_0800249176f27b052f916d117e22137da07f41>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>LWM</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_0800249176f27b052f916d117e22137da07f41>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.8.1.5.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_01002403bffcfbe3905fb5046d2a1f940770c4>
+	<hash_010024a602f67445a06695953e6691e0bb67ab>
+		<name>Clearwater - Chronos BIND Counts (variance)</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - Chronos BIND Counts (variance)</name>
+			<data_input_id>hash_0300243eb92bb845b9660a7445cf9740726522</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>60</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150024283ea2bf1634d92ce081ec82a634f513</rra_items>
+		</ds>
+		<items>
+			<hash_08002410b079d588e52f20fcd3be11569fdc35>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>var</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum></t_rrd_maximum>
+				<rrd_maximum>U</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>120</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>0</data_input_field_id>
+			</hash_08002410b079d588e52f20fcd3be11569fdc35>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700244276a5ec6e3fe33995129041b1909762</data_input_field_id>
+				<t_value></t_value>
+				<value>.1.2.826.0.1.1578918.9.10.8.1.3.1</value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070024012ccb1d3687d3edb29c002ea66e72da</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+			<item_002>
+				<data_input_field_id>hash_0700249c55a74bd571b4f00a96fd4b793278c6</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_002>
+			<item_003>
+				<data_input_field_id>hash_070024ad14ac90641aed388139f6ba86a2e48b</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_003>
+			<item_004>
+				<data_input_field_id>hash_07002432285d5bf16e56c478f5e83f32cda9ef</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_004>
+			<item_005>
+				<data_input_field_id>hash_07002492f5906c8dc0f964b41f4253df582c38</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_005>
+			<item_006>
+				<data_input_field_id>hash_070024fc64b99742ec417cc424dbf8c7692d36</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_006>
+			<item_007>
+				<data_input_field_id>hash_07002420832ce12f099c8e54140793a091af90</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_007>
+			<item_008>
+				<data_input_field_id>hash_070024c60c9aac1e1b3555ea0620b8bbfd82cb</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_008>
+			<item_009>
+				<data_input_field_id>hash_070024feda162701240101bc74148415ef415a</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_009>
+		</data>
+	</hash_010024a602f67445a06695953e6691e0bb67ab>
 	<hash_0300243eb92bb845b9660a7445cf9740726522>
 		<name>Get SNMP Data</name>
 		<type_id>2</type_id>
@@ -4670,26 +5285,6 @@
 			</hash_14002461c518b01c31a3c256e108ca090a75df>
 		</items>
 	</hash_0500246c8229ba49082d39431b4e817f49473f>
-	<hash_05002426922fc7d061c33c023471ede8460ffd>
-		<name>Make Per Hour</name>
-		<items>
-			<hash_140024bd6167a5371c90ab60c830e3a58601bb>
-				<sequence>1</sequence>
-				<type>4</type>
-				<value>CURRENT_DATA_SOURCE</value>
-			</hash_140024bd6167a5371c90ab60c830e3a58601bb>
-			<hash_1400249f9a2ffe7aa89a2c6e1cc5bda17a5309>
-				<sequence>2</sequence>
-				<type>6</type>
-				<value>720</value>
-			</hash_1400249f9a2ffe7aa89a2c6e1cc5bda17a5309>
-			<hash_14002479261135df7706f4cf6970bd18baefbe>
-				<sequence>3</sequence>
-				<type>2</type>
-				<value>3</value>
-			</hash_14002479261135df7706f4cf6970bd18baefbe>
-		</items>
-	</hash_05002426922fc7d061c33c023471ede8460ffd>
 	<hash_060024e9c43831e54eca8069317a2ce8c6f751>
 		<name>Normal</name>
 		<gprint_text>%8.2lf %s</gprint_text>

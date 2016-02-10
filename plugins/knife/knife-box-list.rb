@@ -49,7 +49,8 @@ module ClearwaterKnifePlugins
       name_glob = name_args.first
       name_glob = "*" if name_glob == "" or name_glob.nil?
       puts "Searching for node #{name_glob} in #{env}..."
-      puts "No such node" if find_nodes(name: name_glob, roles: "chef-base").each do |node|
+      nodes = find_nodes(name: name_glob, roles: "chef-base") + find_nodes(name: name_glob, roles: "cw_aio")
+      puts "No such node" if nodes.each do |node|
         if node[:ec2]
           print "Found node #{node.name} with instance-id "\
                             "#{node.ec2.instance_id} at "\
