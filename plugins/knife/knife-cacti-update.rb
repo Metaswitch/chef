@@ -49,7 +49,7 @@ module ClearwaterKnifePlugins
 
     def run()
 
-      # For each Bono, Sprout and SIPp node, set it up in Cacti and associate it with the
+      # For each Bono, Ralf, Sprout and SIPp node, set it up in Cacti and associate it with the
       # appropriately-named host template
 
       # Specify '|| /bin/true' so we don't bail out on a failure
@@ -57,6 +57,10 @@ module ClearwaterKnifePlugins
       find_nodes(roles: "chef-base", role: "cacti").each do |cacti|
         find_nodes(roles: "chef-base", role: "bono").each do |node|
           run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Bono || /bin/true")
+        end
+
+        find_nodes(roles: "chef-base", role: "ralf").each do |node|
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Ralf || /bin/true")
         end
 
         find_nodes(roles: "chef-base", role: "sprout").each do |node|
