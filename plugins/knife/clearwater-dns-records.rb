@@ -57,30 +57,6 @@ def dns_records
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-site1" => {
-      :type  => "SRV",
-      :value => scscf_srv_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.sprout-icscf-site1" => {
-      :type  => "SRV",
-      :value => icscf_srv_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.sprout-site2" => {
-      :type  => "SRV",
-      :value => scscf_srv_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.sprout-icscf-site2" => {
-      :type  => "SRV",
-      :value => icscf_srv_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
     "hs" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("homestead")),
@@ -93,37 +69,49 @@ def dns_records
       :ttl   => "60"
     },
 
-   "hs-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
-    "homer-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-
-   "hs-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
-    "homer-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-
-
-
     "ellis" => {
       :type => "A",
       :value => ipv4s(find_active_nodes("ellis")),
     },
   }
+
+  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+    number_of_sites = attributes["num_gr_sites"]
+    for i in 0...number_of_sites
+      base_gr_dns = {
+        "hs-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("homestead"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "homer-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("homer"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "sprout-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("sprout"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "_sip._tcp.sprout-site#{i}" => {
+          :type  => "SRV",
+          :value => scscf_srv_site(find_active_nodes("sprout"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "_sip._tcp.sprout-icscf-site#{i}" => {
+          :type  => "SRV",
+          :value => icscf_srv_site(find_active_nodes("sprout"), i, number_of_sites),
+          :ttl   => "60"
+        },
+      }
+      base_dns = base_dns.merge(base_gr_dns)
+    end
+  end
 
   bono_dns = {
     "" => {
@@ -138,19 +126,22 @@ def dns_records
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("ralf")),
       :ttl   => "60"
-    },
-    "ralf-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("ralf")),
-      :ttl   => "60"
-    },
-    "ralf-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("ralf")),
-      :ttl   => "60"
-    },
-
+    }
   }
+
+  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+    number_of_sites = attributes["num_gr_sites"]
+    for i in 0...number_of_sites
+      ralf_gr_dns = {
+        "ralf-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("ralf"), i, number_of_sites),
+          :ttl   => "60"
+        }
+      }
+      ralf_dns = ralf_dns.merge(ralf_gr_dns)
+    end
+  end
 
   memento_dns = {
     "memento" => {
@@ -197,8 +188,8 @@ def dns_records
   return dns
 end
 
-def in_site_1?(n)
-  (n[:clearwater][:index] || 1) % 2 == 1
+def in_site?(n, site, number_of_sites)
+  (n[:clearwater][:index] || 1) % number_of_sites == site
 end
 
 def ipv4s(boxes)
@@ -209,38 +200,20 @@ def ipv4s_local(boxes)
   boxes.map {|n| n[:cloud][:local_ipv4]}
 end
 
-def ipv4s_local_site1(boxes)
-  boxes.select { |n| in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
+def ipv4s_local_site(boxes, site, number_of_sites)
+  boxes.select { |n| in_site?(n, site, number_of_sites) }.map {|n| n[:cloud][:local_ipv4]}
 end
 
-def ipv4s_local_site2(boxes)
-  boxes.select { |n| not in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
-end
-
-def icscf_srv_site1(boxes)
+def icscf_srv_site(boxes, site, number_of_sites)
   boxes.map  do |n|
-    priority = if in_site_1?(n) then 1 else 2 end
+    priority = if in_site?(n, site, number_of_sites) then 1 else 2 end
     "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
   end
 end
 
-def scscf_srv_site1(boxes)
+def scscf_srv_site(boxes, site, number_of_sites)
   boxes.map  do |n|
-    priority = if in_site_1?(n) then 1 else 2 end
-    "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
-  end
-end
-
-def icscf_srv_site2(boxes)
-  boxes.map  do |n|
-    priority = if in_site_1?(n) then 2 else 1 end
-    "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
-  end
-end
-
-def scscf_srv_site2(boxes)
-  boxes.map  do |n|
-    priority = if in_site_1?(n) then 2 else 1 end
+    priority = if in_site?(n, site, number_of_sites) then 1 else 2 end
     "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
   end
 end

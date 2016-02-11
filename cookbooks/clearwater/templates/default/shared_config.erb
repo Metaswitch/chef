@@ -6,6 +6,9 @@ hs_provisioning_hostname=<%= @hs_prov %>
 xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
 cdf_identity=<%= @cdf %>
+sprout_registration_store=<%= @sprout_registration_store %>
+ralf_session_store=<%= @ralf_session_store %>
+<% if not @memento_auth_store.nil? %>memento_auth_store=<%= @memento_auth_store %><% end %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 <% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
 alias_list=<%= @alias_list %>
