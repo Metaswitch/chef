@@ -42,11 +42,6 @@ package "homestead-prov" do
   options "--force-yes"
 end
 
-package "clearwater-snmp-handler-homestead" do
-  action [:install]
-  options "--force-yes"
-end
-
 package "clearwater-prov-tools" do
   action [:install]
   options "--force-yes"
