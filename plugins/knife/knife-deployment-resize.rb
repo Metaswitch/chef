@@ -269,15 +269,17 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end
 
+      Chef::Log.info "Sleeping for 90 seconds before updating DNS to allow cluster to synchronize..."
+      sleep(90)
+
       # Shared config should be synchronized now, run chef-client one last time
-      # to pick up the final state. Sleep for 10 to give Ellis a chance to have
-      # recovered from restarting
-      sleep(10)
+      # to pick up the final state. In particular, this step is what creates
+      # numbers on ellis (which can only happen after it's picked up the shared
+      # config, so we want to do it as late as possible).
       trigger_chef_client(config[:cloud],
                           "chef_environment:#{config[:environment]}")
 
-      Chef::Log.info "Sleeping for 90 seconds before updating DNS to allow cluster to synchronize..."
-      sleep(90)
+      sleep(10)
 
       # Setup DNS zone record
       configure_dns_zone(config, attributes)
