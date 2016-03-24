@@ -63,11 +63,12 @@ else
   ""
 end
 
-sprout_aliases = ["sprout-icscf." + domain,
-                  "sprout-icscf-site1." + domain,
-                  "sprout-icscf-site2." + domain,
-                  "sprout-site1." + domain,
-                  "sprout-site2." + domain]
+sprout_aliases = ["icscf.sprout." + domain,
+                  "icscf.sprout-site1." + domain,
+                  "icscf.sprout-site2." + domain,
+                  "scscf.sprout." + domain,
+                  "scscf.sprout-site1." + domain,
+                  "scscf.sprout-site2." + domain]
 
 enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
@@ -77,8 +78,7 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    sprout_icscf: "sprout-icscf#{site_suffix}.#{domain}",
-    scscf_uri: "sip:sprout#{site_suffix}.#{domain};transport=tcp",
+    sprout_icscf: "icscf.sprout#{site_suffix}.#{domain}",
     alias_list: if node.roles.include? "sprout"
                   sprout_aliases.join(",")
                 end,
