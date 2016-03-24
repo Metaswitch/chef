@@ -39,43 +39,73 @@ require_relative 'boxes'
 def dns_records
   dns = {}
   base_dns = {
-    "sprout" => {
+    "icscf.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout" => {
+    "scscf.sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "scscf.sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "icscf.sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "scscf.sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "icscf.sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+   "_sip._tcp.scscf.sprout" => {
       :type  => "SRV",
       :value => scscf_srv_flat(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-icscf" => {
+   "_sip._tcp.icscf.sprout" => {
       :type  => "SRV",
       :value => icscf_srv_flat(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-site1" => {
+   "_sip._tcp.scscf.sprout-site1" => {
       :type  => "SRV",
       :value => scscf_srv_site1(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-icscf-site1" => {
+   "_sip._tcp.icscf.sprout-site1" => {
       :type  => "SRV",
       :value => icscf_srv_site1(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-site2" => {
+   "_sip._tcp.scscf.sprout-site2" => {
       :type  => "SRV",
       :value => scscf_srv_site2(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-   "_sip._tcp.sprout-icscf-site2" => {
+   "_sip._tcp.icscf.sprout-site2" => {
       :type  => "SRV",
       :value => icscf_srv_site2(find_active_nodes("sprout")),
       :ttl   => "60"
