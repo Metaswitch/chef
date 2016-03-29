@@ -30,16 +30,26 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
 
-# I-CSCF/S-CSCF configuration
-<% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
-<% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
+# P-CSCF configuration
 <% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %><% else %>upstream_hostname=<%= @sprout_icscf %><% end %>
 <% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %><% else %>upstream_port=0<% end %>
-
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
+
+# Sproutlet configuration
+<% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
+<% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
+<% if @node[:clearwater][:bgcf] %>bgcf=<%= @node[:clearwater][:bgcf] %><% end %>
+<% if @node[:clearwater][:memento] %>memento=<%= @node[:clearwater][:memento] %><% end %>
+<% if @node[:clearwater][:gemini] %>gemini=<%= @node[:clearwater][:gemini] %><% end %>
+<% if @node[:clearwater][:cdiv] %>cdiv=<%= @node[:clearwater][:cdiv] %><% end %>
+<% if @node[:clearwater][:mmtel] %>mmtel=<%= @node[:clearwater][:mmtel] %><% end %>
+<% if @node[:clearwater][:mangelwurzel] %>mangelwurzel=<%= @node[:clearwater][:mangelwurzel] %><% end %>
 
 # Keys
 signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
 ellis_api_key="<%= @node[:clearwater][:ellis_api_key] %>"
 ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
+
+# Advanced options
+nonce_count_supported=Y

@@ -63,7 +63,8 @@ else
   ""
 end
 
-sprout_aliases = ["icscf.sprout." + domain,
+sprout_aliases = ["sprout." + domain,
+                  "icscf.sprout." + domain,
                   "icscf.sprout-site1." + domain,
                   "icscf.sprout-site2." + domain,
                   "scscf.sprout." + domain,

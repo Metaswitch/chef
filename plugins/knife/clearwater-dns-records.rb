@@ -39,6 +39,60 @@ require_relative 'boxes'
 def dns_records
   dns = {}
   base_dns = {
+    "cdiv.sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "cdiv.sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "cdiv.sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "memento.sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "memento.sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "memento.sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "gemini.sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "gemini.sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "gemini.sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
     "icscf.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
