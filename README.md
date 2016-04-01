@@ -3,14 +3,14 @@ Clearwater Chef
 
 This repository is for Chef recipes for Clearwater. It is based off of the template provided by opscode here: https://github.com/opscode/chef-repo
 
-Project Clearwater is an open-source IMS core, developed by [Metaswitch Networks](http://www.metaswitch.com) and released under the [GNU GPLv3](http://www.projectclearwater.org/download/license/). You can find more information about it on [our website](http://www.projectclearwater.org/) or [our wiki](http://clearwater.readthedocs.org/en/stable/index.html).
+Project Clearwater is an open-source IMS core, developed by [Metaswitch Networks](http://www.metaswitch.com) and released under the [GNU GPLv3](http://www.projectclearwater.org/download/license/). You can find more information about it on [our website](http://www.projectclearwater.org/) or [our wiki](http://clearwater.readthedocs.org/en/stable).
 
 For instructions on how to use Chef with Clearwater, see:
 
-* [Installing a Chef workstation](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_workstation/index.html)
-* [Installing a Chef server](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_server/index.html)
-* [Creating a deployment environment](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment/index.html)
-* [Creating a deployment with Chef](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_with_Chef/index.html)
+* [Installing a Chef workstation](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_workstation.html)
+* [Installing a Chef server](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_server.html)
+* [Creating a deployment environment](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment.html)
+* [Creating a deployment with Chef](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_with_Chef.html)
 
 The recommended workflow is to keep all Chef configuration under version control, and to update the Chef server from
 this configuration.
