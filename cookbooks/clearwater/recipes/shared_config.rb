@@ -71,8 +71,6 @@ sprout_aliases = ["sprout." + domain,
                   "scscf.sprout-site1." + domain,
                   "scscf.sprout-site2." + domain]
 
-enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
-
 template "/etc/clearwater/shared_config" do
   mode "0644"
   source "shared_config.erb"
@@ -90,7 +88,6 @@ template "/etc/clearwater/shared_config" do
             "ralf#{site_suffix}.#{domain}:10888"
           end,
     cdf: cdf,
-    enum: enum,
     hss: hss
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end

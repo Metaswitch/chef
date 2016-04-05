@@ -7,7 +7,7 @@ xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
 cdf_identity=<%= @cdf %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
-<% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
+enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 
 # Email server configuration
