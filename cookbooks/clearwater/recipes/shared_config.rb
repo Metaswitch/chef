@@ -78,13 +78,13 @@ for i in 1...number_of_sites
 end
 ralf_session_store = "#{ralf_session_store}\""
 
-sprout_aliases = ["sprout-icscf." + domain,
-                  "sprout-icscf-site1." + domain,
-                  "sprout-icscf-site2." + domain,
-                  "sprout-site1." + domain,
-                  "sprout-site2." + domain]
-
-enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
+sprout_aliases = ["sprout." + domain,
+                  "icscf.sprout." + domain,
+                  "icscf.sprout-site1." + domain,
+                  "icscf.sprout-site2." + domain,
+                  "scscf.sprout." + domain,
+                  "scscf.sprout-site1." + domain,
+                  "scscf.sprout-site2." + domain]
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
@@ -92,8 +92,7 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    sprout_icscf: "sprout-icscf#{site_suffix}.#{domain}",
-    scscf_uri: "sip:sprout#{site_suffix}.#{domain};transport=tcp",
+    sprout_icscf: "icscf.sprout#{site_suffix}.#{domain}",
     alias_list: if node.roles.include? "sprout"
                   sprout_aliases.join(",")
                 end,
@@ -104,7 +103,6 @@ template "/etc/clearwater/shared_config" do
             "ralf#{site_suffix}.#{domain}:10888"
           end,
     cdf: cdf,
-    enum: enum,
     hss: hss,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
