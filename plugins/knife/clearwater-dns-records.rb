@@ -93,6 +93,24 @@ def dns_records
       :ttl   => "60"
     },
 
+    "sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "sprout-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+    "sprout-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
     "icscf.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
