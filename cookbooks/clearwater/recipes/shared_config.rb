@@ -64,6 +64,8 @@ else
 end
 
 sprout_aliases = ["sprout." + domain,
+                  "sprout-site1." + domain,
+                  "sprout-site2." + domain,
                   "icscf.sprout." + domain,
                   "icscf.sprout-site1." + domain,
                   "icscf.sprout-site2." + domain,
