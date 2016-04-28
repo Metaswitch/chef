@@ -171,6 +171,12 @@ def dns_records
       :ttl   => "60"
     },
 
+   "_sip._tcp.sprout-site1" => {
+      :type  => "SRV",
+      :value => scscf_srv_site1(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
    "_sip._tcp.scscf.sprout-site2" => {
       :type  => "SRV",
       :value => scscf_srv_site2(find_active_nodes("sprout")),
@@ -180,6 +186,12 @@ def dns_records
    "_sip._tcp.icscf.sprout-site2" => {
       :type  => "SRV",
       :value => icscf_srv_site2(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+   "_sip._tcp.sprout-site2" => {
+      :type  => "SRV",
+      :value => scscf_srv_site2(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
