@@ -65,13 +65,7 @@ end
 
 sprout_aliases = ["sprout." + domain,
                   "sprout-site1." + domain,
-                  "sprout-site2." + domain,
-                  "icscf.sprout." + domain,
-                  "icscf.sprout-site1." + domain,
-                  "icscf.sprout-site2." + domain,
-                  "scscf.sprout." + domain,
-                  "scscf.sprout-site1." + domain,
-                  "scscf.sprout-site2." + domain]
+                  "sprout-site2." + domain]
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
