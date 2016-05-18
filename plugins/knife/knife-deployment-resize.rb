@@ -99,10 +99,6 @@ module ClearwaterKnifePlugins
       :long => "--start",
       :description => "Starts a new resize operation."
 
-    option :apply_shared_config,
-      :long => "--apply-shared-config",
-      :description => "Applies shared configuration after a resize operation"
-
     # Auto-scaling parameters
     #
     # Scaling limits calculated from scaling tests on m1.small EC2 instances.
@@ -295,12 +291,6 @@ module ClearwaterKnifePlugins
       delete_quiesced_boxes env
 
       update_ralf_hostname(config[:environment], config[:cloud].to_sym)
-
-      # Apply the shared configuration if requested
-      if config[:apply_shared_config]
-        Chef::Log.info "Applying shared configuration..."
-        SharedConfigUpdate.new("-E #{config[:environment]}".split).run
-      end
     end
   end
 end
