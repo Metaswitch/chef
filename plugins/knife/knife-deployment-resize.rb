@@ -35,7 +35,6 @@
 require_relative 'knife-clearwater-utils'
 require_relative 'knife-deployment-utils'
 require_relative 'trigger-chef-client'
-require_relative 'knife-shared-config-update'
 
 module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
