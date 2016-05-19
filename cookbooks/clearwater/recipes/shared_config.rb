@@ -73,7 +73,6 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    sprout_icscf: "icscf.sprout#{site_suffix}.#{domain}",
     alias_list: if node.roles.include? "sprout"
                   sprout_aliases.join(",")
                 end,

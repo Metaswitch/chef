@@ -71,14 +71,6 @@ Chef will create DNS records for the nodes. This is done as part of the `deploym
 
 Project Clearwater is integrated with [Cacti](http://www.cacti.net/), an open source statistics and graphing solution. There are more details for setting up and using Cacti with a deployment [here](http://clearwater.readthedocs.org/en/stable/Cacti/index.html)
 
-# Shared config update
-
-To update the shared configuration on all nodes, run:
-
-    knife shared config update -E <env>
-
-This uploads the existing configuration from the first Sprout in the deployment (`/etc/clearwater/shared_configuration`, `/etc/clearwater/enum.json`, `/etc/clearwater/bgcf.json` and `/etc/clearwater/s-cscf.json`), then applies it on every node, restarting services as appropriate (so this is service impacting). 
-
 # Troubleshooting
 
 On all commands, you can add -V to print INFO level logs to the terminal (recommended), and -VV to print DEBUG logs to the terminal. When a box is created though the `deployment resize` command, the commands run on that box are logged to `<chef checkout>/logs/<environment>-<role>-<index>-bootstrap-<date>.log`.

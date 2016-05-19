@@ -31,8 +31,8 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
 
 # P-CSCF configuration
-<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %>
-<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %>
+<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %><% end %>
+<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %><% end %>
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 
 # Sproutlet configuration
