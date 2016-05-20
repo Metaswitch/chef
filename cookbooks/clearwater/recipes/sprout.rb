@@ -47,9 +47,3 @@ domain = if node[:clearwater][:use_subdomain]
          else
            node[:clearwater][:root_domain]
          end
-
-template "/etc/clearwater/s-cscf.json" do
-  mode "0644"
-  source "sprout/s-cscf.erb"
-  variables domain: domain
-end

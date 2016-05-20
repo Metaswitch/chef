@@ -28,6 +28,7 @@ To create or resize a deployment, run:
 You can optionally add:
 
 * `--<box-type>-count` - This controls how many of each box type is created. As the default, chef creates one each of a Bono, Sprout, Homer, Homestead and Ellis.
+* `--scscf-only` - This spins up the deployment with I-CSCF function disabled.
 
 As well as passing in parameters to the `deployment resize` command, you can also set options in the `override_attributes` section of the environment file. The available options are discussed [here](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment/index.html#creating-the-environment); the notable ones are:
 
@@ -70,14 +71,6 @@ Chef will create DNS records for the nodes. This is done as part of the `deploym
 # Cacti
 
 Project Clearwater is integrated with [Cacti](http://www.cacti.net/), an open source statistics and graphing solution. There are more details for setting up and using Cacti with a deployment [here](http://clearwater.readthedocs.org/en/stable/Cacti/index.html)
-
-# Shared config update
-
-To update the shared configuration on all nodes, run:
-
-    knife shared config update -E <env>
-
-This uploads the existing configuration from the first Sprout in the deployment (`/etc/clearwater/shared_configuration`, `/etc/clearwater/enum.json`, `/etc/clearwater/bgcf.json` and `/etc/clearwater/s-cscf.json`), then applies it on every node, restarting services as appropriate (so this is service impacting). 
 
 # Troubleshooting
 
