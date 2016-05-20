@@ -262,7 +262,7 @@ module ClearwaterKnifePlugins
           s_node.run_list << "role[shared_config]"
 
           if config[:scscf_only]
-            s_node.set[:clearwater][:upstream_hostname] = "sip:scscf.$sprout_hostname:5054;transport=tcp"
+            s_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
             s_node.set[:clearwater][:upstream_port] = 5054
             s_node.set[:clearwater][:icscf] = 0
           end
