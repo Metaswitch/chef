@@ -98,6 +98,10 @@ module ClearwaterKnifePlugins
       :long => "--start",
       :description => "Starts a new resize operation."
 
+    option :scscf_only,
+      :long => "--scscf-only",
+      :description => "Spins up the deployment with I-CSCF disabled."
+
     # Auto-scaling parameters
     #
     # Scaling limits calculated from scaling tests on m1.small EC2 instances.
@@ -256,6 +260,13 @@ module ClearwaterKnifePlugins
 
         for s_node in s_nodes
           s_node.run_list << "role[shared_config]"
+
+          if config[:scscf_only]
+            s_node.set[:clearwater][:upstream_hostname] = "sip:scscf.$sprout_hostname:5054;transport=tcp"
+            s_node.set[:clearwater][:upstream_port] = 5054
+            s_node.set[:clearwater][:icscf] = 0
+          end
+
           s_node.save
         end
 

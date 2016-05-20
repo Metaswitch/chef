@@ -28,6 +28,7 @@ To create or resize a deployment, run:
 You can optionally add:
 
 * `--<box-type>-count` - This controls how many of each box type is created. As the default, chef creates one each of a Bono, Sprout, Homer, Homestead and Ellis.
+* `--scscf-only` - This spins up the deployment with I-CSCF function disabled.
 
 As well as passing in parameters to the `deployment resize` command, you can also set options in the `override_attributes` section of the environment file. The available options are discussed [here](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment/index.html#creating-the-environment); the notable ones are:
 
