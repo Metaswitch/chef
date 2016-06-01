@@ -294,6 +294,15 @@ def dns_records
     },
   }
 
+  hss_dns = {
+    "hss" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("openimscorehss")),
+      :ttl   => "60"
+    },
+  }
+
+
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
     dns = dns.merge(bono_dns)
@@ -306,6 +315,9 @@ def dns_records
   end
   if find_active_nodes("seagull").length > 0
     dns = dns.merge(seagull_dns)
+  end
+  if find_active_nodes("openimscorehss").length > 0
+    dns = dns.merge(hss_dns)
   end
 
   return dns
