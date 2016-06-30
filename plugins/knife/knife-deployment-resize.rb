@@ -35,7 +35,6 @@
 require_relative 'knife-clearwater-utils'
 require_relative 'knife-deployment-utils'
 require_relative 'trigger-chef-client'
-require_relative 'knife-shared-config-update'
 
 module ClearwaterKnifePlugins
   class DeploymentResize < Chef::Knife
@@ -99,9 +98,9 @@ module ClearwaterKnifePlugins
       :long => "--start",
       :description => "Starts a new resize operation."
 
-    option :apply_shared_config,
-      :long => "--apply-shared-config",
-      :description => "Applies shared configuration after a resize operation"
+    option :scscf_only,
+      :long => "--scscf-only",
+      :description => "Spins up the deployment with I-CSCF disabled."
 
     # Auto-scaling parameters
     #
@@ -261,6 +260,13 @@ module ClearwaterKnifePlugins
 
         for s_node in s_nodes
           s_node.run_list << "role[shared_config]"
+
+          if config[:scscf_only]
+            s_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
+            s_node.set[:clearwater][:upstream_port] = 5054
+            s_node.set[:clearwater][:icscf] = 0
+          end
+
           s_node.save
         end
 
@@ -295,12 +301,6 @@ module ClearwaterKnifePlugins
       delete_quiesced_boxes env
 
       update_ralf_hostname(config[:environment], config[:cloud].to_sym)
-
-      # Apply the shared configuration if requested
-      if config[:apply_shared_config]
-        Chef::Log.info "Applying shared configuration..."
-        SharedConfigUpdate.new("-E #{config[:environment]}".split).run
-      end
     end
   end
 end

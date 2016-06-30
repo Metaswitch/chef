@@ -79,12 +79,8 @@ end
 ralf_session_store = "#{ralf_session_store}\""
 
 sprout_aliases = ["sprout." + domain,
-                  "icscf.sprout." + domain,
-                  "icscf.sprout-site1." + domain,
-                  "icscf.sprout-site2." + domain,
-                  "scscf.sprout." + domain,
-                  "scscf.sprout-site1." + domain,
-                  "scscf.sprout-site2." + domain]
+                  "sprout-site1." + domain,
+                  "sprout-site2." + domain]
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
@@ -92,7 +88,6 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    sprout_icscf: "icscf.sprout#{site_suffix}.#{domain}",
     alias_list: if node.roles.include? "sprout"
                   sprout_aliases.join(",")
                 end,

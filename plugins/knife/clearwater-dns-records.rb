@@ -57,6 +57,12 @@ def dns_records
       :ttl   => "60"
     },
 
+    "sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
     "icscf.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
@@ -136,6 +142,12 @@ def dns_records
         "_sip._tcp.icscf.sprout-site#{i}" => {
           :type  => "SRV",
           :value => icscf_srv_site(find_active_nodes("sprout"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "_sip._tcp.sprout-site#{i}" => {
+          :type  => "SRV",
+          :value => scscf_srv_site(find_active_nodes("sprout"), i, number_of_sites),
           :ttl   => "60"
         },
 
@@ -219,6 +231,15 @@ def dns_records
     },
   }
 
+  hss_dns = {
+    "hss" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("openimscorehss")),
+      :ttl   => "60"
+    },
+  }
+
+
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
     dns = dns.merge(bono_dns)
@@ -231,6 +252,9 @@ def dns_records
   end
   if find_active_nodes("seagull").length > 0
     dns = dns.merge(seagull_dns)
+  end
+  if find_active_nodes("openimscorehss").length > 0
+    dns = dns.merge(hss_dns)
   end
 
   return dns
