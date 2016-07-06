@@ -61,26 +61,31 @@ end
 
 site_suffix = if number_of_sites > 1
   site_index = node[:clearwater][:index] % number_of_sites
+  if site_index == 0
+    site_index = number_of_sites
+  end
   "-site#{site_index}"
 else
   ""
 end
 
-sprout_registration_store = "\"site0=sprout-site0.#{domain}"
-for i in 1...number_of_sites
+sprout_registration_store = "\"site1=sprout-site1.#{domain}"
+for i in 2..number_of_sites
   sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
 end
 sprout_registration_store = "#{sprout_registration_store}\""
 
-ralf_session_store = "\"site0=ralf-site0.#{domain}"
-for i in 1...number_of_sites
+ralf_session_store = "\"site1=ralf-site1.#{domain}"
+for i in 2..number_of_sites
   ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
 end
 ralf_session_store = "#{ralf_session_store}\""
 
-sprout_aliases = ["sprout." + domain,
-                  "sprout-site1." + domain,
-                  "sprout-site2." + domain]
+sprout_aliases = ["sprout." + domain]
+
+for i in 1..number_of_sites
+  sprout_aliases.push("sprout-site#{i}." + domain)
+end
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
@@ -101,7 +106,9 @@ template "/etc/clearwater/shared_config" do
     hss: hss,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
-    memento_auth_store: "sprout#{site_suffix}.#{domain}"
+    memento_auth_store: "sprout#{site_suffix}.#{domain}",
+    scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
+    upstream_port: 0
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

@@ -51,15 +51,18 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   # Set up an array of all the sites.
   sites = Array.new(number_of_sites)
   for i in 0...number_of_sites
-      sites[i] = "site#{i}"
+      sites[i] = "site#{i+1}"
   end
 
   # Work out which site this node is in based on its index.
   local_site_index = node[:clearwater][:index] % number_of_sites
-  local_site = sites[local_site_index]
+  if local_site_index == 0
+    local_site_index = number_of_sites
+  end
+  local_site = sites[local_site_index - 1]
 
   # Remove the local site to get the list of remote sites.
-  sites.delete_at(local_site_index)
+  sites.delete_at(local_site_index - 1)
   remote_sites = sites.join(",")
 
   # List all nodes in the remote sites as the remote_cassandra_nodes. This means
@@ -68,6 +71,9 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   remote_cassandra_nodes = nodes.select do |n|
     if n[:clearwater] && n[:clearwater][:index] && n[:roles]
       site_index = n[:clearwater][:index] % number_of_sites
+      if site_index == 0
+        site_index = number_of_sites
+      end
       site_index != local_site_index && n[:roles].sort == node[:roles].sort
     end
   end
@@ -77,6 +83,9 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   etcd = nodes.select do |n|
     if n[:clearwater] && n[:clearwater][:index]
       site_index = n[:clearwater][:index] % number_of_sites
+      if site_index == 0
+        site_index = number_of_sites
+      end
       n[:clearwater][:etcd_cluster] && site_index == local_site_index
     end
   end

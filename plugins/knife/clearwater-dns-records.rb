@@ -107,7 +107,7 @@ def dns_records
 
   if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
     number_of_sites = attributes["num_gr_sites"]
-    for i in 0...number_of_sites
+    for i in 1..number_of_sites
       base_gr_dns = {
         "hs-site#{i}" => {
           :type  => "A",
@@ -118,6 +118,12 @@ def dns_records
         "homer-site#{i}" => {
           :type  => "A",
           :value => ipv4s_local_site(find_active_nodes("homer"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "sprout-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("sprout"), i, number_of_sites),
           :ttl   => "60"
         },
 
@@ -191,7 +197,7 @@ def dns_records
 
   if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
     number_of_sites = attributes["num_gr_sites"]
-    for i in 0...number_of_sites
+    for i in 1..number_of_sites
       ralf_gr_dns = {
         "ralf-site#{i}" => {
           :type  => "A",
@@ -261,7 +267,7 @@ def dns_records
 end
 
 def in_site?(n, site, number_of_sites)
-  (n[:clearwater][:index] || 1) % number_of_sites == site
+  (n[:clearwater][:index] || 1) % number_of_sites == (site % number_of_sites)
 end
 
 def ipv4s(boxes)
