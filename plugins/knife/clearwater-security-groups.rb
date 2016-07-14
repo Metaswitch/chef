@@ -287,6 +287,17 @@ def reformat_custom_groups(map)
   end).flatten
 end
 
+def database_node_security_group_rules
+  [
+    # Astaire/Memcached
+    { ip_protocol: :tcp, min: 11311, max: 11311, group: "base" },
+    # Chronos
+    { ip_protocol: :tcp, min: 7253, max: 7253, group: "base" },
+    # Cassandra
+    { ip_protocol: :tcp, min: 9160, max: 9160, group: "base" },
+  ]
+end
+
 def clearwater_security_groups(extra_internal_sip_groups)
   {
     "base" => base_security_group_rules,
@@ -309,6 +320,7 @@ def clearwater_security_groups(extra_internal_sip_groups)
     "sipp" => sipp_security_group_rules,
     "hss" => hss_security_group_rules,
     "cw_aio" => cw_aio_security_group_rules,
-    "seagull" => seagull_security_group_rules
+    "seagull" => seagull_security_group_rules,
+    "database" => database_node_security_group_rules
   }
 end
