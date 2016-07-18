@@ -295,6 +295,10 @@ def database_node_security_group_rules
     { ip_protocol: :tcp, min: 7253, max: 7253, group: "base" },
     # Cassandra
     { ip_protocol: :tcp, min: 9160, max: 9160, group: "base" },
+    # Etcd
+    { ip_protocol: :tcp, min: 2380, max: 2380, group: "base" },
+    # Poll Etcd
+    { ip_protocol: :tcp, min: 4000, max: 4000, group: "base" },
   ]
 end
 
