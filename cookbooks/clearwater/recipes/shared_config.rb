@@ -83,7 +83,8 @@ template "/etc/clearwater/shared_config" do
             "ralf#{site_suffix}.#{domain}:10888"
           end,
     cdf: cdf,
-    hss: hss
+    hss: hss,
+    database: "database#{site_suffix}.#{domain}"
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

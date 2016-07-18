@@ -10,6 +10,13 @@ sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 
+# Storage Pool
+cassandra_hostname=<%= @database %>
+chronos_hostname=<%= @database %>
+ralf_session_store=single_site=<%= @database %>
+sprout_registration_store=single_site=<%= @database %>
+sprout_impi_store=<%= @database %>
+
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
 smtp_username=<%= @node[:clearwater][:smtp_username] %>
