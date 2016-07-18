@@ -31,8 +31,8 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 # CDF configuration
 <% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
 
-# Database configuration
-cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
+# Old? Database configuration
+# cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
