@@ -302,6 +302,13 @@ def dns_records
     },
   }
 
+  database_dns = {
+    "database" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("database")),
+      :ttl   => "60"
+    },
+  }
 
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
@@ -318,6 +325,9 @@ def dns_records
   end
   if find_active_nodes("openimscorehss").length > 0
     dns = dns.merge(hss_dns)
+  end
+  if find_active_nodes("database").length > 0
+    dns = dns.merge(database_dns)
   end
 
   return dns

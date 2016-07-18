@@ -62,6 +62,7 @@ module Clearwater
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},
         {:name => "mangelwurzel", :security_groups => ["base", "internal-sip"]},
         {:name => "seagull", :security_groups => ["base", "seagull"]},
+        {:name => "database", :security_groups => ["base", "internal-sip", "database"]},
       ])
       raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
       @cloud = cloud

@@ -54,7 +54,7 @@ module ClearwaterKnifePlugins
       DnsRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp ralf database}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              description: "Number of #{node} nodes to launch",
@@ -175,7 +175,7 @@ module ClearwaterKnifePlugins
       calculate_box_counts(config) if config[:subscribers]
 
       # Initialize status object
-      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf"], ["seagull"])
+      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "database"], ["seagull"])
 
       # Create security groups
       configure_security_groups(config, SecurityGroupsCreate)
@@ -198,10 +198,11 @@ module ClearwaterKnifePlugins
         sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
         sipp: config[:sipp_count] || old_counts[:sipp],
-        seagull: seagull_count || old_counts[:seagull] }
+        seagull: seagull_count || old_counts[:seagull],
+        database: config[:database_count] || [old_counts[:database], 1].max }
 
       # Confirm changes if there are any
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database"]
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
@@ -234,7 +235,7 @@ module ClearwaterKnifePlugins
       # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|node_type, count| count == 0 }
         Chef::Log.info "Initializing etcd cluster"
-        %w{sprout ralf homer homestead bono ellis}.each do |node|
+        %w{database}.each do |node|
           # Get the list of nodes and iterate over them adding the
           # etcd_cluster attribute
           cluster = find_nodes(roles: node)
