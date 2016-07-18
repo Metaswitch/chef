@@ -35,7 +35,8 @@
 name "database"
 description "database role"
 run_list [
-  "role[clearwater-base]",
+  "role[chef-base]",
+  "role[database_local_config]",
   "role[alarms]",
   "recipe[clearwater::database]",
   "role[clearwater-etcd]"
