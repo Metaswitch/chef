@@ -109,7 +109,8 @@ module ClearwaterKnifePlugins
         "homer" => ["homer"],
         "ralf" => ["ralf", "chronos", "astaire"],
         "homestead" => ["homestead"],
-        "sprout" => ["sprout", "sprout-libs", "chronos", "memento", "astaire"]
+        "sprout" => ["sprout", "sprout-libs", "chronos", "memento", "astaire"],
+        "database" => ["chronos", "astaire"]
       }
     end
 
