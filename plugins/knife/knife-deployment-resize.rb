@@ -199,7 +199,7 @@ module ClearwaterKnifePlugins
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
         sipp: config[:sipp_count] || old_counts[:sipp],
         seagull: seagull_count || old_counts[:seagull] }
-        if attributes["split-storage"]
+        if attributes["split_storage"]
           new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
         end
 
@@ -237,13 +237,26 @@ module ClearwaterKnifePlugins
       # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|node_type, count| count == 0 }
         Chef::Log.info "Initializing etcd cluster"
-        %w{database}.each do |node|
-          # Get the list of nodes and iterate over them adding the
-          # etcd_cluster attribute
-          cluster = find_nodes(roles: node)
-          cluster.each do |s|
-            s.set[:clearwater][:etcd_cluster] = true
-            s.save
+
+        if attributes["split_storage"]
+          %w{database}.each do |node|
+            # Get the list of nodes and iterate over them adding the
+            # etcd_cluster attribute
+            cluster = find_nodes(roles: node)
+            cluster.each do |s|
+              s.set[:clearwater][:etcd_cluster] = true
+              s.save
+            end
+          end
+        else
+          %w{sprout ralf homer homestead bono ellis}.each do |node|
+            # Get the list of nodes and iterate over them adding the
+            # etcd_cluster attribute
+            cluster = find_nodes(roles: node)
+            cluster.each do |s|
+              s.set[:clearwater][:etcd_cluster] = true
+              s.save
+            end
           end
         end
 

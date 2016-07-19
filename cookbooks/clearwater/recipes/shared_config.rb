@@ -63,6 +63,12 @@ else
   ""
 end
 
+if node[:clearwater][:split_storage]
+  database = "database#{site_suffix}.#{domain}"
+else
+  database = nil
+end
+
 sprout_aliases = ["sprout." + domain,
                   "sprout-site1." + domain,
                   "sprout-site2." + domain]
@@ -84,7 +90,7 @@ template "/etc/clearwater/shared_config" do
           end,
     cdf: cdf,
     hss: hss,
-    database: "database#{site_suffix}.#{domain}"
+    database: database
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 
