@@ -118,7 +118,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull database}.each do |node|
         result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
       end
       return result
@@ -198,8 +198,10 @@ module ClearwaterKnifePlugins
         sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
         sipp: config[:sipp_count] || old_counts[:sipp],
-        seagull: seagull_count || old_counts[:seagull],
-        database: config[:database_count] || [old_counts[:database], 1].max }
+        seagull: seagull_count || old_counts[:seagull] }
+        if attributes["split-storage"]
+          new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
+        end
 
       # Confirm changes if there are any
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database"]
