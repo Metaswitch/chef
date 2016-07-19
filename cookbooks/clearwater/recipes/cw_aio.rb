@@ -36,5 +36,5 @@
 
 execute "install-clearwater-aio" do
   user "root"
-  command "curl -L https://raw.githubusercontent.com/Metaswitch/clearwater-infrastructure/master/scripts/clearwater-aio-install.sh | sudo bash -s clearwater-auto-config-aws #{node[:clearwater][:repo_servers].first} #{node[:clearwater][:number_start]} #{node[:clearwater][:number_count]}"
+  command "curl -L https://raw.githubusercontent.com/Metaswitch/clearwater-infrastructure/master/scripts/clearwater-aio-install.sh | sudo bash -s clearwater-auto-config-aws #{node[:clearwater][:repo_servers].first} #{node[:clearwater][:repo_servers].first} #{node[:clearwater][:number_start]} #{node[:clearwater][:number_count]}"
 end
