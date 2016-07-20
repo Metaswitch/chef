@@ -63,6 +63,7 @@ module Clearwater
         {:name => "mangelwurzel", :security_groups => ["base", "internal-sip"]},
         {:name => "seagull", :security_groups => ["base", "seagull"]},
         {:name => "database", :security_groups => ["base", "internal-sip", "database"]},
+        {:name => "ralfstead", :security_groups => ["base", "internal-sip", "homestead", "ralf"]},
       ])
       raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
       @cloud = cloud

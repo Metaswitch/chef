@@ -54,7 +54,7 @@ module ClearwaterKnifePlugins
       DnsRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout sipp ralf database}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp ralf database ralfstead}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              description: "Number of #{node} nodes to launch",
@@ -118,7 +118,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull database}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull database ralfstead}.each do |node|
         result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
       end
       return result
@@ -175,7 +175,7 @@ module ClearwaterKnifePlugins
       calculate_box_counts(config) if config[:subscribers]
 
       # Initialize status object
-      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "database"], ["seagull"])
+      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "database", "ralfstead"], ["seagull"])
 
       # Create security groups
       configure_security_groups(config, SecurityGroupsCreate)
@@ -201,10 +201,12 @@ module ClearwaterKnifePlugins
         seagull: seagull_count || old_counts[:seagull] }
         if attributes["split_storage"]
           new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
+          new_counts.delete(:homestead)
+          new_counts[:ralfstead] = config[:ralfstead_count] || [old_counts[:ralfstead], 1].max
         end
 
       # Confirm changes if there are any
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database", "ralfstead"]
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
