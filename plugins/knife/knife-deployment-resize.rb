@@ -129,7 +129,7 @@ module ClearwaterKnifePlugins
 
       changed_nodes = []
 
-      %w{bono ibcf sprout ralf}.each do |node_type|
+      %w{bono ibcf sprout ralf ralfstead}.each do |node_type|
         find_nodes(roles: "chef-base", role: node_type).each do |node|
           has_ralf = node[:clearwater][:ralf]
           Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
@@ -267,28 +267,34 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]}")
 
         # Create and upload the shared configuration. This should just be done
-        # on a single node in each site. We choose the first Sprout.
-        sprouts = find_nodes(roles: 'sprout')
-        sprouts.sort_by! { |n| n[:clearwater][:index] }
-        if attributes["gr"]
-          s_nodes = sprouts[0..1]
+        # on a single node in each site. We choose the first Sprout or Database,
+        # depending on deployment architecture.
+        if attributes["split_storage"]
+          nodes = find_nodes(roles: 'database')
         else
-          s_nodes = sprouts[0..0]
+          nodes = find_nodes(roles: 'sprout')
         end
 
-        for s_node in s_nodes
-          s_node.run_list << "role[shared_config]"
+        nodes.sort_by! { |n| n[:clearwater][:index] }
+        if attributes["gr"]
+          config_nodes = nodes[0..1]
+        else
+          config_nodes = nodes[0..0]
+        end
+
+        for config_node in config_nodes
+          config_node.run_list << "recipe[clearwater::shared_config]"
 
           if config[:scscf_only]
-            s_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
-            s_node.set[:clearwater][:upstream_port] = 5054
-            s_node.set[:clearwater][:icscf] = 0
+            config_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
+            config_node.set[:clearwater][:upstream_port] = 5054
+            config_node.set[:clearwater][:icscf] = 0
           end
 
-          s_node.save
+          config_node.save
         end
 
-        query_strings = s_nodes.map { |n| "name:#{n.name}" }
+        query_strings = config_nodes.map { |n| "name:#{n.name}" }
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end

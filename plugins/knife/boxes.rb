@@ -279,7 +279,7 @@ module Clearwater
       # Add ralf/seagull configuration - this will affect /etc/clearwater/config
       # on non-ralf/seagull nodes
       knife_create.config[:json_attributes][:clearwater][:seagull] = options[:seagull]
-      knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
+      knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf] || options[:ralfstead]
 
       # Finally, create box
       knife_create.run
