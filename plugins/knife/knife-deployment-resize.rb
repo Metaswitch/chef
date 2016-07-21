@@ -125,8 +125,11 @@ module ClearwaterKnifePlugins
     end
 
     def update_ralf_hostname environment, cloud
-      ralfs = find_nodes(roles: "chef-base", role: "ralf").length
-
+      if attributes["split_storage"]
+        ralfs = find_nodes(roles: "chef-base", role: "ralfstead").length
+      else
+        ralfs = find_nodes(roles: "chef-base", role: "ralf").length
+      end
       changed_nodes = []
 
       %w{bono ibcf sprout ralf ralfstead}.each do |node_type|
@@ -203,6 +206,7 @@ module ClearwaterKnifePlugins
           new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
           new_counts.delete(:homestead)
           new_counts[:ralfstead] = config[:ralfstead_count] || [old_counts[:ralfstead], 1].max
+          config[:ralfstead_count] = new_counts[:ralfstead]
         end
 
       # Confirm changes if there are any
