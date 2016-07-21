@@ -294,6 +294,7 @@ def database_node_security_group_rules
     # Chronos
     { ip_protocol: :tcp, min: 7253, max: 7253, group: "base" },
     # Cassandra
+    { ip_protocol: :tcp, min: 9888, max: 9888, group: "base" },
     { ip_protocol: :tcp, min: 9160, max: 9160, group: "base" },
     # Etcd
     { ip_protocol: :tcp, min: 2380, max: 2380, group: "base" },
