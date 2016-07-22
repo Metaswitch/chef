@@ -290,10 +290,12 @@ end
 def database_node_security_group_rules
   [
     # Astaire/Memcached
+    { ip_protocol: :tcp, min: 11211, max: 11211, group: "base" },
     { ip_protocol: :tcp, min: 11311, max: 11311, group: "base" },
     # Chronos
     { ip_protocol: :tcp, min: 7253, max: 7253, group: "base" },
     # Cassandra
+    { ip_protocol: :tcp, min: 7000, max: 7000, group: "base" },
     { ip_protocol: :tcp, min: 9888, max: 9888, group: "base" },
     { ip_protocol: :tcp, min: 9160, max: 9160, group: "base" },
     # Etcd
