@@ -81,31 +81,26 @@ default_attributes "clearwater" => {
   # Trusted SIP trunking peers to accept calls from. Specify an array of IP addresses.
   "trusted_peers" => [],
 
-  #
-  # The following values should be set in knife.rb; we copy them into
-  # the role here.
-  #
-
   # Signup key. Anyone with this key can create accounts
   # on the deployment. Set to a secure value.
-  "signup_key"      => Chef::Config[:knife][:signup_key],
+  "signup_key"      => "CHANGE_ME_IN_THE_ENVIRONMENT",
 
   # TURN workaround password, used by faulty WebRTC clients.
   # Anyone with this password can use the deployment to send
   # arbitrary amounts of data. Set to a secure value.
-  "turn_workaround" => Chef::Config[:knife][:turn_workaround],
+  "turn_workaround" => "CHANGE_ME_IN_THE_ENVIRONMENT",
 
   # Ellis API key. Used by internal scripts and live tests to
   # provision, update and delete user accounts without a password.
   # Set to a secure value.
-  "ellis_api_key"  => Chef::Config[:knife][:ellis_api_key],
+  "ellis_api_key"  => "CHANGE_ME_IN_THE_ENVIRONMENT",
 
   # Ellis cookie key. Used to prevent spoofing of Ellis cookies. Set
   # to a secure value.
-  "ellis_cookie_key" => Chef::Config[:knife][:ellis_cookie_key],
+  "ellis_cookie_key" => "CHANGE_ME_IN_THE_ENVIRONMENT",
 
   # Secret keys for Homestead-stored passwords. Set to a secure value.
-  "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key],
+  "homestead_password_encryption_key" => "CHANGE_ME_IN_THE_ENVIRONMENT",
 
   # Cassandra hostname for both homer and homestead.
   "cassandra_hostname" => "localhost",
@@ -116,14 +111,14 @@ default_attributes "clearwater" => {
 
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
-  "smtp_server"     => Chef::Config[:knife][:smtp_server],
-  "smtp_username"   => Chef::Config[:knife][:smtp_username],
-  "smtp_password"   => Chef::Config[:knife][:smtp_password],
+  "smtp_server"     => "localhost",
+  "smtp_username"   => "",
+  "smtp_password"   => "",
 
   # Sender to use for password recovery emails. For some
   # SMTP servers (e.g., Amazon SES) this email address
   # must be validated or email sending will fail.
-  "email_sender"    => Chef::Config[:knife][:email_sender],
+  "email_sender"    => "nobody@example.com",
 
   # DNS server configuration - internal subnet to forward requests from and
   # DNS forwarder to use when doing so.
