@@ -125,11 +125,7 @@ module ClearwaterKnifePlugins
     end
 
     def update_ralf_hostname environment, cloud
-      if attributes["split_storage"]
-        ralfs = find_nodes(roles: "chef-base", role: "ralfstead").length
-      else
-        ralfs = find_nodes(roles: "chef-base", role: "ralf").length
-      end
+      ralfs = find_nodes(roles: "chef-base", role: "ralf").length
       changed_nodes = []
 
       %w{bono ibcf sprout ralf ralfstead}.each do |node_type|
