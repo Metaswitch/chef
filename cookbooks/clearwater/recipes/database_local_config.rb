@@ -42,19 +42,9 @@ end
 
 # Set up the local config file
 
-# Determine GR site names
-if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    local_site = "odd_numbers"
-    remote_site = "even_numbers"
-  else
-    local_site = "even_numbers"
-    remote_site = "odd_numbers"
-  end
-else
-  local_site = "single_site"
-  remote_site = ""
-end
+# GR setup not currently supported
+local_site = "single_site"
+remote_site = ""
 
 # Find all nodes in the deployment that have been marked as part of the etcd cluster.
 nodes = search(:node, "chef_environment:#{node.chef_environment}")
