@@ -64,9 +64,9 @@ else
 end
 
 if node[:clearwater][:split_storage]
-  database = "database#{site_suffix}.#{domain}"
+  database = "database.#{domain}"
   # We have ralfsteads
-  ralf = "ralf#{site_suffix}.#{domain}:10888"
+  ralf = "ralf.#{domain}:10888"
 else
   database = nil
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))

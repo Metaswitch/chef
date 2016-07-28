@@ -226,13 +226,13 @@ def dns_records
       :ttl   => "60"
     },
 
-   "hs-site1" => {
+    "hs-site1" => {
       :type  => "A",
       :value => ipv4s_local_site1(find_active_nodes("homestead")),
       :ttl   => "60"
     },
 
-   "hs-site2" => {
+    "hs-site2" => {
       :type  => "A",
       :value => ipv4s_local_site2(find_active_nodes("homestead")),
       :ttl   => "60"

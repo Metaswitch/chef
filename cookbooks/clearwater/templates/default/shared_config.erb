@@ -10,7 +10,7 @@ sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 
-<% if not @database.nil? %>
+<% if @database %>
 # Storage Pool
 cassandra_hostname=<%= @database %>
 chronos_hostname=<%= @database %>

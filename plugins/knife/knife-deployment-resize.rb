@@ -167,6 +167,10 @@ module ClearwaterKnifePlugins
     end
 
     def run
+      if (attributes["split_storage"] and attributes["gr"])
+        abort("Unsupported configuration, split_storage and gr both true. Aborting process")
+      end
+
       Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
       Chef::Log.info "Starting resize operation"
 
@@ -201,6 +205,7 @@ module ClearwaterKnifePlugins
         if attributes["split_storage"]
           new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
           new_counts.delete(:homestead)
+          new_counts.delete(:ralf)
           new_counts[:ralfstead] = config[:ralfstead_count] || [old_counts[:ralfstead], 1].max
           config[:ralfstead_count] = new_counts[:ralfstead]
         end
@@ -271,15 +276,16 @@ module ClearwaterKnifePlugins
         # depending on deployment architecture.
         if attributes["split_storage"]
           nodes = find_nodes(roles: 'database')
+          nodes.sort_by! { |n| n[:clearwater][:index] }
+          config_nodes = nodes[0..0]
         else
           nodes = find_nodes(roles: 'sprout')
-        end
-
-        nodes.sort_by! { |n| n[:clearwater][:index] }
-        if attributes["gr"]
-          config_nodes = nodes[0..1]
-        else
-          config_nodes = nodes[0..0]
+          nodes.sort_by! { |n| n[:clearwater][:index] }
+          if attributes["gr"]
+            config_nodes = nodes[0..1]
+          else
+            config_nodes = nodes[0..0]
+          end
         end
 
         for config_node in config_nodes
@@ -324,7 +330,9 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Deleting quiesced boxes..."
       delete_quiesced_boxes env
 
-      update_ralf_hostname(config[:environment], config[:cloud].to_sym)
+      if not attributes["split_storage"]
+        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
+      end
     end
   end
 end
