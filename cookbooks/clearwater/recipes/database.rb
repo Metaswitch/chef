@@ -1,7 +1,7 @@
-# @file local_config.rb
+# @file database.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2015  Metaswitch Networks Ltd
+# Copyright (C) 2016  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,47 +32,32 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-# Setup the clearwater local config file
-directory "/etc/clearwater" do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
+package "chronos" do
+  action [:install]
+  options "--force-yes"
 end
 
-# Set up the local config file
-
-# Determine GR site names
-if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    local_site = "odd_numbers"
-    remote_site = "even_numbers"
-  else
-    local_site = "even_numbers"
-    remote_site = "odd_numbers"
-  end
-else
-  local_site = "single_site"
-  remote_site = ""
+package "clearwater-snmp-handler-chronos" do
+  action [:install]
+  options "--force-yes"
 end
 
-# Find all nodes in the deployment that have been marked as part of the etcd cluster.
-nodes = search(:node, "chef_environment:#{node.chef_environment}")
-etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-if node[:clearwater][:split_storage]
-  etcd_cluster_or_proxy = "etcd_proxy"
-else
-  etcd_cluster_or_proxy = "etcd_cluster"
+package "astaire" do
+  action [:install]
+  options "--force-yes"
 end
 
-# Create local_config
-template "/etc/clearwater/local_config" do
-    mode "0644"
-    source "local_config.erb"
-    variables node: node,
-              etcd_cluster_or_proxy: etcd_cluster_or_proxy,
-              etcd: etcd,
-              local_site: local_site,
-              remote_site: remote_site
+package "clearwater-snmp-handler-astaire" do
+  action [:install]
+  options "--force-yes"
+end
+
+package "clearwater-memcached" do
+  action [:install]
+  options "--force-yes"
+end
+
+package "clearwater-cassandra" do
+  action [:install]
+  options "--force-yes"
 end

@@ -195,47 +195,85 @@ def dns_records
       :ttl   => "60"
     },
 
+    "ellis" => {
+      :type => "A",
+      :value => ipv4s(find_active_nodes("ellis")),
+    },
+  }
+
+  homer_dns = {
+    "homer" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("homer")),
+      :ttl   => "60"
+    },
+    "homer-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("homer")),
+      :ttl   => "60"
+    },
+    "homer-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("homer")),
+      :ttl   => "60"
+    },
+  }
+
+  homestead_dns = {
     "hs" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("homestead")),
       :ttl   => "60"
     },
 
-    "homer" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-
-   "hs-site1" => {
+    "hs-site1" => {
       :type  => "A",
       :value => ipv4s_local_site1(find_active_nodes("homestead")),
       :ttl   => "60"
     },
 
-    "homer-site1" => {
+    "hs-site2" => {
       :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("homer")),
+      :value => ipv4s_local_site2(find_active_nodes("homestead")),
+      :ttl   => "60"
+    },
+  }
+
+  ralfstead_dns = {
+    "hs" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("ralfstead")),
+      :ttl   => "60"
+    },
+
+   "hs-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("ralfstead")),
       :ttl   => "60"
     },
 
    "hs-site2" => {
       :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homestead")),
+      :value => ipv4s_local_site2(find_active_nodes("ralfstead")),
       :ttl   => "60"
     },
 
-    "homer-site2" => {
+    "ralf" => {
       :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homer")),
+      :value => ipv4s_local(find_active_nodes("ralfstead")),
       :ttl   => "60"
     },
 
+    "ralf-site1" => {
+      :type  => "A",
+      :value => ipv4s_local_site1(find_active_nodes("ralfstead")),
+      :ttl   => "60"
+    },
 
-
-    "ellis" => {
-      :type => "A",
-      :value => ipv4s(find_active_nodes("ellis")),
+    "ralf-site2" => {
+      :type  => "A",
+      :value => ipv4s_local_site2(find_active_nodes("ralfstead")),
+      :ttl   => "60"
     },
   }
 
@@ -302,6 +340,13 @@ def dns_records
     },
   }
 
+  database_dns = {
+    "database" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("database")),
+      :ttl   => "60"
+    },
+  }
 
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
@@ -313,11 +358,23 @@ def dns_records
   if find_active_nodes("memento").length > 0
     dns = dns.merge(memento_dns)
   end
+  if find_active_nodes("homer").length > 0
+    dns = dns.merge(homer_dns)
+  end
   if find_active_nodes("seagull").length > 0
     dns = dns.merge(seagull_dns)
   end
   if find_active_nodes("openimscorehss").length > 0
     dns = dns.merge(hss_dns)
+  end
+  if find_active_nodes("homestead").length > 0
+    dns = dns.merge(homestead_dns)
+  end
+  if find_active_nodes("ralfstead").length > 0
+    dns = dns.merge(ralfstead_dns)
+  end
+  if find_active_nodes("database").length > 0
+    dns = dns.merge(database_dns)
   end
 
   return dns

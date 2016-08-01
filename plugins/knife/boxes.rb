@@ -49,11 +49,11 @@ module Clearwater
         {:name => "cw_ami", :security_groups => ["base", "cw_aio"], :public_ip => true},
         {:name => "bono", :security_groups => ["base", "internal-sip", "bono"], :public_ip => true},
         {:name => "ellis", :security_groups => ["base", "ellis"], :public_ip => true},
-        {:name => "homestead", :security_groups => ["base", "homestead"]},
-        {:name => "homer", :security_groups => ["base", "homer"]},
-        {:name => "sprout", :security_groups => ["base", "internal-sip", "sprout"]},
+        {:name => "homestead", :security_groups => ["base", "homestead", "database"]},
+        {:name => "homer", :security_groups => ["base", "homer", "database"]},
+        {:name => "sprout", :security_groups => ["base", "internal-sip", "sprout", "database"]},
         {:name => "ibcf", :security_groups => ["base", "internal-sip", "ibcf", "bono"]},
-        {:name => "ralf", :security_groups => ["base", "ralf"]},
+        {:name => "ralf", :security_groups => ["base", "ralf", "database"]},
         {:name => "dns", :security_groups => ["base", "dns"], :public_ip => true},
         {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
         {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},
@@ -62,6 +62,8 @@ module Clearwater
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},
         {:name => "mangelwurzel", :security_groups => ["base", "internal-sip"]},
         {:name => "seagull", :security_groups => ["base", "seagull"]},
+        {:name => "database", :security_groups => ["base", "internal-sip", "database"]},
+        {:name => "ralfstead", :security_groups => ["base", "internal-sip", "homestead", "ralf", "database"]},
       ])
       raise ArgumentError.new "cloud must be one of: #{@@supported_clouds.join ', '}. #{cloud} was passed" unless @@supported_clouds.include? cloud
       @cloud = cloud

@@ -54,7 +54,7 @@ module ClearwaterKnifePlugins
       DnsRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout sipp ralf}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp ralf database ralfstead}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              description: "Number of #{node} nodes to launch",
@@ -118,7 +118,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull database ralfstead}.each do |node|
         result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
       end
       return result
@@ -126,10 +126,9 @@ module ClearwaterKnifePlugins
 
     def update_ralf_hostname environment, cloud
       ralfs = find_nodes(roles: "chef-base", role: "ralf").length
-
       changed_nodes = []
 
-      %w{bono ibcf sprout ralf}.each do |node_type|
+      %w{bono ibcf sprout ralf ralfstead}.each do |node_type|
         find_nodes(roles: "chef-base", role: node_type).each do |node|
           has_ralf = node[:clearwater][:ralf]
           Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
@@ -168,6 +167,10 @@ module ClearwaterKnifePlugins
     end
 
     def run
+      if (attributes["split_storage"] and attributes["gr"])
+        abort("Unsupported configuration, split_storage and gr both true. Aborting process")
+      end
+
       Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
       Chef::Log.info "Starting resize operation"
 
@@ -175,7 +178,7 @@ module ClearwaterKnifePlugins
       calculate_box_counts(config) if config[:subscribers]
 
       # Initialize status object
-      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf"], ["seagull"])
+      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "database", "ralfstead"], ["seagull"])
 
       # Create security groups
       configure_security_groups(config, SecurityGroupsCreate)
@@ -199,9 +202,16 @@ module ClearwaterKnifePlugins
         ibcf: config[:ibcf_count] || old_counts[:ibcf],
         sipp: config[:sipp_count] || old_counts[:sipp],
         seagull: seagull_count || old_counts[:seagull] }
+        if attributes["split_storage"]
+          new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
+          new_counts.delete(:homestead)
+          new_counts.delete(:ralf)
+          new_counts[:ralfstead] = config[:ralfstead_count] || [old_counts[:ralfstead], 1].max
+          config[:ralfstead_count] = new_counts[:ralfstead]
+        end
 
       # Confirm changes if there are any
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database", "ralfstead"]
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
@@ -234,13 +244,26 @@ module ClearwaterKnifePlugins
       # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|node_type, count| count == 0 }
         Chef::Log.info "Initializing etcd cluster"
-        %w{sprout ralf homer homestead bono ellis}.each do |node|
-          # Get the list of nodes and iterate over them adding the
-          # etcd_cluster attribute
-          cluster = find_nodes(roles: node)
-          cluster.each do |s|
-            s.set[:clearwater][:etcd_cluster] = true
-            s.save
+
+        if attributes["split_storage"]
+          %w{database}.each do |node|
+            # Get the list of nodes and iterate over them adding the
+            # etcd_cluster attribute
+            cluster = find_nodes(roles: node)
+            cluster.each do |s|
+              s.set[:clearwater][:etcd_cluster] = true
+              s.save
+            end
+          end
+        else
+          %w{sprout ralf homer homestead bono ellis}.each do |node|
+            # Get the list of nodes and iterate over them adding the
+            # etcd_cluster attribute
+            cluster = find_nodes(roles: node)
+            cluster.each do |s|
+              s.set[:clearwater][:etcd_cluster] = true
+              s.save
+            end
           end
         end
 
@@ -249,28 +272,35 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]}")
 
         # Create and upload the shared configuration. This should just be done
-        # on a single node in each site. We choose the first Sprout.
-        sprouts = find_nodes(roles: 'sprout')
-        sprouts.sort_by! { |n| n[:clearwater][:index] }
-        if attributes["gr"]
-          s_nodes = sprouts[0..1]
+        # on a single node in each site. We choose the first Sprout or Database,
+        # depending on deployment architecture.
+        if attributes["split_storage"]
+          nodes = find_nodes(roles: 'database')
+          nodes.sort_by! { |n| n[:clearwater][:index] }
+          config_nodes = nodes[0..0]
         else
-          s_nodes = sprouts[0..0]
+          nodes = find_nodes(roles: 'sprout')
+          nodes.sort_by! { |n| n[:clearwater][:index] }
+          if attributes["gr"]
+            config_nodes = nodes[0..1]
+          else
+            config_nodes = nodes[0..0]
+          end
         end
 
-        for s_node in s_nodes
-          s_node.run_list << "role[shared_config]"
+        for config_node in config_nodes
+          config_node.run_list << "recipe[clearwater::shared_config]"
 
           if config[:scscf_only]
-            s_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
-            s_node.set[:clearwater][:upstream_port] = 5054
-            s_node.set[:clearwater][:icscf] = 0
+            config_node.set[:clearwater][:upstream_hostname] = "scscf.$sprout_hostname"
+            config_node.set[:clearwater][:upstream_port] = 5054
+            config_node.set[:clearwater][:icscf] = 0
           end
 
-          s_node.save
+          config_node.save
         end
 
-        query_strings = s_nodes.map { |n| "name:#{n.name}" }
+        query_strings = config_nodes.map { |n| "name:#{n.name}" }
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
       end
@@ -300,7 +330,9 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Deleting quiesced boxes..."
       delete_quiesced_boxes env
 
-      update_ralf_hostname(config[:environment], config[:cloud].to_sym)
+      if not attributes["split_storage"]
+        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
+      end
     end
   end
 end

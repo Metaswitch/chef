@@ -10,6 +10,22 @@ sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 
+<% if @database %>
+# Storage Pool
+cassandra_hostname=<%= @database %>
+chronos_hostname=<%= @database %>
+ralf_session_store=single_site=<%= @database %>
+sprout_registration_store=single_site=<%= @database %>
+sprout_impi_store=<%= @database %>
+<% else %>
+# Database configuration
+cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
+chronos_hostname=localhost
+ralf_session_store=single_site=localhost
+sprout_registration_store=single_site=localhost
+sprout_impi_store=localhost
+<% end %>
+
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
 smtp_username=<%= @node[:clearwater][:smtp_username] %>
@@ -23,9 +39,6 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 
 # CDF configuration
 <% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
-
-# Database configuration
-cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
