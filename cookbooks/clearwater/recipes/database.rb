@@ -32,39 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-if node[:clearwater][:split_storage]
-  package "atlas" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  package "chronos" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  package "clearwater-snmp-handler-chronos" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  package "astaire" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  package "clearwater-snmp-handler-astaire" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  package "clearwater-memcached" do
-    action [:install]
-    options "--force-yes"
-  end
-
-  package "clearwater-cassandra" do
-    action [:install]
-    options "--force-yes"
-  end
+package "atlas" do
+  action [:install]
+  options "--force-yes"
 end
