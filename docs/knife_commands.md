@@ -82,3 +82,9 @@ Another reason is that there's already been a box created with the same name. Yo
 
     knife client delete <box name> -E <env>
     knife node delete <box name> -E <env>
+
+Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.
+
+* Remember, if you make a change to the cookbooks on your chef workstation, you need to upload the updated cookbooks to the chef server for them to be used (`knife cookbooks upload clearwater`).
+* To see what cookbooks were provided to a node, look in `/var/chef/cache/cookbooks/clearwater/metadata.rb` on the node.
+* To see what cookbooks are currently on the chef server, run `knife cookbook download clearwater <your version number> -d <directory>`. This downloads the cookbooks to `directory`.
