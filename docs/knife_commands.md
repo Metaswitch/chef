@@ -74,7 +74,11 @@ Project Clearwater is integrated with [Cacti](http://www.cacti.net/), an open so
 
 # Troubleshooting
 
+## Logging
+
 On all commands, you can add -V to print INFO level logs to the terminal (recommended), and -VV to print DEBUG logs to the terminal. When a box is created though the `deployment resize` command, the commands run on that box are logged to `<chef checkout>/logs/<environment>-<role>-<index>-bootstrap-<date>.log`.
+
+## Authentication errors
 
 Sometimes, creating a box fails with an authentication error. If you hit this, check that your certificates have been set up correctly - see instructions [here](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_workstation/index.html#configure-the-chef-workstation-machine).
 
@@ -82,3 +86,11 @@ Another reason is that there's already been a box created with the same name. Yo
 
     knife client delete <box name> -E <env>
     knife node delete <box name> -E <env>
+
+## Incorrect cookbooks
+
+Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.
+
+* Remember, if you make a change to the cookbooks on your chef workstation, you need to upload the updated cookbooks to the chef server for them to be used (`knife cookbooks upload clearwater`).
+* To see what cookbooks were provided to a node, look in `/var/chef/cache/cookbooks/clearwater/` on the node.
+* To see what cookbooks are currently on the chef server, run `knife cookbook download clearwater <your version number> -d <directory>`. This downloads the cookbooks to `directory`.
