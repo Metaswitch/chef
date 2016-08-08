@@ -74,7 +74,11 @@ Project Clearwater is integrated with [Cacti](http://www.cacti.net/), an open so
 
 # Troubleshooting
 
+## Logging
+
 On all commands, you can add -V to print INFO level logs to the terminal (recommended), and -VV to print DEBUG logs to the terminal. When a box is created though the `deployment resize` command, the commands run on that box are logged to `<chef checkout>/logs/<environment>-<role>-<index>-bootstrap-<date>.log`.
+
+## Authentication errors
 
 Sometimes, creating a box fails with an authentication error. If you hit this, check that your certificates have been set up correctly - see instructions [here](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_workstation/index.html#configure-the-chef-workstation-machine).
 
@@ -82,6 +86,8 @@ Another reason is that there's already been a box created with the same name. Yo
 
     knife client delete <box name> -E <env>
     knife node delete <box name> -E <env>
+
+## Incorrect cookbooks
 
 Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.
 
