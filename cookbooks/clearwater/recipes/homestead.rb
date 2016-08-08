@@ -52,11 +52,6 @@ else
   end
 end
 
-package "clearwater-cassandra" do
-  action [:install]
-  options "--force-yes"
-end
-
 package "clearwater-snmp-handler-homestead" do
   action [:install]
   options "--force-yes"

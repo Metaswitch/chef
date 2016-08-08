@@ -1,4 +1,4 @@
-# @file database.rb
+# @file ralfstead.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2016  Metaswitch Networks Ltd
@@ -32,7 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "atlas-node" do
+package "janus-node" do
   action [:install]
   options "--force-yes"
 end
