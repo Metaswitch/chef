@@ -35,6 +35,8 @@
 name "ralfstead"
 description "ralfstead role"
 run_list [
-  "role[ralf]",
-  "role[homestead]"
+  "role[clearwater-base]",
+  "role[alarms]",
+  "recipe[clearwater::ralfstead]",
+  "role[clearwater-etcd]"
 ]
