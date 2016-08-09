@@ -46,10 +46,6 @@ else
     action [:install]
     options "--force-yes"
   end
-  package "homestead-node-prov" do
-    action [:install]
-    options "--force-yes"
-  end
 end
 
 package "clearwater-snmp-handler-homestead" do

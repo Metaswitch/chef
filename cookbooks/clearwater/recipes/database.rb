@@ -36,3 +36,7 @@ package "atlas-node" do
   action [:install]
   options "--force-yes"
 end
+package "homestead-prov-cassandra" do
+  action [:install]
+  options "--force-yes"
+end
