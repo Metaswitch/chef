@@ -32,14 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-if node[:clearwater][:split_storage]
-  package "janus" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  package "ralf-node" do
-    action [:install]
-    options "--force-yes"
-  end
+package "ralf-node" do
+  action [:install]
+  options "--force-yes"
 end
