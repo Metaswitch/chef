@@ -49,6 +49,8 @@ module ClearwaterKnifePlugins
       # provisioning APIs.
       sleep(rand * 5)
 
+      box_name = node_name_from_definition(environment, box[:role], box[:index])
+
       loop do
         begin
           box_create = BoxCreate.new("-E #{environment}".split)
@@ -61,11 +63,10 @@ module ClearwaterKnifePlugins
           box_create.config[:ralf] = (config[:ralf_count] and (config[:ralf_count] > 0))
           box_create.run(supported_boxes)
         rescue Exception => e
-          Chef::Log.error "Failed to create node: #{e}"
-          Chef::Log.debug e.backtrace
+          Chef::Log.warn "Possibly failed to create node for #{box_name}: #{e}"
+          Chef::Log.warn e.backtrace
         end
 
-        box_name = node_name_from_definition(environment, box[:role], box[:index])
         Chef::Log.debug "Checking successful creation of #{box_name}"
         begin
           node = Chef::Node.load(box_name)
@@ -76,10 +77,11 @@ module ClearwaterKnifePlugins
             Chef::Log.error "Failed to set roles for #{box_name}"
             delete_box(box_name, environment)
           end
-        rescue
-          Chef::Log.error "Failed to create node for #{box_name}"
-          clean_up_broken_client(box_name, environment)
+        rescue Exception => e
           @fail_count += 1
+          Chef::Log.error "Failed to create node for #{box_name} - #{e} - retry: #{fail_count}"
+          Chef::Log.error e.backtrace
+          clean_up_broken_client(box_name, environment)
         end
 
         # Bail out if we've hit too many failures across the worker threads
@@ -93,6 +95,7 @@ module ClearwaterKnifePlugins
     def clean_up_broken_client(box_name, environment)
       client = find_clients(name: box_name)
       client.each do
+        Chef::Log.info "Found broken client #{client} for #{box_name} in #{environment}"
         client_delete = Chef::Knife::ClientDelete.new
         client_delete.name_args = [box_name]
         client_delete.config[:yes] = true
@@ -103,6 +106,7 @@ module ClearwaterKnifePlugins
 
     # Delete a box
     def delete_box(box_name, env)
+      Chef::Log.info "Deleting box #{box_name} in #{env}"
       box_delete = BoxDelete.new("-E #{env}".split)
       box_delete.name_args = [box_name]
       box_delete.config[:yes] = true
