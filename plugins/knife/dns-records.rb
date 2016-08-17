@@ -114,8 +114,8 @@ module Clearwater
       begin
         record = zone.records.get(name(options), options[:type])
       rescue Fog::DNS::AWS::Error => e
+        Chef::Log.warn "Hit error getting DNS records: #{e} - backing off for 30 seconds and retrying"
         sleep 30
-        Chef::Log.warn "Hit error getting DNS records: #{e} - backing off for 30 seconds"
         record = zone.records.get(name(options), options[:type])
       end
 

@@ -282,7 +282,13 @@ module Clearwater
       knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
       # Finally, create box
-      knife_create.run
+      begin
+        knife_create.run
+      rescue Fog::Compute::AWS::Error => e
+        Chef::Log.warn "Hit error creating box: #{e} - backing off for 30 seconds and retrying"
+        sleep 30
+        knife_create.run
+      end
       return knife_create.server
     end
 
