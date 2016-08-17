@@ -111,7 +111,13 @@ module Clearwater
     private
 
     def find_by_name_and_type(options)
-      record = zone.records.get(name(options), options[:type])
+      begin
+        record = zone.records.get(name(options), options[:type])
+      rescue Fog::DNS::AWS::Error => e
+        sleep 30
+        Chef::Log.warn "Hit error getting DNS records: #{e} - backing off for 30 seconds"
+        record = zone.records.get(name(options), options[:type])
+      end
 
       # Sleep to comply with Route53 rate-limit
       sleep(1)
