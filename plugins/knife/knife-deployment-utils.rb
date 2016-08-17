@@ -79,7 +79,7 @@ module ClearwaterKnifePlugins
           end
         rescue Exception => e
           @fail_count += 1
-          Chef::Log.error "Failed to create node for #{box_name} - #{e} - retry: #{fail_count}"
+          Chef::Log.error "Failed to create node for #{box_name} - #{e} - retry: #{@fail_count}"
           Chef::Log.error e.backtrace
           clean_up_broken_client(box_name, environment)
         end
