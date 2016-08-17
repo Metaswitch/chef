@@ -112,6 +112,9 @@ module Clearwater
 
     def find_by_name_and_type(options)
       zone.records.get(name(options), options[:type])
+
+      # Sleep to comply with Route53 rate-limit
+      sleep(1)
     end
 
     def calculate_options_from_node(node)
