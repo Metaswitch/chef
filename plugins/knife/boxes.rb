@@ -281,6 +281,10 @@ module Clearwater
       knife_create.config[:json_attributes][:clearwater][:seagull] = options[:seagull]
       knife_create.config[:json_attributes][:clearwater][:ralf] = options[:ralf]
 
+      # This is a new box, with a new SSH key, so don't attempt SSH host key
+      # verification
+      knife_create.config[:host_key_verify] = false
+
       # Finally, create box
       begin
         knife_create.run
