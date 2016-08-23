@@ -289,7 +289,8 @@ module Clearwater
       begin
         knife_create.run
       rescue Fog::Compute::AWS::Error => e
-        Chef::Log.warn "Hit error creating box: #{e} - backing off for 30 seconds and retrying"
+        Chef::Log.warn "Hit error creating box: #{e.class}(#{e}) - backing off for 30 seconds and retrying"
+        Chef::Log.warn e.backtrace
         sleep 30
         knife_create.run
       end
