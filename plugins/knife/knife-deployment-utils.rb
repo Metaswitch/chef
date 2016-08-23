@@ -63,7 +63,7 @@ module ClearwaterKnifePlugins
           box_create.config[:ralf] = (config[:ralf_count] and (config[:ralf_count] > 0))
           box_create.run(supported_boxes)
         rescue Exception => e
-          Chef::Log.warn "Possibly failed to create node for #{box_name}: #{e}"
+          Chef::Log.warn "Possibly failed to create node for #{box_name}: #{e.class}(#{e})"
           Chef::Log.warn e.backtrace
         end
 
@@ -79,7 +79,7 @@ module ClearwaterKnifePlugins
           end
         rescue Exception => e
           @fail_count += 1
-          Chef::Log.error "Failed to create node for #{box_name} - #{e} - retry: #{@fail_count}"
+          Chef::Log.error "Failed to create node for #{box_name} - #{e.class}(#{e}) - retry: #{@fail_count}"
           Chef::Log.error e.backtrace
           clean_up_broken_client(box_name, environment)
         end
