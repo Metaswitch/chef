@@ -127,7 +127,7 @@ module Clearwater
 
     def calculate_options_from_node(node)
       options = {}
-      subdomain = node.name.split("-")[1]
+      subdomain = node.name.split("-")[-1]
       subdomain << "-#{node[:clearwater][:index]}" if node[:clearwater][:index]
       options[:prefix] = node.environment if node[:clearwater][:use_subdomain]
       options[:type] = "A"
