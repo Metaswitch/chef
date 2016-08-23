@@ -1,4 +1,4 @@
-# @file database_local_config.rb
+# @file dime.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2016  Metaswitch Networks Ltd
@@ -32,30 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-# Setup the clearwater local config file
-directory "/etc/clearwater" do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-end
-
-# Set up the local config file
-
-# GR setup not currently supported
-local_site = "single_site"
-remote_site = ""
-
-# Find all nodes in the deployment that have been marked as part of the etcd cluster.
-nodes = search(:node, "chef_environment:#{node.chef_environment}")
-etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
-# Create database_local_config
-template "/etc/clearwater/local_config" do
-    mode "0644"
-    source "database_local_config.erb"
-    variables node: node,
-              etcd: etcd,
-              local_site: local_site,
-              remote_site: remote_site
+package "dime-node" do
+  action [:install]
+  options "--force-yes"
 end

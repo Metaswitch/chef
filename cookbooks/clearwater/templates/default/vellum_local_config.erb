@@ -12,4 +12,4 @@ remote_site_name=
 
 # etcd configuration
 etcd_cluster=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
-etcd_cluster_key="database"
+etcd_cluster_key="vellum"
