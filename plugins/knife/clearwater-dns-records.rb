@@ -239,40 +239,40 @@ def dns_records
     },
   }
 
-  ralfstead_dns = {
+  dime_dns = {
     "hs" => {
       :type  => "A",
-      :value => ipv4s_local(find_active_nodes("ralfstead")),
+      :value => ipv4s_local(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
    "hs-site1" => {
       :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("ralfstead")),
+      :value => ipv4s_local_site1(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
    "hs-site2" => {
       :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("ralfstead")),
+      :value => ipv4s_local_site2(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
     "ralf" => {
       :type  => "A",
-      :value => ipv4s_local(find_active_nodes("ralfstead")),
+      :value => ipv4s_local(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
     "ralf-site1" => {
       :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("ralfstead")),
+      :value => ipv4s_local_site1(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
     "ralf-site2" => {
       :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("ralfstead")),
+      :value => ipv4s_local_site2(find_active_nodes("dime")),
       :ttl   => "60"
     },
   }
@@ -340,10 +340,10 @@ def dns_records
     },
   }
 
-  database_dns = {
-    "database" => {
+  vellum_dns = {
+    "vellum" => {
       :type  => "A",
-      :value => ipv4s_local(find_active_nodes("database")),
+      :value => ipv4s_local(find_active_nodes("vellum")),
       :ttl   => "60"
     },
   }
@@ -370,11 +370,11 @@ def dns_records
   if find_active_nodes("homestead").length > 0
     dns = dns.merge(homestead_dns)
   end
-  if find_active_nodes("ralfstead").length > 0
-    dns = dns.merge(ralfstead_dns)
+  if find_active_nodes("dime").length > 0
+    dns = dns.merge(dime_dns)
   end
-  if find_active_nodes("database").length > 0
-    dns = dns.merge(database_dns)
+  if find_active_nodes("vellum").length > 0
+    dns = dns.merge(vellum_dns)
   end
 
   return dns
