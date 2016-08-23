@@ -1,7 +1,7 @@
-# @file ralfstead.rb
+# @file vellum.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2016  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,11 +32,12 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "ralfstead"
-description "ralfstead role"
+name "vellum"
+description "vellum role"
 run_list [
-  "role[clearwater-base]",
+  "role[chef-base]",
+  "role[vellum_local_config]",
   "role[alarms]",
-  "recipe[clearwater::ralfstead]",
+  "recipe[clearwater::vellum]",
   "role[clearwater-etcd]"
 ]

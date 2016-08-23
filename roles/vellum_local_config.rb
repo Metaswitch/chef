@@ -1,4 +1,4 @@
-# @file database.rb
+# @file vellum_local_config.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2016  Metaswitch Networks Ltd
@@ -32,12 +32,8 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "database"
-description "database role"
+name "vellum_local_config"
+description "vellum_local_config role"
 run_list [
-  "role[chef-base]",
-  "role[database_local_config]",
-  "role[alarms]",
-  "recipe[clearwater::database]",
-  "role[clearwater-etcd]"
+  "recipe[clearwater::vellum_local_config]",
 ]
