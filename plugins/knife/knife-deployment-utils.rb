@@ -82,6 +82,12 @@ module ClearwaterKnifePlugins
           Chef::Log.error "Failed to create node for #{box_name} - #{e.class}(#{e}) - retry: #{@fail_count}"
           Chef::Log.error e.backtrace
           clean_up_broken_client(box_name, environment)
+          begin
+            delete_box(box_name, environment)
+          rescue Exception => e
+            Chef::Log.warn "Failed to delete box #{box_name} - #{e.class}(#{e}) following failue"
+            Chef::Log.warn e.backtrace
+          end
         end
 
         # Bail out if we've hit too many failures across the worker threads
