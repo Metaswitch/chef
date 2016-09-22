@@ -36,7 +36,12 @@ package "vellum-node" do
   action [:install]
   options "--force-yes"
 end
-package "homestead-prov-cassandra" do
+package "homer-cassandra" do
   action [:install]
   options "--force-yes"
 end
+package "memento-cassandra" do
+  action [:install]
+  options "--force-yes"
+end
+
