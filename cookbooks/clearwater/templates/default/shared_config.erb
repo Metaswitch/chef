@@ -49,6 +49,7 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 
 # Sproutlet configuration
+<%# We use, for example, @node{:clearwater][:icscf] to override the fields below in the environment file. %>
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
 <% if @node[:clearwater][:bgcf] %>bgcf=<%= @node[:clearwater][:bgcf] %><% end %>
