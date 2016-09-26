@@ -32,14 +32,21 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "homer-node" do
-  action [:install]
-  options "--force-yes"
+if node[:clearwater][:split_storage]
+  package "homer" do
+    action [:install]
+    options "--force-yes"
+  end
+else
+  package "homer-node" do
+    action [:install]
+    options "--force-yes"
+  end
 end
 
 # Perform daily backup of database
 cron "backup" do
-  hour 0 
+  hour 0
   minute 0
   command "/usr/share/clearwater/bin/do_backup.sh homer"
 end
