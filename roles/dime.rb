@@ -1,4 +1,4 @@
-# @file database.rb
+# @file dime.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2016  Metaswitch Networks Ltd
@@ -32,12 +32,11 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "database"
-description "database role"
+name "dime"
+description "dime role"
 run_list [
-  "role[chef-base]",
-  "role[database_local_config]",
+  "role[clearwater-base]",
   "role[alarms]",
-  "recipe[clearwater::database]",
+  "recipe[clearwater::dime]",
   "role[clearwater-etcd]"
 ]

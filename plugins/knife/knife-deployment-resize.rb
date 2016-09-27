@@ -54,7 +54,7 @@ module ClearwaterKnifePlugins
       DnsRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer ibcf sprout sipp ralf database ralfstead}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp ralf vellum dime}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
              description: "Number of #{node} nodes to launch",
@@ -118,7 +118,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull database ralfstead}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp ralf seagull vellum dime}.each do |node|
         result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
       end
       return result
@@ -128,7 +128,7 @@ module ClearwaterKnifePlugins
       ralfs = find_nodes(roles: "chef-base", role: "ralf").length
       changed_nodes = []
 
-      %w{bono ibcf sprout ralf ralfstead}.each do |node_type|
+      %w{bono ibcf sprout ralf dime}.each do |node_type|
         find_nodes(roles: "chef-base", role: node_type).each do |node|
           has_ralf = node[:clearwater][:ralf]
           Chef::Log.info "#{node.name}: ralf attribute is #{has_ralf} and number of ralfs is #{ralfs}"
@@ -178,7 +178,7 @@ module ClearwaterKnifePlugins
       calculate_box_counts(config) if config[:subscribers]
 
       # Initialize status object
-      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "database", "ralfstead"], ["seagull"])
+      init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "vellum", "dime"], ["seagull"])
 
       # Create security groups
       configure_security_groups(config, SecurityGroupsCreate)
@@ -203,15 +203,15 @@ module ClearwaterKnifePlugins
         sipp: config[:sipp_count] || old_counts[:sipp],
         seagull: seagull_count || old_counts[:seagull] }
         if attributes["split_storage"]
-          new_counts[:database] = config[:database_count] || [old_counts[:database], 1].max
+          new_counts[:vellum] = config[:vellum_count] || [old_counts[:vellum], 1].max
           new_counts.delete(:homestead)
           new_counts.delete(:ralf)
-          new_counts[:ralfstead] = config[:ralfstead_count] || [old_counts[:ralfstead], 1].max
-          config[:ralfstead_count] = new_counts[:ralfstead]
+          new_counts[:dime] = config[:dime_count] || [old_counts[:dime], 1].max
+          config[:dime_count] = new_counts[:dime]
         end
 
       # Confirm changes if there are any
-      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "database", "ralfstead"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "vellum", "dime"]
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
@@ -246,7 +246,7 @@ module ClearwaterKnifePlugins
         Chef::Log.info "Initializing etcd cluster"
 
         if attributes["split_storage"]
-          %w{database}.each do |node|
+          %w{vellum}.each do |node|
             # Get the list of nodes and iterate over them adding the
             # etcd_cluster attribute
             cluster = find_nodes(roles: node)
@@ -272,10 +272,10 @@ module ClearwaterKnifePlugins
                             "chef_environment:#{config[:environment]}")
 
         # Create and upload the shared configuration. This should just be done
-        # on a single node in each site. We choose the first Sprout or Database,
-        # depending on deployment architecture.
+        # on a single node in each site. We choose the first Sprout or Vellum
+        # node, depending on deployment architecture.
         if attributes["split_storage"]
-          nodes = find_nodes(roles: 'database')
+          nodes = find_nodes(roles: 'vellum')
           nodes.sort_by! { |n| n[:clearwater][:index] }
           config_nodes = nodes[0..0]
         else

@@ -287,7 +287,7 @@ def reformat_custom_groups(map)
   end).flatten
 end
 
-def database_node_security_group_rules
+def vellum_node_security_group_rules
   [
     # Astaire/Memcached
     { ip_protocol: :tcp, min: 11211, max: 11211, group: "base" },
@@ -328,6 +328,6 @@ def clearwater_security_groups(extra_internal_sip_groups)
     "hss" => hss_security_group_rules,
     "cw_aio" => cw_aio_security_group_rules,
     "seagull" => seagull_security_group_rules,
-    "database" => database_node_security_group_rules
+    "vellum" => vellum_node_security_group_rules
   }
 end

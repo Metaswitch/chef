@@ -10,13 +10,13 @@ sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 
-<% if @database %>
+<% if @vellum %>
 # Storage Pool
-cassandra_hostname=<%= @database %>
-chronos_hostname=<%= @database %>
-ralf_session_store=single_site=<%= @database %>
-sprout_registration_store=single_site=<%= @database %>
-sprout_impi_store=<%= @database %>
+cassandra_hostname=<%= @vellum %>
+chronos_hostname=<%= @vellum %>
+ralf_session_store=single_site=<%= @vellum %>
+sprout_registration_store=single_site=<%= @vellum %>
+sprout_impi_store=<%= @vellum %>
 <% else %>
 # Database configuration
 cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
@@ -49,12 +49,13 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 
 # Sproutlet configuration
+<%# We use, for example, @node{:clearwater][:icscf] to override the fields below in the environment file. %>
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
 <% if @node[:clearwater][:bgcf] %>bgcf=<%= @node[:clearwater][:bgcf] %><% end %>
-<% if @node[:clearwater][:memento] %>memento=<%= @node[:clearwater][:memento] %><% end %>
-<% if @node[:clearwater][:gemini] %>gemini=<%= @node[:clearwater][:gemini] %><% end %>
-<% if @node[:clearwater][:cdiv] %>cdiv=<%= @node[:clearwater][:cdiv] %><% end %>
+memento=<%= @node[:clearwater][:memento] or "5055" %>
+gemini=<%= @node[:clearwater][:gemini] or "5055" %>
+cdiv=<%= @node[:clearwater][:cdiv] or "5055" %>
 <% if @node[:clearwater][:mmtel] %>mmtel=<%= @node[:clearwater][:mmtel] %><% end %>
 <% if @node[:clearwater][:mangelwurzel] %>mangelwurzel=<%= @node[:clearwater][:mangelwurzel] %><% end %>
 

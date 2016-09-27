@@ -64,11 +64,11 @@ else
 end
 
 if node[:clearwater][:split_storage]
-  database = "database.#{domain}"
-  # We have ralfsteads
+  vellum = "vellum.#{domain}"
+  # We have dime nodes running the ralf process
   ralf = "ralf.#{domain}:10888"
 else
-  database = nil
+  vellum = nil
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
     ralf = "ralf#{site_suffix}.#{domain}:10888"
   end
@@ -93,7 +93,7 @@ template "/etc/clearwater/shared_config" do
     ralf: ralf,
     cdf: cdf,
     hss: hss,
-    database: database
+    vellum: vellum
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 
