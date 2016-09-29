@@ -32,17 +32,12 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "homestead" do
+package "homestead-node" do
   action [:install]
   options "--force-yes"
 end
 
-package "homestead-prov" do
-  action [:install]
-  options "--force-yes"
-end
-
-package "clearwater-snmp-handler-homestead" do
+package "clearwater-snmpd" do
   action [:install]
   options "--force-yes"
 end

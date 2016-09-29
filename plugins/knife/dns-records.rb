@@ -111,9 +111,7 @@ module Clearwater
     private
 
     def find_by_name_and_type(options)
-      zone.records.all!.select do |r|
-        r.name == name(options) and r.type.upcase == options[:type].upcase
-      end.first
+      zone.records.get(name(options), options[:type])
     end
 
     def calculate_options_from_node(node)

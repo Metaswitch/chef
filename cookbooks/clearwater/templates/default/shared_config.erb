@@ -15,6 +15,22 @@ alias_list=<%= @alias_list %>
 scscf_uri=<%= @scscf_uri %>
 upstream_port=<%= @upstream_port %>
 
+<% if @vellum %>
+# Storage Pool
+cassandra_hostname=<%= @vellum %>
+chronos_hostname=<%= @vellum %>
+ralf_session_store=single_site=<%= @vellum %>
+sprout_registration_store=single_site=<%= @vellum %>
+sprout_impi_store=<%= @vellum %>
+<% else %>
+# Database configuration
+cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
+chronos_hostname=localhost
+ralf_session_store=single_site=localhost
+sprout_registration_store=single_site=localhost
+sprout_impi_store=localhost
+<% end %>
+
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
 smtp_username=<%= @node[:clearwater][:smtp_username] %>
@@ -29,9 +45,6 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 # CDF configuration
 <% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
 
-# Database configuration
-cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
-
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
 
@@ -41,12 +54,13 @@ cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
 trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
 
 # Sproutlet configuration
+<%# We use, for example, @node{:clearwater][:icscf] to override the fields below in the environment file. %>
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
 <% if @node[:clearwater][:bgcf] %>bgcf=<%= @node[:clearwater][:bgcf] %><% end %>
-<% if @node[:clearwater][:memento] %>memento=<%= @node[:clearwater][:memento] %><% end %>
-<% if @node[:clearwater][:gemini] %>gemini=<%= @node[:clearwater][:gemini] %><% end %>
-<% if @node[:clearwater][:cdiv] %>cdiv=<%= @node[:clearwater][:cdiv] %><% end %>
+memento=<%= @node[:clearwater][:memento] or "5055" %>
+gemini=<%= @node[:clearwater][:gemini] or "5055" %>
+cdiv=<%= @node[:clearwater][:cdiv] or "5055" %>
 <% if @node[:clearwater][:mmtel] %>mmtel=<%= @node[:clearwater][:mmtel] %><% end %>
 <% if @node[:clearwater][:mangelwurzel] %>mangelwurzel=<%= @node[:clearwater][:mangelwurzel] %><% end %>
 

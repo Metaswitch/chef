@@ -87,6 +87,17 @@ for i in 1..number_of_sites
   sprout_aliases.push("sprout-site#{i}." + domain)
 end
 
+if node[:clearwater][:split_storage]
+  vellum = "vellum.#{domain}"
+  # We have dime nodes running the ralf process
+  ralf = "ralf.#{domain}:10888"
+else
+  vellum = nil
+  if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
+    ralf = "ralf#{site_suffix}.#{domain}:10888"
+  end
+end
+
 template "/etc/clearwater/shared_config" do
   mode "0644"
   source "shared_config.erb"
@@ -99,9 +110,7 @@ template "/etc/clearwater/shared_config" do
     hs: "hs#{site_suffix}.#{domain}:8888",
     hs_prov: "hs#{site_suffix}.#{domain}:8889",
     homer: "homer#{site_suffix}.#{domain}:7888",
-    ralf: if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-            "ralf#{site_suffix}.#{domain}:10888"
-          end,
+    ralf: ralf,
     cdf: cdf,
     hss: hss,
     sprout_registration_store: sprout_registration_store,
@@ -109,6 +118,7 @@ template "/etc/clearwater/shared_config" do
     memento_auth_store: "sprout#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0
+    vellum: vellum
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

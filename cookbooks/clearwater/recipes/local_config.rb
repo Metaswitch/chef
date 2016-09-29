@@ -103,11 +103,18 @@ else
   end
 end
 
+if node[:clearwater][:split_storage]
+  etcd_cluster_or_proxy = "etcd_proxy"
+else
+  etcd_cluster_or_proxy = "etcd_cluster"
+end
+
 # Create local_config
 template "/etc/clearwater/local_config" do
     mode "0644"
     source "local_config.erb"
     variables node: node,
+              etcd_cluster_or_proxy: etcd_cluster_or_proxy,
               etcd: etcd,
               local_site: local_site,
               remote_sites: remote_sites,

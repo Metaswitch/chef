@@ -87,21 +87,38 @@ def dns_records
       :ttl   => "60"
     },
 
-    "hs" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
+  homer_dns = {
     "homer" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("homer")),
       :ttl   => "60"
     },
+  }
 
-    "ellis" => {
-      :type => "A",
-      :value => ipv4s(find_active_nodes("ellis")),
+  homestead_dns = {
+    "hs" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("homestead")),
+      :ttl   => "60"
+    },
+  }
+
+  "ellis" => {
+    :type => "A",
+    :value => ipv4s(find_active_nodes("ellis")),
+  }
+
+  dime_dns = {
+    "hs" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("dime")),
+      :ttl   => "60"
+    },
+
+    "ralf" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("dime")),
+      :ttl   => "60"
     },
   }
 
@@ -245,6 +262,13 @@ def dns_records
     },
   }
 
+  vellum_dns = {
+    "vellum" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("vellum")),
+      :ttl   => "60"
+    },
+  }
 
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
@@ -256,11 +280,23 @@ def dns_records
   if find_active_nodes("memento").length > 0
     dns = dns.merge(memento_dns)
   end
+  if find_active_nodes("homer").length > 0
+    dns = dns.merge(homer_dns)
+  end
   if find_active_nodes("seagull").length > 0
     dns = dns.merge(seagull_dns)
   end
   if find_active_nodes("openimscorehss").length > 0
     dns = dns.merge(hss_dns)
+  end
+  if find_active_nodes("homestead").length > 0
+    dns = dns.merge(homestead_dns)
+  end
+  if find_active_nodes("dime").length > 0
+    dns = dns.merge(dime_dns)
+  end
+  if find_active_nodes("vellum").length > 0
+    dns = dns.merge(vellum_dns)
   end
 
   return dns
