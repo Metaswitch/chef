@@ -44,8 +44,7 @@ else
   end
 end
 
-
-package "clearwater-snmp-handler-sprout" do
+package "clearwater-snmpd" do
   action [:install]
   options "--force-yes"
 end

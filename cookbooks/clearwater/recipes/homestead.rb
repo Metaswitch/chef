@@ -37,7 +37,7 @@ package "homestead-node" do
   options "--force-yes"
 end
 
-package "clearwater-snmp-handler-homestead" do
+package "clearwater-snmpd" do
   action [:install]
   options "--force-yes"
 end

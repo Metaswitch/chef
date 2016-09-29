@@ -49,7 +49,7 @@ package "restund" do
   options "--force-yes"
 end
 
-package "clearwater-snmp-handler-bono" do
+package "clearwater-snmpd" do
   action [:install]
   options "--force-yes"
 end
