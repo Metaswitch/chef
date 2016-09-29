@@ -37,6 +37,11 @@ package "homestead-node" do
   options "--force-yes"
 end
 
+package "clearwater-snmpd" do
+  action [:install]
+  options "--force-yes"
+end
+
 package "clearwater-prov-tools" do
   action [:install]
   options "--force-yes"
