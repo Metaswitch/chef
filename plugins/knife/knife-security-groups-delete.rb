@@ -52,6 +52,14 @@ module ClearwaterKnifePlugins
     def run
       extra_internal_sip_groups = attributes["extra_internal_sip_groups"] || {}
       groups = clearwater_security_groups(extra_internal_sip_groups)
+
+      historical_groups = ["database"]
+      historical_groups.each do |g|
+        # We don't need to specify any rules - this entry just makes sure we
+        # delete the group
+        groups[g] = []
+      end
+
       delete_security_groups(groups,
                              env,
                              attributes["region"])

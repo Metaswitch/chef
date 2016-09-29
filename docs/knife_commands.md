@@ -28,7 +28,7 @@ To create or resize a deployment, run:
 You can optionally add:
 
 * `--<box-type>-count` - This controls how many of each box type is created. As the default, chef creates one each of a Bono, Sprout, Homer, Homestead and Ellis.
-* `--apply-shared-config` - If this is set, the shared configuration will be updated on every box after the resize is complete. This is service impacting (as many services need to be restarted to pick up the new configuration), so it isn't run by default. A useful case for this option is when you're resizing your deployment to have Ralf nodes when it didn't previously.
+* `--scscf-only` - This spins up the deployment with I-CSCF function disabled.
 
 As well as passing in parameters to the `deployment resize` command, you can also set options in the `override_attributes` section of the environment file. The available options are discussed [here](http://clearwater.readthedocs.org/en/stable/Creating_a_deployment_environment/index.html#creating-the-environment); the notable ones are:
 
@@ -72,17 +72,13 @@ Chef will create DNS records for the nodes. This is done as part of the `deploym
 
 Project Clearwater is integrated with [Cacti](http://www.cacti.net/), an open source statistics and graphing solution. There are more details for setting up and using Cacti with a deployment [here](http://clearwater.readthedocs.org/en/stable/Cacti/index.html)
 
-# Shared config update
-
-To update the shared configuration on all nodes, run:
-
-    knife shared config update -E <env>
-
-This uploads the existing configuration from the first Sprout in the deployment (`/etc/clearwater/shared_configuration`, `/etc/clearwater/enum.json`, `/etc/clearwater/bgcf.json` and `/etc/clearwater/s-cscf.json`), then applies it on every node, restarting services as appropriate (so this is service impacting). 
-
 # Troubleshooting
 
+## Logging
+
 On all commands, you can add -V to print INFO level logs to the terminal (recommended), and -VV to print DEBUG logs to the terminal. When a box is created though the `deployment resize` command, the commands run on that box are logged to `<chef checkout>/logs/<environment>-<role>-<index>-bootstrap-<date>.log`.
+
+## Authentication errors
 
 Sometimes, creating a box fails with an authentication error. If you hit this, check that your certificates have been set up correctly - see instructions [here](http://clearwater.readthedocs.org/en/stable/Installing_a_Chef_workstation/index.html#configure-the-chef-workstation-machine).
 
@@ -90,3 +86,11 @@ Another reason is that there's already been a box created with the same name. Yo
 
     knife client delete <box name> -E <env>
     knife node delete <box name> -E <env>
+
+## Incorrect cookbooks
+
+Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.
+
+* Remember, if you make a change to the cookbooks on your chef workstation, you need to upload the updated cookbooks to the chef server for them to be used (`knife cookbooks upload clearwater`).
+* To see what cookbooks were provided to a node, look in `/var/chef/cache/cookbooks/clearwater/` on the node.
+* To see what cookbooks are currently on the chef server, run `knife cookbook download clearwater <your version number> -d <directory>`. This downloads the cookbooks to `directory`.

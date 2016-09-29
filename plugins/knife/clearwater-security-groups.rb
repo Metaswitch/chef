@@ -287,6 +287,24 @@ def reformat_custom_groups(map)
   end).flatten
 end
 
+def vellum_node_security_group_rules
+  [
+    # Astaire/Memcached
+    { ip_protocol: :tcp, min: 11211, max: 11211, group: "base" },
+    { ip_protocol: :tcp, min: 11311, max: 11311, group: "base" },
+    # Chronos
+    { ip_protocol: :tcp, min: 7253, max: 7253, group: "base" },
+    # Cassandra
+    { ip_protocol: :tcp, min: 7000, max: 7000, group: "base" },
+    { ip_protocol: :tcp, min: 9888, max: 9888, group: "base" },
+    { ip_protocol: :tcp, min: 9160, max: 9160, group: "base" },
+    # Etcd
+    { ip_protocol: :tcp, min: 2380, max: 2380, group: "base" },
+    # Poll Etcd
+    { ip_protocol: :tcp, min: 4000, max: 4000, group: "base" },
+  ]
+end
+
 def clearwater_security_groups(extra_internal_sip_groups)
   {
     "base" => base_security_group_rules,
@@ -309,6 +327,7 @@ def clearwater_security_groups(extra_internal_sip_groups)
     "sipp" => sipp_security_group_rules,
     "hss" => hss_security_group_rules,
     "cw_aio" => cw_aio_security_group_rules,
-    "seagull" => seagull_security_group_rules
+    "seagull" => seagull_security_group_rules,
+    "vellum" => vellum_node_security_group_rules
   }
 end

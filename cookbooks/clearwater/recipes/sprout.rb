@@ -32,9 +32,16 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "sprout" do
-  action [:install]
-  options "--force-yes"
+if node[:clearwater][:split_storage]
+  package "sprout" do
+    action [:install]
+    options "--force-yes"
+  end
+else
+  package "sprout-node" do
+    action [:install]
+    options "--force-yes"
+  end
 end
 
 domain = if node[:clearwater][:use_subdomain]
@@ -42,9 +49,3 @@ domain = if node[:clearwater][:use_subdomain]
          else
            node[:clearwater][:root_domain]
          end
-
-template "/etc/clearwater/s-cscf.json" do
-  mode "0644"
-  source "sprout/s-cscf.erb"
-  variables domain: domain
-end

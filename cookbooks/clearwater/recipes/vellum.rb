@@ -1,7 +1,7 @@
-# @file cw_aio.rb
+# @file vellum.rb
 #
 # Project Clearwater - IMS in the Cloud
-# Copyright (C) 2013  Metaswitch Networks Ltd
+# Copyright (C) 2016  Metaswitch Networks Ltd
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,9 +32,16 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-# Install all the clearwater packages. Use the AWS configuration package
-
-execute "install-clearwater-aio" do
-  user "root"
-  command "curl -L https://raw.githubusercontent.com/Metaswitch/clearwater-infrastructure/master/scripts/clearwater-aio-install.sh | sudo bash -s clearwater-auto-config-aws #{node[:clearwater][:repo_servers].first} #{node[:clearwater][:repo_servers].first} #{node[:clearwater][:number_start]} #{node[:clearwater][:number_count]}"
+package "vellum-node" do
+  action [:install]
+  options "--force-yes"
 end
+package "homer-cassandra" do
+  action [:install]
+  options "--force-yes"
+end
+package "memento-cassandra" do
+  action [:install]
+  options "--force-yes"
+end
+

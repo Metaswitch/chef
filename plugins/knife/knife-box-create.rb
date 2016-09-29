@@ -123,6 +123,10 @@ module ClearwaterKnifePlugins
         end
       end
 
+      if role == "cw_aio"
+        puts "Note: The signup code for AIO nodes is 'secret', not the value configured in knife.rb"
+      end
+
       if role == "cw_ami"
         ec2_conn = Fog::Compute::AWS.new(Chef::Config[:knife].select { |k, v| [:aws_secret_access_key, :aws_access_key_id].include? k })
         ec2_conn.stop_instances(instance_id)

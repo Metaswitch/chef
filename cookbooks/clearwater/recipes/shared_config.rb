@@ -63,13 +63,20 @@ else
   ""
 end
 
-sprout_aliases = ["sprout-icscf." + domain,
-                  "sprout-icscf-site1." + domain,
-                  "sprout-icscf-site2." + domain,
+if node[:clearwater][:split_storage]
+  vellum = "vellum.#{domain}"
+  # We have dime nodes running the ralf process
+  ralf = "ralf.#{domain}:10888"
+else
+  vellum = nil
+  if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
+    ralf = "ralf#{site_suffix}.#{domain}:10888"
+  end
+end
+
+sprout_aliases = ["sprout." + domain,
                   "sprout-site1." + domain,
                   "sprout-site2." + domain]
-
-enum = Resolv::DNS.open { |dns| dns.getaddress(node[:clearwater][:enum_server]).to_s } rescue nil
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
@@ -77,20 +84,16 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    sprout_icscf: "sprout-icscf#{site_suffix}.#{domain}",
-    scscf_uri: "sip:sprout#{site_suffix}.#{domain};transport=tcp",
     alias_list: if node.roles.include? "sprout"
                   sprout_aliases.join(",")
                 end,
     hs: "hs#{site_suffix}.#{domain}:8888",
     hs_prov: "hs#{site_suffix}.#{domain}:8889",
     homer: "homer#{site_suffix}.#{domain}:7888",
-    ralf: if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-            "ralf#{site_suffix}.#{domain}:10888"
-          end,
+    ralf: ralf,
     cdf: cdf,
-    enum: enum,
-    hss: hss
+    hss: hss,
+    vellum: vellum
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

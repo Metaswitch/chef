@@ -42,6 +42,7 @@ run_list [
 ]
 
 override_attributes "clearwater" => {
-  "icscf" => 5052,
-  "scscf" => 5054,
+  "gemini" => 5055,
+  "memento" => 5055,
+  "cdiv" => 5055,
 }

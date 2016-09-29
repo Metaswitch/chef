@@ -7,8 +7,24 @@ xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
 cdf_identity=<%= @cdf %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
-<% if not @enum.nil? %>enum_server=<%= @enum %><% end %>
+enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
+
+<% if @vellum %>
+# Storage Pool
+cassandra_hostname=<%= @vellum %>
+chronos_hostname=<%= @vellum %>
+ralf_session_store=single_site=<%= @vellum %>
+sprout_registration_store=single_site=<%= @vellum %>
+sprout_impi_store=<%= @vellum %>
+<% else %>
+# Database configuration
+cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
+chronos_hostname=localhost
+ralf_session_store=single_site=localhost
+sprout_registration_store=single_site=localhost
+sprout_impi_store=localhost
+<% end %>
 
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>
@@ -24,23 +40,30 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 # CDF configuration
 <% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
 
-# Database configuration
-cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
-
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
 
-# I-CSCF/S-CSCF configuration
+# P-CSCF configuration
+<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %><% end %>
+<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %><% end %>
+trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
+
+# Sproutlet configuration
+<%# We use, for example, @node{:clearwater][:icscf] to override the fields below in the environment file. %>
 <% if @node[:clearwater][:scscf] %>scscf=<%= @node[:clearwater][:scscf] %><% end %>
 <% if @node[:clearwater][:icscf] %>icscf=<%= @node[:clearwater][:icscf] %><% end %>
-<% if @node[:clearwater][:upstream_hostname] %>upstream_hostname=<%= @node[:clearwater][:upstream_hostname] %><% else %>upstream_hostname=<%= @sprout_icscf %><% end %>
-<% if @node[:clearwater][:upstream_port] %>upstream_port=<%= @node[:clearwater][:upstream_port] %><% else %>upstream_port=0<% end %>
-<% if @scscf_uri %>scscf_uri="<%= @scscf_uri %>"<% end %>
-
-trusted_peers="<%= node[:clearwater][:trusted_peers].join "," %>"
+<% if @node[:clearwater][:bgcf] %>bgcf=<%= @node[:clearwater][:bgcf] %><% end %>
+memento=<%= @node[:clearwater][:memento] or "5055" %>
+gemini=<%= @node[:clearwater][:gemini] or "5055" %>
+cdiv=<%= @node[:clearwater][:cdiv] or "5055" %>
+<% if @node[:clearwater][:mmtel] %>mmtel=<%= @node[:clearwater][:mmtel] %><% end %>
+<% if @node[:clearwater][:mangelwurzel] %>mangelwurzel=<%= @node[:clearwater][:mangelwurzel] %><% end %>
 
 # Keys
 signup_key="<%= @node[:clearwater][:signup_key] %>"
 turn_workaround="<%= @node[:clearwater][:turn_workaround] %>"
 ellis_api_key="<%= @node[:clearwater][:ellis_api_key] %>"
 ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
+
+# Advanced options
+nonce_count_supported=Y
