@@ -39,6 +39,11 @@ require_relative 'boxes'
 def dns_records
   dns = {}
   base_dns = {
+    "ellis" => {
+      :type => "A",
+      :value => ipv4s(find_active_nodes("ellis")),
+    },
+
     "cdiv.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
@@ -86,6 +91,7 @@ def dns_records
       :value => icscf_srv_flat(find_active_nodes("sprout")),
       :ttl   => "60"
     },
+  }
 
   homer_dns = {
     "homer" => {
@@ -101,11 +107,6 @@ def dns_records
       :value => ipv4s_local(find_active_nodes("homestead")),
       :ttl   => "60"
     },
-  }
-
-  "ellis" => {
-    :type => "A",
-    :value => ipv4s(find_active_nodes("ellis")),
   }
 
   dime_dns = {
