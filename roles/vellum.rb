@@ -35,8 +35,7 @@
 name "vellum"
 description "vellum role"
 run_list [
-  "role[chef-base]",
-  "role[vellum_local_config]",
+  "role[clearwater-base]",
   "role[alarms]",
   "recipe[clearwater::vellum]",
   "role[clearwater-etcd]"
