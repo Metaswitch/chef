@@ -13,3 +13,4 @@ remote_cassandra_seeds=<%= @remote_cassandra_nodes.map{|n| n.cloud.local_ipv4}.j
 
 # etcd configuration
 <%= @etcd_cluster_or_proxy %>=<%= @etcd.map{|n| n.cloud.local_ipv4}.join "," %>
+<% if not @etcd_cluster_key.nil? %>etcd_cluster_key=<%= @etcd_cluster_key %><% end %>

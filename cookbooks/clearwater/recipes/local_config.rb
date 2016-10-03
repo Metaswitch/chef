@@ -104,7 +104,12 @@ else
 end
 
 if node[:clearwater][:split_storage]
-  etcd_cluster_or_proxy = "etcd_proxy"
+  if node.role?("vellum")
+    etcd_cluster_or_proxy = "etcd_cluster"
+    etcd_cluster_key = "vellum"
+  else
+    etcd_cluster_or_proxy = "etcd_proxy"
+  end
 else
   etcd_cluster_or_proxy = "etcd_cluster"
 end
@@ -115,6 +120,7 @@ template "/etc/clearwater/local_config" do
     source "local_config.erb"
     variables node: node,
               etcd_cluster_or_proxy: etcd_cluster_or_proxy,
+              etcd_cluster_key: etcd_cluster_key,
               etcd: etcd,
               local_site: local_site,
               remote_sites: remote_sites,
