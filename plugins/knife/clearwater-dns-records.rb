@@ -286,7 +286,7 @@ def dns_records
       dime_dns = dime_dns.merge(dime_gr_dns)
 
       vellum_gr_dns = {
-        "vellum#{i}" => {
+        "vellum-site#{i}" => {
           :type  => "A",
           :value => ipv4s_local_site(find_active_nodes("vellum"), i, number_of_sites),
           :ttl   => "60"
