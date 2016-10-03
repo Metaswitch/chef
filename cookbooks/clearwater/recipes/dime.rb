@@ -36,3 +36,8 @@ package "dime-node" do
   action [:install]
   options "--force-yes"
 end
+
+package "clearwater-prov-tools" do
+  action [:install]
+  options "--force-yes"
+end

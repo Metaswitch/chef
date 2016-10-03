@@ -90,7 +90,7 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
     end
   end
 else
-  local_site = "single_site"
+  local_site = "site1"
   remote_sites = ""
   remote_cassandra_nodes = []
 
