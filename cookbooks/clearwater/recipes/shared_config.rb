@@ -69,11 +69,35 @@ else
   ""
 end
 
-sprout_registration_store = "\"site1=sprout-site1.#{domain}"
-for i in 2..number_of_sites
-  sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
+if node[:clearwater][:split_storage]
+  sprout_registration_store = "\"site1=vellum-site1.#{domain}"
+  for i in 2..number_of_sites
+    sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
+  end
+else
+  sprout_registration_store = "\"site1=sprout-site1.#{domain}"
+  for i in 2..number_of_sites
+    sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
+  end
 end
 sprout_registration_store = "#{sprout_registration_store}\""
+
+if node[:clearwater][:split_storage]
+  sprout_impi_store = "vellum#{site_suffix}.#{domain}"
+  chronos_hostname = "vellum#{site_suffix}.#{domain}"
+else
+  sprout_impi_store = "localhost"
+  chronos_hostname = "localhost"
+end
+
+#if node[:clearwater][:cassandra_hostname]
+  #cassandra hostname = node[:clearwater][:cassandra_hostname]
+
+if node[:clearwater][:split_storage]
+  cassandra_hostname = "vellum#{site_suffix}.#{domain}"
+else
+  cassandra_hostname = "localhost"
+end
 
 ralf_session_store = "\"site1=ralf-site1.#{domain}"
 for i in 2..number_of_sites
@@ -88,11 +112,9 @@ for i in 1..number_of_sites
 end
 
 if node[:clearwater][:split_storage]
-  vellum = "vellum.#{domain}"
   # We have dime nodes running the ralf process
-  ralf = "ralf.#{domain}:10888"
+  ralf = "ralf#{site_suffix}.#{domain}:10888"
 else
-  vellum = nil
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
     ralf = "ralf#{site_suffix}.#{domain}:10888"
   end
@@ -113,12 +135,14 @@ template "/etc/clearwater/shared_config" do
     ralf: ralf,
     cdf: cdf,
     hss: hss,
+    cassandra_hostname: cassandra_hostname,
+    chronos_hostname: chronos_hostname,
+    sprout_impi_store: sprout_impi_store,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
     memento_auth_store: "sprout#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
-    upstream_port: 0,
-    vellum: vellum
+    upstream_port: 0
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

@@ -167,10 +167,6 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      if (attributes["split_storage"] and attributes["gr"])
-        abort("Unsupported configuration, split_storage and gr both true. Aborting process")
-      end
-
       Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
       Chef::Log.info "Starting resize operation"
 
@@ -277,7 +273,11 @@ module ClearwaterKnifePlugins
         if attributes["split_storage"]
           nodes = find_nodes(roles: 'vellum')
           nodes.sort_by! { |n| n[:clearwater][:index] }
-          config_nodes = nodes[0..0]
+          if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+            config_nodes = nodes[0...attributes["num_gr_sites"]]
+          else
+            config_nodes = nodes[0..0]
+          end
         else
           nodes = find_nodes(roles: 'sprout')
           nodes.sort_by! { |n| n[:clearwater][:index] }

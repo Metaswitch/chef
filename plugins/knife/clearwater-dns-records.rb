@@ -93,6 +93,14 @@ def dns_records
     },
   }
 
+  bono_dns = {
+    "" => {
+      :type  => "A",
+      :value => ipv4s(find_active_nodes("bono")),
+      :ttl   => "60"
+    },
+  }
+
   homer_dns = {
     "homer" => {
       :type  => "A",
@@ -109,6 +117,14 @@ def dns_records
     },
   }
 
+  ralf_dns = {
+    "ralf" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("ralf")),
+      :ttl   => "60"
+    }
+  }
+
   dime_dns = {
     "hs" => {
       :type  => "A",
@@ -123,22 +139,54 @@ def dns_records
     },
   }
 
+  vellum_dns = {
+    "vellum" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("vellum")),
+      :ttl   => "60"
+    },
+  }
+
+  memento_dns = {
+    "memento" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("memento")),
+      :ttl   => "60"
+    },
+
+    "mementohttp" => {
+      :type  => "A",
+      :value => ipv4s(find_active_nodes("memento")),
+      :ttl   => "60"
+    },
+  }
+
+  seagull_dns = {
+    "cdf.seagull" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("seagull")),
+      :ttl   => "60"
+    },
+
+    "hss.seagull" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("seagull")),
+      :ttl   => "60"
+    },
+  }
+
+  hss_dns = {
+    "hss" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("openimscorehss")),
+      :ttl   => "60"
+    },
+  }
+
   if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
     number_of_sites = attributes["num_gr_sites"]
     for i in 1..number_of_sites
       base_gr_dns = {
-        "hs-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("homestead"), i, number_of_sites),
-          :ttl   => "60"
-        },
-
-        "homer-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("homer"), i, number_of_sites),
-          :ttl   => "60"
-        },
-
         "sprout-site#{i}" => {
           :type  => "A",
           :value => ipv4s_local_site(find_active_nodes("sprout"), i, number_of_sites),
@@ -194,82 +242,59 @@ def dns_records
         },
       }
       base_dns = base_dns.merge(base_gr_dns)
-    end
-  end
 
-  bono_dns = {
-    "" => {
-      :type  => "A",
-      :value => ipv4s(find_active_nodes("bono")),
-      :ttl   => "60"
-    },
-  }
+      homer_gr_dns = {
+        "homer-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("homer"), i, number_of_sites),
+          :ttl   => "60"
+        },
+      }
+      homer_dns = homer_dns.merge(homer_gr_dns)
 
-  ralf_dns = {
-    "ralf" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("ralf")),
-      :ttl   => "60"
-    }
-  }
+      homestead_gr_dns = {
+        "hs-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("homestead"), i, number_of_sites),
+          :ttl   => "60"
+        },
+      }
+      homestead_dns = homestead_dns.merge(homestead_gr_dns)
 
-  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
-    number_of_sites = attributes["num_gr_sites"]
-    for i in 1..number_of_sites
       ralf_gr_dns = {
         "ralf-site#{i}" => {
           :type  => "A",
           :value => ipv4s_local_site(find_active_nodes("ralf"), i, number_of_sites),
           :ttl   => "60"
-        }
+        },
       }
       ralf_dns = ralf_dns.merge(ralf_gr_dns)
+
+      dime_gr_dns = {
+        "hs-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("dime"), i, number_of_sites),
+          :ttl   => "60"
+        },
+
+        "ralf-site#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("dime"), i, number_of_sites),
+          :ttl   => "60"
+        },
+      }
+      dime_dns = dime_dns.merge(dime_gr_dns)
+
+      vellum_gr_dns = {
+        "vellum#{i}" => {
+          :type  => "A",
+          :value => ipv4s_local_site(find_active_nodes("vellum"), i, number_of_sites),
+          :ttl   => "60"
+        },
+      }
+      vellum_dns = vellum_dns.merge(vellum_gr_dns)
     end
   end
-
-  memento_dns = {
-    "memento" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("memento")),
-      :ttl   => "60"
-    },
-
-    "mementohttp" => {
-      :type  => "A",
-      :value => ipv4s(find_active_nodes("memento")),
-      :ttl   => "60"
-    },
-  }
-
-  seagull_dns = {
-    "cdf.seagull" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("seagull")),
-      :ttl   => "60"
-    },
-
-    "hss.seagull" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("seagull")),
-      :ttl   => "60"
-    },
-  }
-
-  hss_dns = {
-    "hss" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("openimscorehss")),
-      :ttl   => "60"
-    },
-  }
-
-  vellum_dns = {
-    "vellum" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("vellum")),
-      :ttl   => "60"
-    },
-  }
 
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
