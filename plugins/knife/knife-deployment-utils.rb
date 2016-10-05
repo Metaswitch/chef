@@ -41,13 +41,8 @@ module ClearwaterKnifePlugins
 
     # Launch a single box. This will retry if the box fails to be created
     # (but not if anything else fails)
-    def launch_box(box, environment, retries, supported_boxes, threads)
+    def launch_box(box, environment, retries, supported_boxes)
       success = false
-
-      # Since we run this in an aggressively multi-threaded way, smear our start
-      # times out randomly over a period of time, dependent on the number of
-      # threads, to avoid spamming cloud provisioning APIs.
-      sleep(rand * threads)
 
       loop do
         begin
@@ -118,7 +113,11 @@ module ClearwaterKnifePlugins
       @fail_count = 0
       results = Parallel.map(box_list, in_threads: box_list.length) do |box|
         if @fail_count < config[:fail_limit]
-          launch_box(box, config[:environment], config[:fail_limit], supported_boxes, box_list.length)
+          # Since we run this in an aggressively multi-threaded way, smear our start
+          # times out randomly over a period of time, dependent on the number of
+          # threads, to avoid spamming cloud provisioning APIs.
+          sleep(rand * box_list.length)
+          launch_box(box, config[:environment], config[:fail_limit], supported_boxes)
         else
           false
         end
