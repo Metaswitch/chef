@@ -59,12 +59,8 @@ else
   number_of_sites = 1
 end
 
-site_suffix = if number_of_sites > 1
-  site_index = node[:clearwater][:index] % number_of_sites
-  if site_index == 0
-    site_index = number_of_sites
-  end
-  "-site#{site_index}"
+site_suffix = if number_of_sites > 1 && node[:clearwater][:site]
+  "-site#{node[:clearwater][:site]}"
 else
   ""
 end
@@ -89,9 +85,6 @@ else
   sprout_impi_store = "localhost"
   chronos_hostname = "localhost"
 end
-
-#if node[:clearwater][:cassandra_hostname]
-  #cassandra hostname = node[:clearwater][:cassandra_hostname]
 
 if node[:clearwater][:split_storage]
   cassandra_hostname = "vellum#{site_suffix}.#{domain}"

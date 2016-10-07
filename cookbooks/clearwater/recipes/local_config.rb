@@ -45,7 +45,7 @@ end
 nodes = search(:node, "chef_environment:#{node.chef_environment}")
 
 # Check if we have a GR deployment, and setup the correct configuration if we do.
-if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:index]
+if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:site]
   number_of_sites = node[:clearwater][:num_gr_sites]
 
   # Set up an array of all the sites.
@@ -54,11 +54,8 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
       sites[i] = "site#{i+1}"
   end
 
-  # Work out which site this node is in based on its index.
-  local_site_index = node[:clearwater][:index] % number_of_sites
-  if local_site_index == 0
-    local_site_index = number_of_sites
-  end
+  # Work out which site this node is in.
+  local_site_index = node[:clearwater][:site]
   local_site = sites[local_site_index - 1]
 
   # Remove the local site to get the list of remote sites.
@@ -69,24 +66,16 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   # remote_cassandra_seeds will be set on all nodes (even though it's only ever
   # used on nodes with Cassandra).
   remote_cassandra_nodes = nodes.select do |n|
-    if n[:clearwater] && n[:clearwater][:index] && n[:roles]
-      site_index = n[:clearwater][:index] % number_of_sites
-      if site_index == 0
-        site_index = number_of_sites
-      end
-      site_index != local_site_index && n[:roles].sort == node[:roles].sort
+    if n[:clearwater] && n[:clearwater][:site] && n[:roles]
+      n[:clearwater][:site] != local_site_index && n[:roles].sort == node[:roles].sort
     end
   end
 
   # Find all nodes in this site that have been marked as part of the etcd
   # cluster.
   etcd = nodes.select do |n|
-    if n[:clearwater] && n[:clearwater][:index]
-      site_index = n[:clearwater][:index] % number_of_sites
-      if site_index == 0
-        site_index = number_of_sites
-      end
-      n[:clearwater][:etcd_cluster] && site_index == local_site_index
+    if n[:clearwater] && n[:clearwater][:site]
+      n[:clearwater][:etcd_cluster] && n[:clearwater][:site] == local_site_index
     end
   end
 else

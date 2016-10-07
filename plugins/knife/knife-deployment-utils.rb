@@ -49,6 +49,7 @@ module ClearwaterKnifePlugins
           box_create = BoxCreate.new("-E #{environment}".split)
           box_create.name_args = [box[:role]]
           box_create.config[:index] = box[:index]
+          box_create.config[:site] = box[:site]
           box_create.config[:verbosity] = config[:verbosity]
           Chef::Config[:verbosity] = config[:verbosity]
           box_create.config[:cloud] = config[:cloud]
@@ -60,7 +61,7 @@ module ClearwaterKnifePlugins
           Chef::Log.debug e.backtrace
         end
 
-        box_name = node_name_from_definition(environment, box[:role], box[:index])
+        box_name = node_name_from_definition(environment, box[:role], box[:site], box[:index])
         Chef::Log.debug "Checking successful creation of #{box_name}"
         begin
           node = Chef::Node.load(box_name)
@@ -140,9 +141,17 @@ module ClearwaterKnifePlugins
       return victims
     end
 
+    def list_active_boxes(env, box_list, whitelist)
+      boxes = potential_deletions whitelist
+      box_names = box_list.map { |b| node_name_from_definition(env, b[:role], b[:site], b[:index]) }
+
+      boxes.select! { |v| box_names.include? v.name }
+      return boxes
+    end
+
     def prepare_to_quiesce_extra_boxes(env, orig_box_list, whitelist)
       victims = potential_deletions whitelist
-      box_list = orig_box_list.map { |b| node_name_from_definition(env, b[:role], b[:index]) }
+      box_list = orig_box_list.map { |b| node_name_from_definition(env, b[:role], b[:site], b[:index]) }
 
       victims.select! { |v| not box_list.include? v.name }
 
@@ -155,7 +164,7 @@ module ClearwaterKnifePlugins
 
     def quiesce_extra_boxes(env, box_list, whitelist)
       victims = potential_deletions whitelist
-      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
+      box_list.map! { |b| node_name_from_definition(env, b[:role], b[:site], b[:index]) }
 
       victims.select! { |v| not box_list.include? v.name }
 
@@ -181,7 +190,7 @@ module ClearwaterKnifePlugins
       current_nodes = find_nodes(roles: "chef-base")
 
       result = nodes.select do |node|
-        not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:index]) }
+        not current_nodes.any? { |cnode| cnode.name == node_name_from_definition(env, node[:role], node[:site], node[:index]) }
       end
 
       return result
@@ -191,7 +200,7 @@ module ClearwaterKnifePlugins
       # Don't touch any AIO or AMI nodes
       old_names = potential_deletions(whitelist).map {|v| v.name}
       new_names = expand_hashes(new).map do |n|
-        node_name_from_definition(env, n[:role], n[:index])
+        node_name_from_definition(env, n[:role], n[:site], n[:index])
       end
       create_boxes = new_names - old_names
       victim_boxes = old_names - new_names

@@ -171,7 +171,7 @@ module Clearwater
       if @attributes["vpc"] and @cloud == :ec2
         cloud = :ec2_vpc
       end
-      
+
       (options[:image] or
        @attributes["ec2_image"] or
        @@default_image[cloud][@attributes["region"]] or
@@ -194,8 +194,13 @@ module Clearwater
       knife_create.config[:environment] = @environment
       knife_create.config[:run_list] = ["role[#{role}]"]
       if options[:index]
-        knife_create.config[:chef_node_name] = "#{@environment}-#{role}-#{options[:index]}"
-        knife_create.config[:json_attributes] = {:clearwater => {:index => options[:index]}}
+        if options[:site] > 1
+          knife_create.config[:chef_node_name] = "#{@environment}-#{role}-site#{options[:site]}-#{options[:index]}"
+          knife_create.config[:json_attributes] = {:clearwater => {:index => options[:index], :site => options[:site]}}
+        else
+          knife_create.config[:chef_node_name] = "#{@environment}-#{role}-#{options[:index]}"
+          knife_create.config[:json_attributes] = {:clearwater => {:index => options[:index], :site => 1}}
+        end
       else
         knife_create.config[:chef_node_name] = "#{@environment}-#{role}"
         knife_create.config[:json_attributes] = {:clearwater => {}}
@@ -347,7 +352,7 @@ def quiesce_box(box_name, env)
   hostname = node.cloud.public_hostname
   @ssh_key = File.join(attributes["keypair_dir"], "#{attributes["keypair"]}.pem")
   ssh_options = { keys: @ssh_key }
-  
+
   Net::SSH.start(hostname, "ubuntu", ssh_options) do |ssh|
     ssh.exec! "sudo monit unmonitor -g etcd"
     ssh.exec! "sudo monit unmonitor clearwater_config_manager"

@@ -49,6 +49,11 @@ module ClearwaterKnifePlugins
 
     banner "box create ROLE_NAME"
 
+    option :site,
+      :long => "--site SITE",
+      :description => "Site of node to create, will be appended to the node name",
+      :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--index must be an integer"; exit 2 end }
+
     option :index,
       :long => "--index INDEX",
       :description => "Index of node to create, will be appended to the node name",
@@ -78,7 +83,7 @@ module ClearwaterKnifePlugins
 
     option :ralf,
       :long => "--with-ralf",
-      :boolean => true,     
+      :boolean => true,
       :default => false,
       :description => "Does this deployment have a Ralf?"
 
@@ -102,7 +107,7 @@ module ClearwaterKnifePlugins
         box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
       end
 
-      new_box = box_manager.create_box(role, {index: config[:index], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
+      new_box = box_manager.create_box(role, {site: config[:site], index: config[:index], ralf: ((role == "ralf") || config[:ralf]), seagull: config[:seagull]})
       instance_id = new_box.id
 
       if config[:standalone]
