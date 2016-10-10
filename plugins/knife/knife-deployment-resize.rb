@@ -71,16 +71,6 @@ module ClearwaterKnifePlugins
       :description => "Number of failed node creates to tolerate before aborting",
       :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--fail-limit must be an integer"; exit 2 end }
 
-    option :subscribers,
-      :long => "--subscribers SUBSCRIBER_COUNT",
-      :description => "Ignore *-count arguments and scale to this many subs",
-      :proc => (Proc.new do |arg|
-        begin
-          Integer(arg).to_f
-        rescue
-          Chef::Log.error "--subscribers must be an integer"
-          exit 2
-        end
       end)
 
     option :cloud,
@@ -101,20 +91,6 @@ module ClearwaterKnifePlugins
     option :scscf_only,
       :long => "--scscf-only",
       :description => "Spins up the deployment with I-CSCF disabled."
-
-    # Auto-scaling parameters
-    #
-    # Scaling limits calculated from scaling tests on m1.small EC2 instances.
-    SCALING_LIMITS = { "bono" =>      { bhca: 200000, subs: 50000 },
-                       "homer" =>     { bhca: 2300000, subs: 1250000 },
-                       "homestead" => { bhca: 850000, subs: 5000000 },
-                       "ralf" =>      { bhca: 850000, subs: 5000000 },
-                       "sprout" =>    { bhca: 250000, subs: 250000 },
-                       "ellis" =>     { bhca: Float::INFINITY, subs: Float::INFINITY }
-    }
-
-    # Estimated number of busy hour calls per subscriber.
-    BHCA_PER_SUB = 2
 
     def get_current_counts
       result = Hash.new(0)
@@ -150,23 +126,12 @@ module ClearwaterKnifePlugins
         trigger_chef_client(cloud, query_string, true)
       end
     end
-
-    def calculate_box_counts(config)
-      Chef::Log.info "Subscriber count given, calculating box counts automatically:"
-
-      boxes = ["homer", "homestead", "sprout"]
-      boxes << "bono" if config[:bono_count] > 0
-      boxes << "ralf" if config[:ralf_count] > 0
-
-      boxes.each do |role|
-        count_using_bhca_limit = (config[:subscribers] * BHCA_PER_SUB / SCALING_LIMITS[role][:bhca]).ceil
-        count_using_subs_limit = (config[:subscribers] / SCALING_LIMITS[role][:subs]).ceil
-        config["#{role}_count".to_sym] = [count_using_bhca_limit, count_using_subs_limit, 1].max
-        Chef::Log.info " - #{role}: #{config["#{role}_count".to_sym]}"
-      end
-    end
+	
+	def report_progress stage
+	puts "#{stage} at #{Time.new.to_f - @start_time}"
 
     def run
+	  start_time = Time.new.to_f
       if (attributes["split_storage"] and attributes["gr"])
         abort("Unsupported configuration, split_storage and gr both true. Aborting process")
       end
@@ -174,14 +139,13 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
       Chef::Log.info "Starting resize operation"
 
-      # Calculate box counts from subscriber count
-      calculate_box_counts(config) if config[:subscribers]
-
       # Initialize status object
       init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "vellum", "dime"], ["seagull"])
 
       # Create security groups
+	  report_progress "About to configure security groups"
       configure_security_groups(config, SecurityGroupsCreate)
+	  report_progress "Configured security groups"
       set_progress 10
 
       # Enumerate current box counts so we can compare the desired list
@@ -212,6 +176,7 @@ module ClearwaterKnifePlugins
 
       # Confirm changes if there are any
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "vellum", "dime"]
+	  report_progress "Calculated new counts"
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create boxes
@@ -219,7 +184,9 @@ module ClearwaterKnifePlugins
       create_node_list = calculate_boxes_to_create(env, node_list)
 
       Chef::Log.info "Creating deployment nodes" unless create_node_list.empty?
+	  report_progress "Started launching boxes"
       launch_boxes(create_node_list)
+	  report_progress "Finished launching boxes"
       set_progress 50
 
       prepare_to_quiesce_extra_boxes(env.name, node_list, whitelist)
@@ -235,12 +202,14 @@ module ClearwaterKnifePlugins
       set_progress 60
 
       # Now that all the boxes are in place, cleanup any that failed
+	  report_progress "Cleaning deployment"
       clean_deployment config
       set_progress 70
 
       # Sleep to let chef catch up _sigh_
       sleep 10
 
+	  report_progress "Starting to initialise etcd cluster"
       # Set the etcd_cluster value. Mark any files that already exist.
       if old_counts.all? {|node_type, count| count == 0 }
         Chef::Log.info "Initializing etcd cluster"
@@ -266,10 +235,12 @@ module ClearwaterKnifePlugins
             end
           end
         end
+		report_progress "Finished initialising etcd cluster"
 
         # Run chef client to set up the etcd_cluster environment variable.
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]}")
+		report_progress "Finished running chef-client"
 
         # Create and upload the shared configuration. This should just be done
         # on a single node in each site. We choose the first Sprout or Vellum
@@ -303,6 +274,7 @@ module ClearwaterKnifePlugins
         query_strings = config_nodes.map { |n| "name:#{n.name}" }
         trigger_chef_client(config[:cloud],
                             "chef_environment:#{config[:environment]} AND (#{query_strings.join(" OR ")})")
+		report_progress "Finished applying shared config"
       end
 
       Chef::Log.info "Sleeping for 90 seconds before updating DNS to allow cluster to synchronize..."
@@ -312,16 +284,20 @@ module ClearwaterKnifePlugins
       # to pick up the final state. In particular, this step is what creates
       # numbers on ellis (which can only happen after it's picked up the shared
       # config, so we want to do it as late as possible).
+	  report_progress "Starting final chef-client"
       trigger_chef_client(config[:cloud],
                           "chef_environment:#{config[:environment]}")
+	  report_progress "Finished final chef-client"
 
       sleep(10)
 
       # Setup DNS zone record
+	  report_progress "Starting DNS configuration"
       configure_dns_zone(config, attributes)
       set_progress 95
       configure_dns(config, DnsRecordsCreate)
       set_progress 99
+	  report_progress "Finished DNS configuration"
 
       Chef::Log.info "Finishing resize operation"
 
