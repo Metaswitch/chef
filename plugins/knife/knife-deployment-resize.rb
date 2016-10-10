@@ -284,36 +284,36 @@ module ClearwaterKnifePlugins
       sleep 10
 
       # Set the etcd_cluster value. Mark any files that already exist.
-      # We only need to do this if we are adding sites
-      if adding_sites?(old_counts, number_of_sites)
-        Chef::Log.info "Initializing etcd cluster"
-
-        if attributes["split_storage"]
-          %w{vellum}.each do |node|
-            # Get the list of nodes and iterate over them adding the
-            # etcd_cluster attribute
-            cluster = find_nodes(roles: node)
-            cluster.each do |s|
-              s.set[:clearwater][:etcd_cluster] = true
-              s.save
-            end
-          end
-        else
-          %w{sprout ralf homer homestead bono ellis}.each do |node|
-            # Get the list of nodes and iterate over them adding the
-            # etcd_cluster attribute
-            cluster = find_nodes(roles: node)
-            cluster.each do |s|
-              s.set[:clearwater][:etcd_cluster] = true
-              s.save
-            end
+      Chef::Log.info "Initializing etcd cluster"
+      if attributes["split_storage"]
+        %w{vellum}.each do |node|
+          # Get the list of nodes and iterate over them adding the
+          # etcd_cluster attribute
+          cluster = find_nodes(roles: node)
+          cluster.each do |s|
+            s.set[:clearwater][:etcd_cluster] = true
+            s.save
           end
         end
+      else
+        %w{sprout ralf homer homestead bono ellis}.each do |node|
+          # Get the list of nodes and iterate over them adding the
+          # etcd_cluster attribute
+          cluster = find_nodes(roles: node)
+          cluster.each do |s|
+            s.set[:clearwater][:etcd_cluster] = true
+            s.save
+          end
+        end
+      end
 
-        # Run chef client to set up the etcd_cluster environment variable.
-        trigger_chef_client(config[:cloud],
-                            "chef_environment:#{config[:environment]}")
+      # Run chef client to set up the etcd_cluster environment variable.
+      trigger_chef_client(config[:cloud],
+                          "chef_environment:#{config[:environment]}")
 
+      # If we are adding new sites, we need to upload shared config in the new
+      # sites.
+      if adding_sites?(old_counts, number_of_sites)
         # Create and upload the shared configuration. This should just be done
         # on a single node in each site. We choose the first Sprout or Vellum
         # node, depending on deployment architecture.

@@ -67,50 +67,40 @@ end
 
 if node[:clearwater][:split_storage]
   sprout_registration_store = "\"site1=vellum-site1.#{domain}"
+  ralf_session_store = "\"site1=vellum-site1.#{domain}"
   for i in 2..number_of_sites
     sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
+    ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
   end
-else
-  sprout_registration_store = "\"site1=sprout-site1.#{domain}"
-  for i in 2..number_of_sites
-    sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
-  end
-end
-sprout_registration_store = "#{sprout_registration_store}\""
 
-if node[:clearwater][:split_storage]
   sprout_impi_store = "vellum#{site_suffix}.#{domain}"
   chronos_hostname = "vellum#{site_suffix}.#{domain}"
-else
-  sprout_impi_store = "localhost"
-  chronos_hostname = "localhost"
-end
-
-if node[:clearwater][:split_storage]
   cassandra_hostname = "vellum#{site_suffix}.#{domain}"
-else
-  cassandra_hostname = "localhost"
-end
 
-ralf_session_store = "\"site1=ralf-site1.#{domain}"
-for i in 2..number_of_sites
-  ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
-end
-ralf_session_store = "#{ralf_session_store}\""
-
-sprout_aliases = ["sprout." + domain]
-
-for i in 1..number_of_sites
-  sprout_aliases.push("sprout-site#{i}." + domain)
-end
-
-if node[:clearwater][:split_storage]
   # We have dime nodes running the ralf process
   ralf = "ralf#{site_suffix}.#{domain}:10888"
 else
+  sprout_registration_store = "\"site1=sprout-site1.#{domain}"
+  ralf_session_store = "\"site1=ralf-site1.#{domain}"
+  for i in 2..number_of_sites
+    sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
+    ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
+  end
+
+  sprout_impi_store = "localhost"
+  chronos_hostname = "localhost"
+  cassandra_hostname = "localhost"
+
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
     ralf = "ralf#{site_suffix}.#{domain}:10888"
   end
+end
+sprout_registration_store = "#{sprout_registration_store}\""
+ralf_session_store = "#{ralf_session_store}\""
+
+sprout_aliases = ["sprout." + domain]
+for i in 1..number_of_sites
+  sprout_aliases.push("sprout-site#{i}." + domain)
 end
 
 template "/etc/clearwater/shared_config" do
@@ -119,9 +109,7 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    alias_list: if node.roles.include? "sprout"
-                  sprout_aliases.join(",")
-                end,
+    alias_list: sprout_aliases.join(","),
     hs: "hs#{site_suffix}.#{domain}:8888",
     hs_prov: "hs#{site_suffix}.#{domain}:8889",
     homer: "homer#{site_suffix}.#{domain}:7888",

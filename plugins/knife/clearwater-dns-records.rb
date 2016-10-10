@@ -185,115 +185,118 @@ def dns_records
 
   if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
     number_of_sites = attributes["num_gr_sites"]
-    for i in 1..number_of_sites
-      base_gr_dns = {
-        "sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+  else
+    number_of_sites = 1
+  end
 
-        "scscf.sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+  for i in 1..number_of_sites
+    base_gr_dns = {
+      "sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "icscf.sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "scscf.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "_sip._tcp.scscf.sprout-site#{i}" => {
-          :type  => "SRV",
-          :value => scscf_srv_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "icscf.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "_sip._tcp.icscf.sprout-site#{i}" => {
-          :type  => "SRV",
-          :value => icscf_srv_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "_sip._tcp.scscf.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => scscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "_sip._tcp.sprout-site#{i}" => {
-          :type  => "SRV",
-          :value => scscf_srv_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "_sip._tcp.icscf.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => icscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "cdiv.sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "_sip._tcp.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => scscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "gemini.sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
+      "cdiv.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-        "memento.sprout-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("sprout"), i),
-          :ttl   => "60"
-        },
-      }
-      base_dns = base_dns.merge(base_gr_dns)
+      "gemini.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
 
-      homer_gr_dns = {
-        "homer-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("homer"), i),
-          :ttl   => "60"
-        },
-      }
-      homer_dns = homer_dns.merge(homer_gr_dns)
+      "memento.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+    }
+    base_dns = base_dns.merge(base_gr_dns)
 
-      homestead_gr_dns = {
-        "hs-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("homestead"), i),
-          :ttl   => "60"
-        },
-      }
-      homestead_dns = homestead_dns.merge(homestead_gr_dns)
+    homer_gr_dns = {
+      "homer-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("homer"), i),
+        :ttl   => "60"
+      },
+    }
+    homer_dns = homer_dns.merge(homer_gr_dns)
 
-      ralf_gr_dns = {
-        "ralf-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("ralf"), i),
-          :ttl   => "60"
-        },
-      }
-      ralf_dns = ralf_dns.merge(ralf_gr_dns)
+    homestead_gr_dns = {
+      "hs-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("homestead"), i),
+        :ttl   => "60"
+      },
+    }
+    homestead_dns = homestead_dns.merge(homestead_gr_dns)
 
-      dime_gr_dns = {
-        "hs-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("dime"), i),
-          :ttl   => "60"
-        },
+    ralf_gr_dns = {
+      "ralf-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("ralf"), i),
+        :ttl   => "60"
+      },
+    }
+    ralf_dns = ralf_dns.merge(ralf_gr_dns)
 
-        "ralf-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("dime"), i),
-          :ttl   => "60"
-        },
-      }
-      dime_dns = dime_dns.merge(dime_gr_dns)
+    dime_gr_dns = {
+      "hs-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("dime"), i),
+        :ttl   => "60"
+      },
 
-      vellum_gr_dns = {
-        "vellum-site#{i}" => {
-          :type  => "A",
-          :value => ipv4s_local_site(find_active_nodes("vellum"), i),
-          :ttl   => "60"
-        },
-      }
-      vellum_dns = vellum_dns.merge(vellum_gr_dns)
-    end
+      "ralf-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("dime"), i),
+        :ttl   => "60"
+      },
+    }
+    dime_dns = dime_dns.merge(dime_gr_dns)
+
+    vellum_gr_dns = {
+      "vellum-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("vellum"), i),
+        :ttl   => "60"
+      },
+    }
+    vellum_dns = vellum_dns.merge(vellum_gr_dns)
   end
 
   dns = dns.merge(base_dns)
