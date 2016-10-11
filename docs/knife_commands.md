@@ -87,6 +87,11 @@ Another reason is that there's already been a box created with the same name. Yo
     knife client delete <box name> -E <env>
     knife node delete <box name> -E <env>
 
+To delete multiple references you can run:
+
+    knife client bulk delete <box name regex> -E <env>
+    knife node bulk delete <box name regex> -E <env>
+    
 ## Incorrect cookbooks
 
 Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.
