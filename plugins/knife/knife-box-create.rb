@@ -124,7 +124,7 @@ module ClearwaterKnifePlugins
       end
 
       if role == "cw_aio"
-        puts "Note: The signup code for AIO nodes is 'secret', not the value configured in knife.rb"
+        puts "Note: The signup code for AIO nodes is 'secret', not the value configured in your environment file"
       end
 
       if role == "cw_ami"
