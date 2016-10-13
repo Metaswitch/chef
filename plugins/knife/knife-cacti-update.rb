@@ -70,6 +70,10 @@ module ClearwaterKnifePlugins
         find_nodes(roles: "chef-base", role: "sipp").each do |node|
           run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} SIPp || /bin/true")
         end
+
+        find_nodes(roles: "chef-base", role: "homestead").each do |node|
+          run_command(options[:cloud], "chef_environment:#{env} AND name:#{cacti.name}", "sudo bash /usr/share/clearwater/cacti/add_device.sh #{node.cloud.local_ipv4} #{node.name} Homestead || /bin/true")
+        end
       end
     end
   end
