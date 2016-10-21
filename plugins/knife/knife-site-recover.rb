@@ -32,6 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
+require_relative 'knife-deployment-utils'
 require_relative 'knife-clearwater-utils'
 require_relative 'trigger-chef-client'
 
