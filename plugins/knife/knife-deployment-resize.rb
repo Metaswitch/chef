@@ -208,6 +208,9 @@ module ClearwaterKnifePlugins
           new_counts.delete(:ralf)
           new_counts[:dime] = config[:dime_count] || [old_counts[:dime], 1].max
           config[:dime_count] = new_counts[:dime]
+        else
+          new_counts[:vellum] = old_counts[:vellum]
+          new_counts[:dime] = old_counts[:dime]
         end
 
       # Confirm changes if there are any
