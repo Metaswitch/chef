@@ -295,6 +295,12 @@ def dns_records
         :value => ipv4s_local_site(find_active_nodes("vellum"), i),
         :ttl   => "60"
       },
+
+      "chronos-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("vellum"), i),
+        :ttl   => "60"
+      },
     }
     vellum_dns = vellum_dns.merge(vellum_gr_dns)
   end
