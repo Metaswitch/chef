@@ -9,14 +9,14 @@ Amazon EC2 offers the ability to run your instances in a Virtual Private Cloud (
 If you simply want to create a VPC dedicated to running Project Clearwater, isolated from other services in your EC2 environment (but still accessible from the wider internet), you should follow these instructions:
 
 1. Log into your Amazon EC2 management console and navigate to the VPC Dashboard (https://console.aws.amazon.com/vpc/home)
-1. Click "Your VPCs" in the right-hand navigation pane
+1. Click "Your VPCs" in the left-hand navigation pane
 1. Click "Create VPC", filling in the following answers into the pop-up:
     * Name - A name to describe the VPC (e.g. `clearwater-vpc`)
     * CIDR Block - `10.0.0.0/16`
     * Tenancy - `Default`
 1. Right-click on the newly created VPC and select "Edit DNS Hostnames"
 1. Choose "Yes" and click "Save"
-1. Click "Subnets" in the right-hand navigation pane
+1. Click "Subnets" in the left-hand navigation pane
 1. Click "Create Subnet", filling in the following answers into the pop-up:
     * Name - A name for the subnet (e.g. `clearwater-subnet`)
     * VPC - The VPC you just created
@@ -24,12 +24,12 @@ If you simply want to create a VPC dedicated to running Project Clearwater, isol
     * CIDR Block - `10.0.0.0/16`
 1. Right-click on the newly created subnet and select "Modify Auto-assign Public IP"
 1. Check the box and click "Save"
-1. Click "Internet Gateways" in the right-hand navigation pane
+1. Click "Internet Gateways" in the left-hand navigation pane
 1. Click "Create Internet Gateway", filling in the following answers into the pop-up:
     * Name - A name for the gateway (e.g. `clearwater-gateway`)
 1. Right-click on the newly created gateway and select "Attach to VPC"
 1. Choose the VPC you just created and click "Save"
-1. Click "Route Tables" in the right-hand navigation pane
+1. Click "Route Tables" in the left-hand navigation pane
 1. Locate the route table that is associated with your VPC
     * Optionally you might want to give this table a name to distinguish it in the dashboard
 1. Click the "Routes" tab at the bottom of the screen.

@@ -144,6 +144,8 @@ def sprout_security_group_rules
       { ip_protocol: :tcp, min: 9888, max: 9888, group: "sprout" },
       # Homestead deregistration interface
       { ip_protocol: :tcp, min: 9888, max: 9888, group: "homestead" },
+      # Mangement HTTP API
+      { ip_protocol: :tcp, min: 9886, max: 9886, group: "base" },
     ]
 end
 
@@ -157,6 +159,8 @@ def homestead_security_group_rules
       # Cassandra
       { ip_protocol: :tcp, min: 7000, max: 7000, group: "homestead" },
       { ip_protocol: :tcp, min: 9160, max: 9160, group: "homestead" },
+      # Mangement HTTP API
+      { ip_protocol: :tcp, min: 8886, max: 8886, group: "base" },
     ]
 end
 

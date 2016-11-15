@@ -109,8 +109,12 @@ template "/etc/clearwater/shared_config" do
   variables domain: domain,
     node: node,
     sprout: "sprout#{site_suffix}.#{domain}",
-    alias_list: sprout_aliases.join(","),
+    sprout_mgmt: "sprout#{site_suffix}.#{domain}:9886",
+    alias_list: if node.roles.include? "sprout"
+                  sprout_aliases.join(",")
+                end,
     hs: "hs#{site_suffix}.#{domain}:8888",
+    hs_mgmt: "hs#{site_suffix}.#{domain}:8886",
     hs_prov: "hs#{site_suffix}.#{domain}:8889",
     homer: "homer#{site_suffix}.#{domain}:7888",
     ralf: ralf,

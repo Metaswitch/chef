@@ -24,6 +24,6 @@ Knife provides commands for updating the config on the Chef server. Typically yo
 * Environments - edit files in `environments/` and upload with `knife environment from file environments/<name>.rb`
 * Roles - edit files in `roles/` and upload with `knife role from file roles/<name>.rb`
 
-For details on more knife commands check out [our documentation](https://github.com/Metaswitch/chef/blob/dev/docs/knife_commands.md), run `knife --help` and consult the [chef documentation](http://docs.opscode.com/knife.html)
+For details on more knife commands check out [our documentation](https://github.com/Metaswitch/chef/blob/master/docs/knife_commands.md), run `knife --help` and consult the [chef documentation](http://docs.opscode.com/knife.html)
 
 Also, see the [knife cheatsheet](http://docs.opscode.com/_images/qr_knife_web.png)

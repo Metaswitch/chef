@@ -1,7 +1,9 @@
 # Deployment definitions
 home_domain=<%= @domain %>
 sprout_hostname=<%= @sprout %>
+sprout_mgmt_hostname=<%= @sprout_mgmt %>
 hs_hostname=<%= @hs %>
+hs_mgmt_hostname=<%= @hs_mgmt %>
 hs_provisioning_hostname=<%= @hs_prov %>
 xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
@@ -30,7 +32,7 @@ hss_port=<%= @node[:clearwater][:hss_port] %>
 <% if not @node[:clearwater][:hss_realm].nil? %>hss_realm=<%= @node[:clearwater][:hss_realm] %><% end %>
 
 # CDF configuration
-<% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% end %>
+<% if not @node[:clearwater][:billing_realm].nil? %>billing_realm=<%= @node[:clearwater][:billing_realm] %><% else %>billing_realm=<%= @cdf %><% end %>
 
 # Registrar configuration
 <% if @node[:clearwater][:reg_max_expires] %>reg_max_expires=<%= @node[:clearwater][:reg_max_expires] %><% end %>
