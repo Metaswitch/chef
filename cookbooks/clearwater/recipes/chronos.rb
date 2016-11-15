@@ -40,16 +40,11 @@ directory "/etc/chronos" do
 end
 
 # Check if we have a GR deployment, and setup the correct configuration if we do.
-if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:index]
+if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:site]
   number_of_sites = node[:clearwater][:num_gr_sites]
 
   # Set up the local site
-  local_site_index = node[:clearwater][:index] % number_of_sites
-  if local_site_index == 0
-    local_site_index = number_of_sites
-  end
-
-  local_site="site#{local_site_index}"
+  local_site = "site#{node[:clearwater][:site]}"
 
   # Set up the remote sites
   domain = node.chef_environment + "." + node[:clearwater][:root_domain]
