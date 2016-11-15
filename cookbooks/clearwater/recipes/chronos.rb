@@ -49,7 +49,7 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   # Set up the remote sites
   domain = node.chef_environment + "." + node[:clearwater][:root_domain]
   for i in 1..number_of_sites
-    remote_sites = "#{remote_sites}remote_site = site#{i}=chronos-site#{i}.#{domain}\n"
+    remote_sites = "#{remote_sites}remote_site = site#{i}=vellum-site#{i}.#{domain}\n"
   end
 else
   local_site = "single_site"
