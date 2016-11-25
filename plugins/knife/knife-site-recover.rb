@@ -48,17 +48,6 @@ module ClearwaterKnifePlugins
       :description => "Recovers the spcified site",
       :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--site must be an integer"; exit 2 end }
 
-    option :cloud,
-      :long => "--cloud CLOUD",
-      :default => "ec2",
-      :description => "Cloud to create box in. Currently support: #{Clearwater::BoxManager.supported_clouds.join ', '}",
-      :proc => (Proc.new do |arg|
-        unless Clearwater::BoxManager.supported_clouds.include? arg.to_sym
-          Chef::Log.error "#{arg} is not a supported cloud"
-          exit 2
-        end
-      end)
-
     def run
       Chef::Log.info "Recovering site #{config[:site]} in environment: #{config[:environment]}"
 
