@@ -130,21 +130,3 @@ execute "upload_shared_config" do
   command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config"
   action :nothing
 end
-
-execute "upload_enum_json" do
-  user "root"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_enum_json"
-  action :nothing
-end
-
-execute "upload_bgcf_json" do
-  user "root"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_bgcf_json"
-  action :nothing
-end
-
-execute "upload_scscf_json" do
-  user "root"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_scscf_json"
-  action :nothing
-end
