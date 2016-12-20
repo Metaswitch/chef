@@ -56,7 +56,7 @@ module Clearwater
         {:name => "ralf", :security_groups => ["base", "ralf", "vellum"]},
         {:name => "dns", :security_groups => ["base", "dns"], :public_ip => true},
         {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
-        {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},
+        {:name => "sipp", :security_groups => ["base", "sipp", "internal-sip"], :public_ip => true},
         {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true},
         {:name => "plivo", :security_groups => ["base", "internal-sip", "plivo"], :public_ip => true},
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},

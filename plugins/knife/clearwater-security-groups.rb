@@ -258,6 +258,8 @@ def sipp_security_group_rules
     { ip_protocol: :udp, min: 5060, max: 5060, cidr_ip: "0.0.0.0/0" },
     # Statistics interface
     { ip_protocol: :tcp, min: 6666, max: 6666, cidr_ip: "0.0.0.0/0" },
+    # Traffic from Sprout to the callee
+    { ip_protocol: :tcp, min: 5082, max: 5082, group: "internal-sip" },
   ]
 end
 
