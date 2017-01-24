@@ -48,5 +48,5 @@ end
 cron "backup" do
   hour 0
   minute 0
-  command "/usr/share/clearwater/bin/do_backup.sh homer"
+  command "/usr/share/clearwater/bin/run-in-signaling-namespace /usr/share/clearwater/bin/do_backup.sh homer"
 end
