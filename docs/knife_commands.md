@@ -108,6 +108,12 @@ To delete multiple references you can run:
     knife client bulk delete <box name regex> -E <env>
     knife node bulk delete <box name regex> -E <env>
     
+## Connection errors
+
+Sometimes, when creating a new deployment with `deployment resize`, the post-creation setup process fails with a connection error - typically characterised by a timeout, and by the etcd cluster setup and shared_config setup steps being skipped. This may happen if there are rogue clients and nodes which no longer exist.
+
+Check for these rogue entries with `knife client list` and `knife node list`. If there are references related to your environment which you did not expect to see, delete the references, using the commands listed above in the 'Authentication errors' section.
+    
 ## Incorrect cookbooks
 
 Another common issue is that the cookbooks used during a chef operation aren't the cookbooks you expected to be used.

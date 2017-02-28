@@ -42,6 +42,11 @@ package "clearwater-sip-stress" do
   options "--force-yes"
 end
 
+package "clearwater-sip-stress-coreonly" do
+  action [:install]
+  options "--force-yes"
+end
+
 package "clearwater-sip-stress-stats" do
   action [:install]
   options "--force-yes"

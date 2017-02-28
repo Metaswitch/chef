@@ -51,10 +51,10 @@ end
 cron "backup" do
   hour 0
   minute 0
-  command "/usr/share/clearwater/bin/do_backup.sh homestead_provisioning"
+  command "/usr/share/clearwater/bin/run-in-signaling-namespace /usr/share/clearwater/bin/do_backup.sh homestead_provisioning"
 end
 cron "backup_cache" do
   hour 0
   minute 5
-  command "/usr/share/clearwater/bin/do_backup.sh homestead_cache"
+  command "/usr/share/clearwater/bin/run-in-signaling-namespace /usr/share/clearwater/bin/do_backup.sh homestead_cache"
 end

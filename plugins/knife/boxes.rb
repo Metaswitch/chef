@@ -56,7 +56,7 @@ module Clearwater
         {:name => "ralf", :security_groups => ["base", "ralf", "vellum"]},
         {:name => "dns", :security_groups => ["base", "dns"], :public_ip => true},
         {:name => "cacti", :security_groups => ["base", "cacti"], :public_ip => true},
-        {:name => "sipp", :security_groups => ["base", "sipp"], :public_ip => true},
+        {:name => "sipp", :security_groups => ["base", "sipp", "internal-sip"], :public_ip => true},
         {:name => "enum", :security_groups => ["base", "enum"], :public_ip => true},
         {:name => "plivo", :security_groups => ["base", "internal-sip", "plivo"], :public_ip => true},
         {:name => "openimscorehss", :security_groups => ["base", "hss"]},
@@ -72,6 +72,20 @@ module Clearwater
       @options = options
       @supported_boxes = supported_boxes
       @@supported_roles = @supported_boxes.map { |r| r[:name] }
+
+      # If we're using a VPC (either because one is explicitly set or because
+      # we have a default VPC), set our cloud type to :ec2_vpc so we use a
+      # different set of default flavours and images.
+      if @cloud == :ec2 and (@attributes["vpc"] or has_default_vpc)
+        @cloud = :ec2_vpc
+      end
+
+    end
+
+    def has_default_vpc
+      ec2_conn = Fog::Compute::AWS.new(Chef::Config[:knife].select { |k, v| [:aws_secret_access_key, :aws_access_key_id].include? k })
+      default_vpcs = ec2_conn.describe_vpcs.body['vpcSet'].select { |v| v['isDefault'] == "true" }
+      return (default_vpcs.length > 0)
     end
 
     @@supported_clouds = [
@@ -136,12 +150,6 @@ module Clearwater
     end
 
     def choose_flavor(role)
-      cloud = @cloud
-
-      if @attributes["vpc"] and @cloud == :ec2
-        cloud = :ec2_vpc
-      end
-
       memento = (role == "sprout" and @attributes["memento_enabled"] == "Y")
       gemini = (role == "sprout" and @attributes["gemini_enabled"] == "Y")
       cdiv_as = (role == "sprout" and @attributes["cdiv_as_enabled"] == "Y")
@@ -156,32 +164,26 @@ module Clearwater
         @attributes["cdiv_as_flavor"]
       elsif @attributes["flavor"]
         @attributes["flavor"]
-      elsif (@@role_flavors[role] and @@role_flavors[role][cloud])
-        @@role_flavors[role][cloud]
-      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][cloud]))
-        @@role_flavors["memento"][cloud]
+      elsif (@@role_flavors[role] and @@role_flavors[role][@cloud])
+        @@role_flavors[role][@cloud]
+      elsif (memento and (@@role_flavors["memento"] and @@role_flavors["memento"][@cloud]))
+        @@role_flavors["memento"][@cloud]
       else
-        @@default_flavor[cloud]
+        @@default_flavor[@cloud]
       end
     end
 
     def choose_image(options)
-      cloud = @cloud
-
-      if @attributes["vpc"] and @cloud == :ec2
-        cloud = :ec2_vpc
-      end
-
       (options[:image] or
        @attributes["ec2_image"] or
-       @@default_image[cloud][@attributes["region"]] or
-       @@default_image[cloud][:default])
+       @@default_image[@cloud][@attributes["region"]] or
+       @@default_image[@cloud][:default])
     end
 
     def create_box(role, options)
       raise ArgumentError.new "role must be one of: #{@@supported_roles.join ', '}. #{role} was passed" unless @@supported_roles.include? role
       box = @supported_boxes.select{ |b| b[:name] == role }.first
-      if @cloud == :ec2
+      if (@cloud == :ec2 or @cloud == :ec2_vpc)
         knife_create = Chef::Knife::Ec2ServerCreate.new
       elsif @cloud == :openstack
         knife_create = Chef::Knife::OpenstackServerCreate.new
@@ -218,11 +220,11 @@ module Clearwater
       Chef::Config[:knife][:image] = knife_create.config[:image]
 
       # Cloud specific config
-      if @cloud == :ec2
+      if (@cloud == :ec2 or @cloud == :ec2_vpc)
         knife_create.config[:region] = @attributes["region"]
         knife_create.config[:availability_zone] = @attributes["availability_zones"].sample
 
-        # If we're running in a VPC, configure the instance appropriately
+        # If we're running in a specific VPC, configure the instance appropriately
         unless @attributes["vpc"].nil?
           fail "Must specify a VPC ID to use VPC support" if @attributes["vpc"]["vpc_id"].nil?
           fail "Must specify a subnet to use VPC support" if @attributes["vpc"]["subnet_id"].nil?
