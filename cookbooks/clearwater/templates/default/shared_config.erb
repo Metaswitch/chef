@@ -8,25 +8,17 @@ hs_provisioning_hostname=<%= @hs_prov %>
 xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
 cdf_identity=<%= @cdf %>
+sprout_impi_store=<%= @sprout_impi_store %>
+sprout_registration_store=<%= @sprout_registration_store %>
+cassandra_hostname=<%= @cassandra_hostname %>
+chronos_hostname=<%= @chronos_hostname %>
+ralf_session_store=<%= @ralf_session_store %>
+<% if not @memento_auth_store.nil? %>memento_auth_store=<%= @memento_auth_store %><% end %>
 sas_server=<%= @node[:clearwater][:sas_server] or "0.0.0.0" %>
 enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
-
-<% if @vellum %>
-# Storage Pool
-cassandra_hostname=<%= @vellum %>
-chronos_hostname=<%= @vellum %>
-ralf_session_store=single_site=<%= @vellum %>
-sprout_registration_store=single_site=<%= @vellum %>
-sprout_impi_store=<%= @vellum %>
-<% else %>
-# Database configuration
-cassandra_hostname=<%= @node[:clearwater][:cassandra_hostname] %>
-chronos_hostname=localhost
-ralf_session_store=single_site=localhost
-sprout_registration_store=single_site=localhost
-sprout_impi_store=localhost
-<% end %>
+scscf_uri=<%= @scscf_uri %>
+upstream_port=<%= @upstream_port %>
 
 # Email server configuration
 smtp_smarthost=<%= @node[:clearwater][:smtp_server] %>

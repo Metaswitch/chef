@@ -1,4 +1,4 @@
-# @file vellum.rb
+# @file knife-site-recover.rb
 #
 # Project Clearwater - IMS in the Cloud
 # Copyright (C) 2016  Metaswitch Networks Ltd
@@ -32,12 +32,34 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-name "vellum"
-description "vellum role"
-run_list [
-  "role[clearwater-base]",
-  "role[alarms]",
-  "recipe[clearwater::chronos]",
-  "recipe[clearwater::vellum]",
-  "role[clearwater-etcd]"
-]
+require_relative 'knife-deployment-utils'
+require_relative 'knife-clearwater-utils'
+require_relative 'trigger-chef-client'
+
+module ClearwaterKnifePlugins
+  class SiteRecover < Chef::Knife
+    include ClearwaterKnifePlugins::ClearwaterUtils
+    include ClearwaterKnifePlugins::TriggerChefClient
+
+    banner "knife site recover -E ENV --site SITE"
+
+    option :site,
+      :long => "--site <site to recover>",
+      :description => "Recovers the spcified site",
+      :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--site must be an integer"; exit 2 end }
+
+    def run
+      Chef::Log.info "Recovering site #{config[:site]} in environment: #{config[:environment]}"
+
+      # Find nodes in the specified site
+      nodes = find_nodes(roles: "chef-base", site: config[:site])
+
+      query_string_nodes = nodes.map { |n| "name:#{n.name}" }.join " OR "
+      query_string = "chef_environment:#{config[:environment]} AND (#{query_string_nodes})"
+
+      command = "sudo monit start all"
+
+      run_command(config[:cloud], query_string, command)
+    end
+  end
+end

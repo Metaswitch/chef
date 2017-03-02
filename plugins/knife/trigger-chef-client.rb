@@ -79,6 +79,8 @@ module ClearwaterKnifePlugins
                   "sudo nice -n 19 chef-client"
                 end
 
+      # Run apt-get update first to make sure we have the latest packages.
+      run_command(cloud, query_string, "sudo apt-get update")
       run_command(cloud, query_string, command)
     end
   end

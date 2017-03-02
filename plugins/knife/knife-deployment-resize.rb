@@ -57,8 +57,7 @@ module ClearwaterKnifePlugins
     %w{bono homestead homer ibcf sprout sipp ralf vellum dime}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
-             description: "Number of #{node} nodes to launch",
-             :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
+             description: "Number of #{node} nodes to launch"
     end
 
     option :seagull,
@@ -116,10 +115,41 @@ module ClearwaterKnifePlugins
     # Estimated number of busy hour calls per subscriber.
     BHCA_PER_SUB = 2
 
-    def get_current_counts
+    def parse_config(config, number_of_sites)
+      count = Hash.new()
+      array = []
+      %w{bono ibcf homer homestead sprout sipp ralf vellum dime}.each do |node|
+        if config["#{node}_count".to_sym]
+          array = config["#{node}_count".to_sym].split(",").map { |s| s.to_i }
+          if array.size != number_of_sites
+            abort("Unsupported configuration, --#{node}-count inconsistent with num_gr_sites")
+          else
+            for i in 1..number_of_sites
+              count["#{node}-site#{i}".to_sym] = array[i-1]
+            end
+          end
+        end
+      end
+      return count
+    end
+
+    def get_current_counts(number_of_sites)
       result = Hash.new(0)
       %w{bono ellis ibcf homer homestead sprout sipp ralf seagull vellum dime}.each do |node|
-        result[node.to_sym] = find_nodes(roles: "chef-base", role: node).length
+        for i in 1..number_of_sites
+          result["#{node}-site#{i}".to_sym] = find_nodes(roles: "chef-base", site: i, role: node).length
+        end
+      end
+      return result
+    end
+
+    # An existing site must have at least one bono
+    def adding_sites?(count, number_of_sites)
+      result = false
+      for i in 1..number_of_sites
+        if count["bono-site#{i}".to_sym] == 0
+          result = true
+        end
       end
       return result
     end
@@ -167,12 +197,17 @@ module ClearwaterKnifePlugins
     end
 
     def run
-      if (attributes["split_storage"] and attributes["gr"])
-        abort("Unsupported configuration, split_storage and gr both true. Aborting process")
-      end
-
       Chef::Log.info "Managing deployment in environment: #{config[:environment]}"
       Chef::Log.info "Starting resize operation"
+
+      if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+        number_of_sites = attributes["num_gr_sites"]
+      else
+        number_of_sites = 1
+      end
+
+      # Check and parse config before we start
+      count = parse_config(config, number_of_sites)
 
       # Calculate box counts from subscriber count
       calculate_box_counts(config) if config[:subscribers]
@@ -185,33 +220,37 @@ module ClearwaterKnifePlugins
       set_progress 10
 
       # Enumerate current box counts so we can compare the desired list
-      old_counts = get_current_counts
+      old_counts = get_current_counts(number_of_sites)
 
       # Set up new box counts based on supplied config, or existing state.
       # If an essential node type currently has no boxes, make sure we
       # create one.
       seagull_count = (config[:seagull] ? 1 : 0)
 
-      new_counts = {
-        ellis: 1,
-        bono: config[:bono_count] || [old_counts[:bono], 1].max,
-        homestead: config[:homestead_count] || [old_counts[:homestead], 1].max,
-        ralf: config[:ralf_count] || old_counts[:ralf],
-        homer: config[:homer_count] || [old_counts[:homer], 1].max,
-        sprout: config[:sprout_count] || [old_counts[:sprout], 1].max,
-        ibcf: config[:ibcf_count] || old_counts[:ibcf],
-        sipp: config[:sipp_count] || old_counts[:sipp],
-        seagull: seagull_count || old_counts[:seagull] }
-        if attributes["split_storage"]
-          new_counts[:vellum] = config[:vellum_count] || [old_counts[:vellum], 1].max
-          new_counts.delete(:homestead)
-          new_counts.delete(:ralf)
-          new_counts[:dime] = config[:dime_count] || [old_counts[:dime], 1].max
-          config[:dime_count] = new_counts[:dime]
-        else
-          new_counts[:vellum] = old_counts[:vellum]
-          new_counts[:dime] = old_counts[:dime]
+      new_counts = Hash.new(0)
+      new_counts["ellis-site1".to_sym] = 1
+      new_counts[:seagull] = seagull_count || old_counts[:seagull]
+      %w{bono homer homestead sprout vellum dime}.each do |node|
+        for i in 1..number_of_sites
+          new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || [old_counts["#{node}-site#{i}".to_sym], 1].max
         end
+      end
+      %w{ibcf sipp ralf}.each do |node|
+        for i in 1..number_of_sites
+          new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || old_counts["#{node}-site#{i}".to_sym]
+        end
+      end
+      if attributes["split_storage"]
+        for i in 1..number_of_sites
+          new_counts.delete("homestead-site#{i}".to_sym)
+          new_counts.delete("ralf-site#{i}".to_sym)
+        end
+      else
+        for i in 1..number_of_sites
+          new_counts.delete("dime-site#{i}".to_sym)
+          new_counts.delete("vellum-site#{i}".to_sym)
+        end
+      end
 
       # Confirm changes if there are any
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "vellum", "dime"]
@@ -245,49 +284,50 @@ module ClearwaterKnifePlugins
       sleep 10
 
       # Set the etcd_cluster value. Mark any files that already exist.
-      if old_counts.all? {|node_type, count| count == 0 }
-        Chef::Log.info "Initializing etcd cluster"
-
-        if attributes["split_storage"]
-          %w{vellum}.each do |node|
-            # Get the list of nodes and iterate over them adding the
-            # etcd_cluster attribute
-            cluster = find_nodes(roles: node)
-            cluster.each do |s|
-              s.set[:clearwater][:etcd_cluster] = true
-              s.save
-            end
-          end
-        else
-          %w{sprout ralf homer homestead bono ellis}.each do |node|
-            # Get the list of nodes and iterate over them adding the
-            # etcd_cluster attribute
-            cluster = find_nodes(roles: node)
-            cluster.each do |s|
-              s.set[:clearwater][:etcd_cluster] = true
-              s.save
-            end
+      Chef::Log.info "Initializing etcd cluster"
+      if attributes["split_storage"]
+        %w{vellum}.each do |node|
+          # Get the list of nodes and iterate over them adding the
+          # etcd_cluster attribute
+          cluster = find_nodes(roles: node)
+          cluster.each do |s|
+            s.set[:clearwater][:etcd_cluster] = true
+            s.save
           end
         end
+      else
+        %w{sprout ralf homer homestead bono ellis}.each do |node|
+          # Get the list of nodes and iterate over them adding the
+          # etcd_cluster attribute
+          cluster = find_nodes(roles: node)
+          cluster.each do |s|
+            s.set[:clearwater][:etcd_cluster] = true
+            s.save
+          end
+        end
+      end
 
-        # Run chef client to set up the etcd_cluster environment variable.
-        trigger_chef_client(config[:cloud],
-                            "chef_environment:#{config[:environment]}")
+      # Run chef client to set up the etcd_cluster environment variable.
+      trigger_chef_client(config[:cloud],
+                          "chef_environment:#{config[:environment]}")
 
+      # If we are adding new sites, we need to upload shared config in the new
+      # sites.
+      if adding_sites?(old_counts, number_of_sites)
         # Create and upload the shared configuration. This should just be done
         # on a single node in each site. We choose the first Sprout or Vellum
         # node, depending on deployment architecture.
         if attributes["split_storage"]
-          nodes = find_nodes(roles: 'vellum')
-          nodes.sort_by! { |n| n[:clearwater][:index] }
-          config_nodes = nodes[0..0]
+          config_nodes = []
+          for i in 1..number_of_sites
+            node = find_nodes(roles: 'vellum', site: i, index: 1)
+            config_nodes = config_nodes.concat(node)
+          end
         else
-          nodes = find_nodes(roles: 'sprout')
-          nodes.sort_by! { |n| n[:clearwater][:index] }
-          if attributes["gr"]
-            config_nodes = nodes[0..1]
-          else
-            config_nodes = nodes[0..0]
+          config_nodes = []
+          for i in 1..number_of_sites
+            node = find_nodes(roles: 'sprout', site: i, index: 1)
+            config_nodes = config_nodes.concat(node)
           end
         end
 
@@ -315,8 +355,13 @@ module ClearwaterKnifePlugins
       # to pick up the final state. In particular, this step is what creates
       # numbers on ellis (which can only happen after it's picked up the shared
       # config, so we want to do it as late as possible).
-      trigger_chef_client(config[:cloud],
-                          "chef_environment:#{config[:environment]}")
+      #
+      # We only need to do this on nodes we aren't about to delete.
+      node_list = expand_hashes(new_counts)
+      active_nodes = list_active_boxes(env.name, node_list, whitelist)
+      query_string_nodes = active_nodes.map { |n| "name:#{n.name}" }.join " OR "
+      query_string = "chef_environment:#{config[:environment]} AND (#{query_string_nodes})"
+      trigger_chef_client(config[:cloud], query_string)
 
       sleep(10)
 

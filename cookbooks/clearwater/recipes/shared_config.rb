@@ -53,30 +53,51 @@ else
   cdf = "cdf." + domain
 end
 
-site_suffix = if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    "-site1"
-  else
-    "-site2"
-  end
+if node[:clearwater][:num_gr_sites]
+  number_of_sites = node[:clearwater][:num_gr_sites]
+else
+  number_of_sites = 1
+end
+
+site_suffix = if number_of_sites > 1 && node[:clearwater][:site]
+  "-site#{node[:clearwater][:site]}"
 else
   ""
 end
 
 if node[:clearwater][:split_storage]
-  vellum = "vellum.#{domain}"
+  sprout_registration_store = "\"site1=vellum-site1.#{domain}"
+  ralf_session_store = "\"site1=vellum-site1.#{domain}"
+  for i in 2..number_of_sites
+    sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
+    ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
+  end
+
+  sprout_impi_store = "vellum#{site_suffix}.#{domain}"
+  chronos_hostname = "vellum#{site_suffix}.#{domain}"
+  cassandra_hostname = "vellum#{site_suffix}.#{domain}"
+
   # We have dime nodes running the ralf process
-  ralf = "ralf.#{domain}:10888"
+  ralf = "ralf#{site_suffix}.#{domain}:10888"
 else
-  vellum = nil
+  sprout_registration_store = "\"site1=sprout-site1.#{domain}"
+  ralf_session_store = "\"site1=ralf-site1.#{domain}"
+  for i in 2..number_of_sites
+    sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
+    ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
+  end
+
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
     ralf = "ralf#{site_suffix}.#{domain}:10888"
   end
 end
+sprout_registration_store = "#{sprout_registration_store}\""
+ralf_session_store = "#{ralf_session_store}\""
 
-sprout_aliases = ["sprout." + domain,
-                  "sprout-site1." + domain,
-                  "sprout-site2." + domain]
+sprout_aliases = ["sprout." + domain]
+for i in 1..number_of_sites
+  sprout_aliases.push("sprout-site#{i}." + domain)
+end
 
 template "/etc/clearwater/shared_config" do
   mode "0644"
@@ -95,7 +116,14 @@ template "/etc/clearwater/shared_config" do
     ralf: ralf,
     cdf: cdf,
     hss: hss,
-    vellum: vellum
+    cassandra_hostname: cassandra_hostname,
+    chronos_hostname: chronos_hostname,
+    sprout_impi_store: sprout_impi_store,
+    sprout_registration_store: sprout_registration_store,
+    ralf_session_store: ralf_session_store,
+    memento_auth_store: "sprout#{site_suffix}.#{domain}",
+    scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
+    upstream_port: 0
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

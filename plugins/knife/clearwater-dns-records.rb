@@ -39,21 +39,14 @@ require_relative 'boxes'
 def dns_records
   dns = {}
   base_dns = {
+    "ellis" => {
+      :type => "A",
+      :value => ipv4s(find_active_nodes("ellis")),
+    },
+
     "cdiv.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "cdiv.sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "cdiv.sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
@@ -63,51 +56,15 @@ def dns_records
       :ttl   => "60"
     },
 
-    "memento.sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "memento.sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
     "gemini.sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
-    "gemini.sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "gemini.sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
     "sprout" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
       :ttl   => "60"
     },
 
@@ -123,30 +80,6 @@ def dns_records
       :ttl   => "60"
     },
 
-    "scscf.sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "icscf.sprout-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "scscf.sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "icscf.sprout-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
    "_sip._tcp.scscf.sprout" => {
       :type  => "SRV",
       :value => scscf_srv_flat(find_active_nodes("sprout")),
@@ -156,123 +89,6 @@ def dns_records
    "_sip._tcp.icscf.sprout" => {
       :type  => "SRV",
       :value => icscf_srv_flat(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.scscf.sprout-site1" => {
-      :type  => "SRV",
-      :value => scscf_srv_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.icscf.sprout-site1" => {
-      :type  => "SRV",
-      :value => icscf_srv_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.sprout-site1" => {
-      :type  => "SRV",
-      :value => scscf_srv_site1(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.scscf.sprout-site2" => {
-      :type  => "SRV",
-      :value => scscf_srv_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.icscf.sprout-site2" => {
-      :type  => "SRV",
-      :value => icscf_srv_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-   "_sip._tcp.sprout-site2" => {
-      :type  => "SRV",
-      :value => scscf_srv_site2(find_active_nodes("sprout")),
-      :ttl   => "60"
-    },
-
-    "ellis" => {
-      :type => "A",
-      :value => ipv4s(find_active_nodes("ellis")),
-    },
-  }
-
-  homer_dns = {
-    "homer" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-    "homer-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-    "homer-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homer")),
-      :ttl   => "60"
-    },
-  }
-
-  homestead_dns = {
-    "hs" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
-    "hs-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-
-    "hs-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("homestead")),
-      :ttl   => "60"
-    },
-  }
-
-  dime_dns = {
-    "hs" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("dime")),
-      :ttl   => "60"
-    },
-
-   "hs-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("dime")),
-      :ttl   => "60"
-    },
-
-   "hs-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("dime")),
-      :ttl   => "60"
-    },
-
-    "ralf" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("dime")),
-      :ttl   => "60"
-    },
-
-    "ralf-site1" => {
-      :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("dime")),
-      :ttl   => "60"
-    },
-
-    "ralf-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("dime")),
       :ttl   => "60"
     },
   }
@@ -285,23 +101,50 @@ def dns_records
     },
   }
 
+  homer_dns = {
+    "homer" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("homer")),
+      :ttl   => "60"
+    },
+  }
+
+  homestead_dns = {
+    "hs" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("homestead")),
+      :ttl   => "60"
+    },
+  }
+
   ralf_dns = {
     "ralf" => {
       :type  => "A",
       :value => ipv4s_local(find_active_nodes("ralf")),
       :ttl   => "60"
-    },
-    "ralf-site1" => {
+    }
+  }
+
+  dime_dns = {
+    "hs" => {
       :type  => "A",
-      :value => ipv4s_local_site1(find_active_nodes("ralf")),
-      :ttl   => "60"
-    },
-    "ralf-site2" => {
-      :type  => "A",
-      :value => ipv4s_local_site2(find_active_nodes("ralf")),
+      :value => ipv4s_local(find_active_nodes("dime")),
       :ttl   => "60"
     },
 
+    "ralf" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("dime")),
+      :ttl   => "60"
+    },
+  }
+
+  vellum_dns = {
+    "vellum" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("vellum")),
+      :ttl   => "60"
+    },
   }
 
   memento_dns = {
@@ -340,13 +183,121 @@ def dns_records
     },
   }
 
-  vellum_dns = {
-    "vellum" => {
-      :type  => "A",
-      :value => ipv4s_local(find_active_nodes("vellum")),
-      :ttl   => "60"
-    },
-  }
+  if attributes["num_gr_sites"] && attributes["num_gr_sites"] > 1
+    number_of_sites = attributes["num_gr_sites"]
+  else
+    number_of_sites = 1
+  end
+
+  for i in 1..number_of_sites
+    base_gr_dns = {
+      "sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "scscf.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "icscf.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "_sip._tcp.scscf.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => scscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "_sip._tcp.icscf.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => icscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "_sip._tcp.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => scscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "cdiv.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "gemini.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
+      "memento.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+    }
+    base_dns = base_dns.merge(base_gr_dns)
+
+    homer_gr_dns = {
+      "homer-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("homer"), i),
+        :ttl   => "60"
+      },
+    }
+    homer_dns = homer_dns.merge(homer_gr_dns)
+
+    homestead_gr_dns = {
+      "hs-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("homestead"), i),
+        :ttl   => "60"
+      },
+    }
+    homestead_dns = homestead_dns.merge(homestead_gr_dns)
+
+    ralf_gr_dns = {
+      "ralf-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("ralf"), i),
+        :ttl   => "60"
+      },
+    }
+    ralf_dns = ralf_dns.merge(ralf_gr_dns)
+
+    dime_gr_dns = {
+      "hs-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("dime"), i),
+        :ttl   => "60"
+      },
+
+      "ralf-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("dime"), i),
+        :ttl   => "60"
+      },
+    }
+    dime_dns = dime_dns.merge(dime_gr_dns)
+
+    vellum_gr_dns = {
+      "vellum-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("vellum"), i),
+        :ttl   => "60"
+      },
+    }
+    vellum_dns = vellum_dns.merge(vellum_gr_dns)
+  end
 
   dns = dns.merge(base_dns)
   if find_active_nodes("bono").length > 0
@@ -380,8 +331,8 @@ def dns_records
   return dns
 end
 
-def in_site_1?(n)
-  (n[:clearwater][:index] || 1) % 2 == 1
+def in_site?(n, site)
+  (n[:clearwater][:site] || 1) == site
 end
 
 def ipv4s(boxes)
@@ -392,38 +343,20 @@ def ipv4s_local(boxes)
   boxes.map {|n| n[:cloud][:local_ipv4]}
 end
 
-def ipv4s_local_site1(boxes)
-  boxes.select { |n| in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
+def ipv4s_local_site(boxes, site)
+  boxes.select { |n| in_site?(n, site) }.map {|n| n[:cloud][:local_ipv4]}
 end
 
-def ipv4s_local_site2(boxes)
-  boxes.select { |n| not in_site_1?(n) }.map {|n| n[:cloud][:local_ipv4]}
-end
-
-def icscf_srv_site1(boxes)
+def icscf_srv_site(boxes, site)
   boxes.map  do |n|
-    priority = if in_site_1?(n) then 1 else 2 end
+    priority = if in_site?(n, site) then 1 else 2 end
     "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
   end
 end
 
-def scscf_srv_site1(boxes)
+def scscf_srv_site(boxes, site)
   boxes.map  do |n|
-    priority = if in_site_1?(n) then 1 else 2 end
-    "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
-  end
-end
-
-def icscf_srv_site2(boxes)
-  boxes.map  do |n|
-    priority = if in_site_1?(n) then 2 else 1 end
-    "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
-  end
-end
-
-def scscf_srv_site2(boxes)
-  boxes.map  do |n|
-    priority = if in_site_1?(n) then 2 else 1 end
+    priority = if in_site?(n, site) then 1 else 2 end
     "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
   end
 end

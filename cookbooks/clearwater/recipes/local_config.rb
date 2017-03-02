@@ -42,26 +42,63 @@ end
 
 # Set up the local config file
 
-# Determine GR site names
-if node[:clearwater][:gr]
-  if node[:clearwater][:index] and node[:clearwater][:index] % 2 == 1
-    local_site = "odd_numbers"
-    remote_site = "even_numbers"
-  else
-    local_site = "even_numbers"
-    remote_site = "odd_numbers"
+nodes = search(:node, "chef_environment:#{node.chef_environment}")
+
+# Check if we have a GR deployment, and setup the correct configuration if we do.
+if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && node[:clearwater][:site]
+  number_of_sites = node[:clearwater][:num_gr_sites]
+
+  # Set up an array of all the sites.
+  sites = Array.new(number_of_sites)
+  for i in 0...number_of_sites
+      sites[i] = "site#{i+1}"
+  end
+
+  # Work out which site this node is in.
+  local_site_index = node[:clearwater][:site]
+  local_site = sites[local_site_index - 1]
+
+  # Remove the local site to get the list of remote sites.
+  sites.delete_at(local_site_index - 1)
+  remote_sites = sites.join(",")
+
+  # List all nodes in the remote sites as the remote_cassandra_nodes. This means
+  # remote_cassandra_seeds will be set on all nodes (even though it's only ever
+  # used on nodes with Cassandra).
+  remote_cassandra_nodes = nodes.select do |n|
+    if n[:clearwater] && n[:clearwater][:site] && n[:roles]
+      n[:clearwater][:site] != local_site_index && n[:roles].sort == node[:roles].sort
+    end
+  end
+
+  # Find all nodes in this site that have been marked as part of the etcd
+  # cluster.
+  etcd = nodes.select do |n|
+    if n[:clearwater] && n[:clearwater][:site]
+      n[:clearwater][:etcd_cluster] && n[:clearwater][:site] == local_site_index
+    end
   end
 else
-  local_site = "single_site"
-  remote_site = ""
+  local_site = "site1"
+  remote_sites = ""
+  remote_cassandra_nodes = []
+
+  # Find all nodes in the deployment that have been marked as part of the etcd
+  # cluster.
+  etcd = nodes.select do |n|
+    if n[:clearwater]
+      n[:clearwater][:etcd_cluster]
+    end
+  end
 end
 
-# Find all nodes in the deployment that have been marked as part of the etcd cluster.
-nodes = search(:node, "chef_environment:#{node.chef_environment}")
-etcd = nodes.find_all { |s| s[:clearwater] && s[:clearwater][:etcd_cluster] }
-
 if node[:clearwater][:split_storage]
-  etcd_cluster_or_proxy = "etcd_proxy"
+  if node.role?("vellum")
+    etcd_cluster_or_proxy = "etcd_cluster"
+    etcd_cluster_key = "vellum"
+  else
+    etcd_cluster_or_proxy = "etcd_proxy"
+  end
 else
   etcd_cluster_or_proxy = "etcd_cluster"
 end
@@ -72,7 +109,9 @@ template "/etc/clearwater/local_config" do
     source "local_config.erb"
     variables node: node,
               etcd_cluster_or_proxy: etcd_cluster_or_proxy,
+              etcd_cluster_key: etcd_cluster_key,
               etcd: etcd,
               local_site: local_site,
-              remote_site: remote_site
+              remote_sites: remote_sites,
+              remote_cassandra_nodes: remote_cassandra_nodes
 end
