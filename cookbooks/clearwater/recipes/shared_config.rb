@@ -87,10 +87,6 @@ else
     ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
   end
 
-  sprout_impi_store = "localhost"
-  chronos_hostname = "localhost"
-  cassandra_hostname = "localhost"
-
   if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
     ralf = "ralf#{site_suffix}.#{domain}:10888"
   end
