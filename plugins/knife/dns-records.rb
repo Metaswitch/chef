@@ -111,7 +111,12 @@ module Clearwater
     private
 
     def find_by_name_and_type(options)
-      zone.records.get(name(options), options[:type])
+      record = zone.records.get(name(options), options[:type])
+
+      # Sleep to comply with Route53 rate-limit
+      sleep(3)
+
+      record
     end
 
     def calculate_options_from_node(node)
@@ -189,7 +194,7 @@ module Clearwater
       end
 
       # Sleep to comply with Route53 rate-limit
-      sleep(1)
+      sleep(3)
     end
 
     # Delete a specified record
@@ -201,10 +206,11 @@ module Clearwater
       if record
         Chef::Log.info "Deleting record for '#{record.name}'"
         record.destroy
-      end
+        Chef::Log.info "Deleted record for '#{record.name}'"
 
-      # Sleep to comply with Route53 rate-limit
-      sleep(1)
+        # Sleep to comply with Route53 rate-limit
+        sleep(3)
+      end
     end
   end
 end
