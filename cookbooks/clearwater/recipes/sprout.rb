@@ -49,8 +49,22 @@ package "clearwater-snmpd" do
   options "--force-yes"
 end
 
+# If bgcf_package is specified in the environment file, install it instead of sprout-bgcf
+if node[:clearwater][:bgcf_package] == "houdini"
+  package "houdini" do
+    action [:install]
+    options "--force-yes"
+  end
+else
+  package "sprout-bgcf" do
+    action [:install]
+    options "--force-yes"
+  end
+end
+
 domain = if node[:clearwater][:use_subdomain]
            node.chef_environment + "." + node[:clearwater][:root_domain]
          else
            node[:clearwater][:root_domain]
          end
+
