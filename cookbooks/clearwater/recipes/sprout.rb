@@ -32,34 +32,28 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-if node[:clearwater][:split_storage]
-  package "sprout" do
+if node[:clearwater][:custom_sprout_package]
+  package node[:clearwater][:custom_sprout_package] do
     action [:install]
     options "--force-yes"
   end
 else
-  package "sprout-node" do
-    action [:install]
-    options "--force-yes"
+  if node[:clearwater][:split_storage]
+    package "sprout" do
+      action [:install]
+      options "--force-yes"
+    end
+  else
+    package "sprout-node" do
+      action [:install]
+      options "--force-yes"
+    end
   end
 end
 
 package "clearwater-snmpd" do
   action [:install]
   options "--force-yes"
-end
-
-# If bgcf_package is specified in the environment file, install it instead of sprout-bgcf
-if node[:clearwater][:bgcf_package] == "houdini"
-  package "houdini" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  package "sprout-bgcf" do
-    action [:install]
-    options "--force-yes"
-  end
 end
 
 domain = if node[:clearwater][:use_subdomain]
