@@ -80,6 +80,12 @@ def dns_records
       :ttl   => "60"
     },
 
+    "bgcf.sprout" => {
+      :type  => "A",
+      :value => ipv4s_local(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
    "_sip._tcp.scscf.sprout" => {
       :type  => "SRV",
       :value => scscf_srv_flat(find_active_nodes("sprout")),
@@ -89,6 +95,13 @@ def dns_records
    "_sip._tcp.icscf.sprout" => {
       :type  => "SRV",
       :value => icscf_srv_flat(find_active_nodes("sprout")),
+      :ttl   => "60"
+    },
+
+
+   "_sip._tcp.bgcf.sprout" => {
+      :type  => "SRV",
+      :value => bgcf_srv_flat(find_active_nodes("sprout")),
       :ttl   => "60"
     },
   }
@@ -365,6 +378,13 @@ def icscf_srv_flat(boxes)
   boxes.map  do |n|
     priority = 1
     "#{priority} 1 5052 #{n[:cloud][:local_hostname]}"
+  end
+end
+
+def bgcf_srv_flat(boxes)
+  boxes.map  do |n|
+    priority = 1
+    "#{priority} 1 5053 #{n[:cloud][:local_hostname]}"
   end
 end
 
