@@ -222,6 +222,12 @@ def dns_records
         :ttl   => "60"
       },
 
+      "bgcf.sprout-site#{i}" => {
+        :type  => "A",
+        :value => ipv4s_local_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+
       "_sip._tcp.scscf.sprout-site#{i}" => {
         :type  => "SRV",
         :value => scscf_srv_site(find_active_nodes("sprout"), i),
@@ -231,6 +237,12 @@ def dns_records
       "_sip._tcp.icscf.sprout-site#{i}" => {
         :type  => "SRV",
         :value => icscf_srv_site(find_active_nodes("sprout"), i),
+        :ttl   => "60"
+      },
+      
+      "_sip._tcp.bgcf.sprout-site#{i}" => {
+        :type  => "SRV",
+        :value => bgcf_srv_site(find_active_nodes("sprout"), i),
         :ttl   => "60"
       },
 
@@ -371,6 +383,13 @@ def scscf_srv_site(boxes, site)
   boxes.map  do |n|
     priority = if in_site?(n, site) then 1 else 2 end
     "#{priority} 1 5054 #{n[:cloud][:local_hostname]}"
+  end
+end
+
+def bgcf_srv_site(boxes, site)
+  boxes.map  do |n|
+    priority = if in_site?(n, site) then 1 else 2 end
+    "#{priority} 1 5053 #{n[:cloud][:local_hostname]}"
   end
 end
 

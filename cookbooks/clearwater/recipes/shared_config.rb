@@ -124,7 +124,7 @@ template "/etc/clearwater/shared_config" do
     memento_auth_store: "sprout#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0,
-    bgcf_uri: "sip:bgcf.sprout.#{domain}"
+    bgcf_uri: "sip:bgcf.sprout#{site_suffix}.#{domain}"
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 
