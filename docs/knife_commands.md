@@ -37,6 +37,7 @@ As well as passing in parameters to the `deployment resize` command, you can als
 * `"vpc" => { "vpc_id" => "<vpc ID>", "subnet_id" => "<subnet ID>" }` - If this is set, the nodes will be installed in the requested [VPC](https://aws.amazon.com/vpc/)
 * `"memento_enabled" => "Y"` - If this is set, then [Memento](https://github.com/Metaswitch/memento) is installed on all Sprout nodes
 * `"gemini_enabled" => "Y"` - If this is set, then [Gemini](https://github.com/Metaswitch/gemini) is installed on all Sprout nodes
+* `"custom_sprout_package" => "<custom package name>"` - If this is set, the specified custom package will be installed on all Sprout nodes **instead** of the default Sprout package
 
 To describe a deployment, run:
 
