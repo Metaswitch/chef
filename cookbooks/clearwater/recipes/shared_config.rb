@@ -108,7 +108,7 @@ template "/etc/clearwater/shared_config" do
     sprout_impi_store: sprout_impi_store,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
-    memento_auth_store: "sprout#{site_suffix}.#{domain}",
+    memento_auth_store: "vellum#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
