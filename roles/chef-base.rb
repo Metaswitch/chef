@@ -124,4 +124,7 @@ default_attributes "clearwater" => {
   # DNS forwarder to use when doing so.
   "dns_internal_subnet" => "10.0.0.0/8",
   "dns_forwarder" => "10.0.0.1",
+
+  # Split-storage architecture
+  "split_storage" => "true",
 }
