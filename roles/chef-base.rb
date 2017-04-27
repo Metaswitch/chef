@@ -126,5 +126,5 @@ default_attributes "clearwater" => {
   "dns_forwarder" => "10.0.0.1",
 
   # Split-storage architecture
-  "split_storage" => "true",
+  "split_storage" => true,
 }
