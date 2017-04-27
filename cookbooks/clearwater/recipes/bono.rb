@@ -32,16 +32,9 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-if node[:clearwater][:split_storage]
-  package "bono" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  package "bono-node" do
-    action [:install]
-    options "--force-yes"
-  end
+package "bono" do
+  action [:install]
+  options "--force-yes"
 end
 
 package "restund" do

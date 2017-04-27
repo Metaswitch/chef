@@ -65,32 +65,19 @@ else
   ""
 end
 
-if node[:clearwater][:split_storage]
-  sprout_registration_store = "\"site1=vellum-site1.#{domain}"
-  ralf_session_store = "\"site1=vellum-site1.#{domain}"
-  for i in 2..number_of_sites
-    sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
-    ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
-  end
-
-  sprout_impi_store = "vellum#{site_suffix}.#{domain}"
-  chronos_hostname = "vellum#{site_suffix}.#{domain}"
-  cassandra_hostname = "vellum#{site_suffix}.#{domain}"
-
-  # We have dime nodes running the ralf process
-  ralf = "ralf#{site_suffix}.#{domain}:10888"
-else
-  sprout_registration_store = "\"site1=sprout-site1.#{domain}"
-  ralf_session_store = "\"site1=ralf-site1.#{domain}"
-  for i in 2..number_of_sites
-    sprout_registration_store = "#{sprout_registration_store},site#{i}=sprout-site#{i}.#{domain}"
-    ralf_session_store = "#{ralf_session_store},site#{i}=ralf-site#{i}.#{domain}"
-  end
-
-  if node[:clearwater][:ralf] and ((node[:clearwater][:ralf] == true) || (node[:clearwater][:ralf] > 0))
-    ralf = "ralf#{site_suffix}.#{domain}:10888"
-  end
+sprout_registration_store = "\"site1=vellum-site1.#{domain}"
+ralf_session_store = "\"site1=vellum-site1.#{domain}"
+for i in 2..number_of_sites
+  sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
+  ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
 end
+
+sprout_impi_store = "vellum#{site_suffix}.#{domain}"
+chronos_hostname = "vellum#{site_suffix}.#{domain}"
+cassandra_hostname = "vellum#{site_suffix}.#{domain}"
+
+# We have dime nodes running the ralf process
+ralf = "ralf#{site_suffix}.#{domain}:10888"
 sprout_registration_store = "#{sprout_registration_store}\""
 ralf_session_store = "#{ralf_session_store}\""
 

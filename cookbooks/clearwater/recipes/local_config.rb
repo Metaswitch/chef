@@ -92,14 +92,10 @@ else
   end
 end
 
-if node[:clearwater][:split_storage]
-  if node.role?("vellum")
-    etcd_cluster_or_proxy = "etcd_cluster"
-  else
-    etcd_cluster_or_proxy = "etcd_proxy"
-  end
-else
+if node.role?("vellum")
   etcd_cluster_or_proxy = "etcd_cluster"
+else
+  etcd_cluster_or_proxy = "etcd_proxy"
 end
 
 # Create local_config
