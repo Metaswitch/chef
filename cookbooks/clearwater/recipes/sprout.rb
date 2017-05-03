@@ -38,16 +38,9 @@ if node[:clearwater][:custom_sprout_package]
     options "--force-yes"
   end
 else
-  if node[:clearwater][:split_storage]
-    package "sprout" do
-      action [:install]
-      options "--force-yes"
-    end
-  else
-    package "sprout-node" do
-      action [:install]
-      options "--force-yes"
-    end
+  package "sprout" do
+    action [:install]
+    options "--force-yes"
   end
 end
 

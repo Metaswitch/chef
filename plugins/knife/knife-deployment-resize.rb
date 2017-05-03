@@ -230,25 +230,14 @@ module ClearwaterKnifePlugins
       new_counts = Hash.new(0)
       new_counts["ellis-site1".to_sym] = 1
       new_counts[:seagull] = seagull_count || old_counts[:seagull]
-      %w{bono homer homestead sprout vellum dime}.each do |node|
+      %w{bono homer sprout vellum dime}.each do |node|
         for i in 1..number_of_sites
           new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || [old_counts["#{node}-site#{i}".to_sym], 1].max
         end
       end
-      %w{ibcf sipp ralf}.each do |node|
+      %w{ibcf sipp}.each do |node|
         for i in 1..number_of_sites
           new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || old_counts["#{node}-site#{i}".to_sym]
-        end
-      end
-      if attributes["split_storage"]
-        for i in 1..number_of_sites
-          new_counts.delete("homestead-site#{i}".to_sym)
-          new_counts.delete("ralf-site#{i}".to_sym)
-        end
-      else
-        for i in 1..number_of_sites
-          new_counts.delete("dime-site#{i}".to_sym)
-          new_counts.delete("vellum-site#{i}".to_sym)
         end
       end
 
@@ -285,25 +274,13 @@ module ClearwaterKnifePlugins
 
       # Set the etcd_cluster value. Mark any files that already exist.
       Chef::Log.info "Initializing etcd cluster"
-      if attributes["split_storage"]
-        %w{vellum}.each do |node|
-          # Get the list of nodes and iterate over them adding the
-          # etcd_cluster attribute
-          cluster = find_nodes(roles: node)
-          cluster.each do |s|
-            s.set[:clearwater][:etcd_cluster] = true
-            s.save
-          end
-        end
-      else
-        %w{sprout ralf homer homestead bono ellis}.each do |node|
-          # Get the list of nodes and iterate over them adding the
-          # etcd_cluster attribute
-          cluster = find_nodes(roles: node)
-          cluster.each do |s|
-            s.set[:clearwater][:etcd_cluster] = true
-            s.save
-          end
+      %w{vellum}.each do |node|
+        # Get the list of nodes and iterate over them adding the
+        # etcd_cluster attribute
+        cluster = find_nodes(roles: node)
+        cluster.each do |s|
+          s.set[:clearwater][:etcd_cluster] = true
+          s.save
         end
       end
 
@@ -315,20 +292,11 @@ module ClearwaterKnifePlugins
       # sites.
       if adding_sites?(old_counts, number_of_sites)
         # Create and upload the shared configuration. This should just be done
-        # on a single node in each site. We choose the first Sprout or Vellum
-        # node, depending on deployment architecture.
-        if attributes["split_storage"]
-          config_nodes = []
-          for i in 1..number_of_sites
-            node = find_nodes(roles: 'vellum', site: i, index: 1)
-            config_nodes = config_nodes.concat(node)
-          end
-        else
-          config_nodes = []
-          for i in 1..number_of_sites
-            node = find_nodes(roles: 'sprout', site: i, index: 1)
-            config_nodes = config_nodes.concat(node)
-          end
+        # on a single node in each site. We choose the first Vellum node.
+        config_nodes = []
+        for i in 1..number_of_sites
+          node = find_nodes(roles: 'vellum', site: i, index: 1)
+          config_nodes = config_nodes.concat(node)
         end
 
         for config_node in config_nodes
@@ -378,9 +346,6 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Deleting quiesced boxes..."
       delete_quiesced_boxes env
 
-      if not attributes["split_storage"]
-        update_ralf_hostname(config[:environment], config[:cloud].to_sym)
-      end
     end
   end
 end

@@ -32,20 +32,13 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-if node[:clearwater][:split_storage]
-  package "memento-nginx" do
-    action [:install]
-    options "--force-yes"
-  end
-  package "memento-as" do
-    action [:install]
-    options "--force-yes"
-  end
-else
-  package "memento-node" do
-    action [:install]
-    options "--force-yes"
-  end
+package "memento-nginx" do
+  action [:install]
+  options "--force-yes"
+end
+package "memento-as" do
+  action [:install]
+  options "--force-yes"
 end
 
 # Perform daily backup of database

@@ -32,11 +32,7 @@
 # under which the OpenSSL Project distributes the OpenSSL toolkit software,
 # as those licenses appear in the file LICENSE-OPENSSL.
 
-package "vellum-node" do
-  action [:install]
-  options "--force-yes"
-end
-package "homer-cassandra" do
+package "vellum" do
   action [:install]
   options "--force-yes"
 end
