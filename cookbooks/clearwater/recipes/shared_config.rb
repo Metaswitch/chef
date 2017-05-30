@@ -30,8 +30,18 @@ end
 
 if node[:clearwater][:num_gr_sites]
   number_of_sites = node[:clearwater][:num_gr_sites]
+
+  # Set up an array of all the sites.
+  sites = Array.new(number_of_sites)
+  for i in 0...number_of_sites
+      sites[i] = "site#{i+1}"
+  end
+
+  site_names = sites.join(",")
+
 else
   number_of_sites = 1
+  site_names = ""
 end
 
 site_suffix = if number_of_sites > 1 && node[:clearwater][:site]
@@ -47,7 +57,6 @@ for i in 2..number_of_sites
   ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
 end
 
-sprout_impi_store = "vellum#{site_suffix}.#{domain}"
 chronos_hostname = "vellum#{site_suffix}.#{domain}"
 cassandra_hostname = "vellum#{site_suffix}.#{domain}"
 
@@ -80,12 +89,12 @@ template "/etc/clearwater/shared_config" do
     hss: hss,
     cassandra_hostname: cassandra_hostname,
     chronos_hostname: chronos_hostname,
-    sprout_impi_store: sprout_impi_store,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
     memento_auth_store: "vellum#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0
+    site_names: site_names,
   notifies :run, "ruby_block[wait_for_etcd]", :immediately
 end
 

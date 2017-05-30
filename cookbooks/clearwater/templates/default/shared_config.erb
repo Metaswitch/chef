@@ -8,7 +8,6 @@ hs_provisioning_hostname=<%= @hs_prov %>
 xdms_hostname=<%= @homer %>
 ralf_hostname=<%= @ralf %>
 cdf_identity=<%= @cdf %>
-sprout_impi_store=<%= @sprout_impi_store %>
 sprout_registration_store=<%= @sprout_registration_store %>
 cassandra_hostname=<%= @cassandra_hostname %>
 chronos_hostname=<%= @chronos_hostname %>
@@ -61,3 +60,6 @@ ellis_cookie_key="<%= @node[:clearwater][:ellis_cookie_key] %>"
 
 # Advanced options
 nonce_count_supported=Y
+
+# GR options
+site_names=<%= @site_names %>
