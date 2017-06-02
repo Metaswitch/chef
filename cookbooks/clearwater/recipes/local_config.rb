@@ -67,7 +67,10 @@ else
   end
 end
 
-if node.role?("vellum")
+# Count the vellum nodes in the local etcd cluster
+vellum_count = etcd.count { |n| n.role?("vellum") }
+
+if node.role?("vellum") || vellum_count <= 1
   etcd_cluster_or_proxy = "etcd_cluster"
 else
   etcd_cluster_or_proxy = "etcd_proxy"
