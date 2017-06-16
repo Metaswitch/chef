@@ -25,11 +25,7 @@ module ClearwaterKnifePlugins
       require 'fog'
     end
     
-    # Override the --yes parameter when invoking knife ec2 delete below, so that
-    # CLI users of this tool are forced to double check what they are removing
-    # Pass yes_allowed=true when invoking this plugin programmatically to permit
-    # scripting without prompts
-    def run(yes_allowed = false)
+    def run()
       name_glob = name_args.first 
       name_glob = "*" if name_glob == "" or name_glob.nil?
 
@@ -56,7 +52,7 @@ module ClearwaterKnifePlugins
         Chef::Config[:verbosity] = config[:verbosity]
         knife_delete.config[:purge] = true
         knife_delete.config[:chef_node_name] = node.name
-        knife_delete.config[:yes] = yes_allowed and config[:yes]
+        knife_delete.config[:yes] = config[:yes]
         knife_delete.config[:region] = attributes["region"]
         knife_delete.name_args = [ instance_id ]
         knife_delete.run
