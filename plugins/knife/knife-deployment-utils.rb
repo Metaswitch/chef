@@ -80,7 +80,7 @@ module ClearwaterKnifePlugins
       box_delete.config[:purge] = true
       box_delete.config[:verbosity] = config[:verbosity]
       Chef::Config[:verbosity] = config[:verbosity]
-      box_delete.run(true)
+      box_delete.run()
     end
 
     # Launch boxes. This takes an optional array of supported box types
