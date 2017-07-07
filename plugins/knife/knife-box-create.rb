@@ -133,7 +133,7 @@ module ClearwaterKnifePlugins
         box_delete.name_args=["#{new_box.tags["Name"]}"]
         box_delete.config[:yes] = true
         box_delete.config[:verbosity] = config[:verbosity]
-        box_delete.run(true)
+        box_delete.run()
       end
     end
   end

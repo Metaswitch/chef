@@ -48,14 +48,14 @@ module ClearwaterKnifePlugins
       Chef::Log.info "Deleting node DNS entries..."
       nodes = find_nodes.select { |n| n.roles.include? "chef-base" }
       dns_manager.delete_node_records(nodes)
-      
+
       Chef::Log.info "Deleting server instances..."
       victims.each do |v|
         box_delete = BoxDelete.new("-E #{env.name}".split)
         box_delete.name_args = [v]
         box_delete.config[:yes] = true
         box_delete.config[:verbosity] = config[:verbosity]
-        box_delete.run(true)
+        box_delete.run()
       end
 
       Chef::Log.warn "Not deleting security groups.  To trigger deletion, run:"
