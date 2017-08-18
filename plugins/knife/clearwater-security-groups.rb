@@ -241,8 +241,10 @@ def sipp_security_group_rules
     # Alarms
     { ip_protocol: :udp, min: 162, max: 162, group: "base" },
     # Traffic from Sprout to the callee
-    { ip_protocol: :tcp, min: 5082, max: 5082, group: "internal-sip" },
     { ip_protocol: :tcp, min: 5072, max: 5076, group: "internal-sip" },
+    { ip_protocol: :tcp, min: 5080, max: 5099, group: "internal-sip" },
+    { ip_protocol: :tcp, min: 5180, max: 5183, group: "internal-sip" },
+    { ip_protocol: :tcp, min: 5190, max: 5199, group: "internal-sip" }
   ]
 end
 
