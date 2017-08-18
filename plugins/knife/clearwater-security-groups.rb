@@ -245,7 +245,7 @@ def sipp_security_group_rules
     { ip_protocol: :tcp, min: 5072, max: 5076, group: "internal-sip" },
     { ip_protocol: :tcp, min: 5080, max: 5099, group: "internal-sip" },
     { ip_protocol: :tcp, min: 5180, max: 5183, group: "internal-sip" },
-    { ip_protocol: :tcp, mil: 5190, max: 5199, group: "internal-sip" }
+    { ip_protocol: :tcp, min: 5190, max: 5199, group: "internal-sip" }
   ]
 end
 
