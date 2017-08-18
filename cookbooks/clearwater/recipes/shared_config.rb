@@ -42,9 +42,11 @@ end
 
 sprout_registration_store = "\"site1=vellum-site1.#{domain}"
 ralf_session_store = "\"site1=vellum-site1.#{domain}"
+homestead_impu_store = "\"site1=vellum-site1.#{domain}"
 for i in 2..number_of_sites
   sprout_registration_store = "#{sprout_registration_store},site#{i}=vellum-site#{i}.#{domain}"
   ralf_session_store = "#{ralf_session_store},site#{i}=vellum-site#{i}.#{domain}"
+  homestead_impu_store = "#{homestead_impu_store},site#{i}=vellum-site#{i}.#{domain}"
 end
 
 sprout_impi_store = "vellum#{site_suffix}.#{domain}"
@@ -53,8 +55,11 @@ cassandra_hostname = "vellum#{site_suffix}.#{domain}"
 
 # We have dime nodes running the ralf process
 ralf = "ralf#{site_suffix}.#{domain}:10888"
+
+# Add the final " to the stores
 sprout_registration_store = "#{sprout_registration_store}\""
 ralf_session_store = "#{ralf_session_store}\""
+homestead_impu_store = "#{homestead_impu_store}\""
 
 sprout_aliases = ["sprout." + domain]
 for i in 1..number_of_sites
@@ -83,6 +88,7 @@ template "/etc/clearwater/shared_config" do
     sprout_impi_store: sprout_impi_store,
     sprout_registration_store: sprout_registration_store,
     ralf_session_store: ralf_session_store,
+    homestead_impu_store: homestead_impu_store,
     memento_auth_store: "vellum#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0
