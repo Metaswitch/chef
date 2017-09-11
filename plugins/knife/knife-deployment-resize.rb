@@ -190,10 +190,6 @@ module ClearwaterKnifePlugins
       # Initialize status object
       init_status(["bono", "ellis", "homer", "homestead", "sprout", "sipp", "ralf", "vellum", "dime"], ["seagull"])
 
-      # Create security groups
-      configure_security_groups(config, SecurityGroupsCreate)
-      set_progress 10
-
       # Enumerate current box counts so we can compare the desired list
       old_counts = get_current_counts(number_of_sites)
 
@@ -219,6 +215,10 @@ module ClearwaterKnifePlugins
       # Confirm changes if there are any
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "vellum", "dime"]
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
+
+      # Create security groups
+      configure_security_groups(config, SecurityGroupsCreate)
+      set_progress 10
 
       # Create boxes
       node_list = expand_hashes(new_counts)
