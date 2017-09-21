@@ -78,10 +78,20 @@ module ClearwaterKnifePlugins
       end
     end
 
-    # Expands out hashes of boxes, e.g. {:bono => 3} becomes:
-    # {{:role => "bono", :index => 1}, {:role => "bono", :index = 2}, etc...
+    # Expands out hashes of boxes, e.g. {:bono-site1 => 3} becomes:
+    # {{:role => "bono", :site => 1, :index => 1},
+    # {:role => "bono", :site => 1, :index = 2}, etc...
     def expand_hashes(boxes)
-      boxes.map {|box, n| (1..n).map {|i| {:role => box.to_s.split("-site")[0].to_s, :site => box.to_s.split("-site")[1].to_i, :index => i}}}.flatten
+      boxes.map {|box, n| (1..n).map {|i| expand_hash(box, i)}}.flatten
+    end
+
+    # Helper for the previous function. Checks that the passed hash has the
+    # correct form.
+    def expand_hash(box, index)
+      box_split = box.to_s.split("-site")
+      raise ArgumentError, "box hash must be of the form \"<role>-site<site number>\".
+        \"#{box.to_s}\" was passed." unless box_split.length > 1
+      return {:role=>box_split[0].to_s, :site=>box_split[1].to_i, :index=>index}
     end
 
     def node_name_from_definition(environment, role, site, index)
