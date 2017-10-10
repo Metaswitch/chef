@@ -228,6 +228,7 @@ module ClearwaterKnifePlugins
       launch_boxes(create_node_list)
       set_progress 50
 
+      Chef::Log.info "Preparing to quiesce extra nodes"
       prepare_to_quiesce_extra_boxes(env.name, node_list, whitelist)
 
       if not in_stable_state? env
@@ -237,10 +238,12 @@ module ClearwaterKnifePlugins
         sleep 60
       end
 
+      Chef::Log.info "Quiescing extra nodes"
       quiesce_extra_boxes(env.name, node_list, whitelist)
       set_progress 60
 
       # Now that all the boxes are in place, cleanup any that failed
+      Chef::Log.info "Cleaning config"
       clean_deployment config
       set_progress 70
 
@@ -260,12 +263,14 @@ module ClearwaterKnifePlugins
       end
 
       # Run chef client to set up the etcd_cluster environment variable.
+      Chef::Log.info "Running chef-client..."
       trigger_chef_client(config[:cloud],
                           "chef_environment:#{config[:environment]}")
 
       # If we are adding new sites, we need to upload shared config in the new
       # sites.
       if adding_sites?(old_counts, number_of_sites)
+        Chef::Log.info "Adding sites"
         # Create and upload the shared configuration. This should just be done
         # on a single node in each site. We choose the first Vellum node.
         config_nodes = []
@@ -304,11 +309,13 @@ module ClearwaterKnifePlugins
       active_nodes = list_active_boxes(env.name, node_list, whitelist)
       query_string_nodes = active_nodes.map { |n| "name:#{n.name}" }.join " OR "
       query_string = "chef_environment:#{config[:environment]} AND (#{query_string_nodes})"
+      Chef::Log.info "Running chef-client post shared config"
       trigger_chef_client(config[:cloud], query_string)
 
       sleep(10)
 
       # Setup DNS zone record
+      Chef::Log.info "Configuring DNS"
       configure_dns_zone(config, attributes)
       set_progress 95
       configure_dns(config, DnsRecordsCreate)

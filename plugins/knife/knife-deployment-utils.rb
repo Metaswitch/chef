@@ -33,7 +33,7 @@ module ClearwaterKnifePlugins
           box_create.run(supported_boxes)
         rescue Exception => e
           Chef::Log.error "Failed to create node: #{e}"
-          Chef::Log.debug e.backtrace
+          Chef::Log.info e.backtrace
         end
 
         box_name = node_name_from_definition(environment, box[:role], box[:site], box[:index])
