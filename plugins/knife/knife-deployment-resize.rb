@@ -309,7 +309,7 @@ module ClearwaterKnifePlugins
       active_nodes = list_active_boxes(env.name, node_list, whitelist)
       query_string_nodes = active_nodes.map { |n| "name:#{n.name}" }.join " OR "
       query_string = "chef_environment:#{config[:environment]} AND (#{query_string_nodes})"
-      Chef::Log.info "Running chef-client post shared config"
+      Chef::Log.info "Running chef-client after shared configuration has been setup"
       trigger_chef_client(config[:cloud], query_string)
 
       sleep(10)
