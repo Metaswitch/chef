@@ -33,10 +33,6 @@ if node[:clearwater][:num_gr_sites] && node[:clearwater][:num_gr_sites] > 1 && n
   local_site_index = node[:clearwater][:site]
   local_site = sites[local_site_index - 1]
 
-  # Remove the local site to get the list of remote sites.
-  sites.delete_at(local_site_index - 1)
-  remote_sites = sites.join(",")
-
   # List all nodes in the remote sites as the remote_cassandra_nodes. This means
   # remote_cassandra_seeds will be set on all nodes (even though it's only ever
   # used on nodes with Cassandra).
@@ -81,6 +77,5 @@ template "/etc/clearwater/local_config" do
               etcd_cluster_or_proxy: etcd_cluster_or_proxy,
               etcd: etcd,
               local_site: local_site,
-              remote_sites: remote_sites,
               remote_cassandra_nodes: remote_cassandra_nodes
 end
