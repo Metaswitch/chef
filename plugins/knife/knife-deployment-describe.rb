@@ -86,7 +86,7 @@ module ClearwaterKnifePlugins
         "homestead" => ["homestead"],
         "sprout" => ["sprout", "sprout-libs", "chronos", "memento", "astaire"],
         "dime" => ["ralf", "homestead"],
-        "vellum" => ["chronos", "astaire"]
+        "vellum" => ["chronos", "astaire", "rogers"]
       }
     end
 
