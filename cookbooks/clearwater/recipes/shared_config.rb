@@ -16,8 +16,8 @@ end
 
 execute "download_shared_config" do
   user "ubuntu"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download shared_config"
-  action :nothing
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download shared_config --autoconfirm"
+  action :run
 end
 
 domain = if node[:clearwater][:use_subdomain]
@@ -74,7 +74,7 @@ end
 
 # cw-config downloads files to ~/clearwater-config-manager/[USERNAME]. Users
 # modify the file and then upload it from there.
-template "/home/ubuntu/clearwater-config-manager/ubuntu/shared_config" do
+template "/home/ubuntu/clearwater-config-manager/root/shared_config" do
   mode "0644"
   source "shared_config.erb"
   variables domain: domain,
@@ -131,6 +131,6 @@ end
 
 execute "upload_shared_config" do
   user "ubuntu"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload shared_config"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload shared_config --autoconfirm"
   action :nothing
 end
