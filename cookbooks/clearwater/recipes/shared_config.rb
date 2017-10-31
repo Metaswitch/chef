@@ -15,7 +15,7 @@ package "clearwater-management" do
 end
 
 execute "download_shared_config" do
-  user "clearwater"
+  user "ubuntu"
   command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download shared_config"
   action :nothing
 end
@@ -74,7 +74,7 @@ end
 
 # cw-config downloads files to ~/clearwater-config-manager/[USERNAME]. Users
 # modify the file and then upload it from there.
-template "/home/clearwater/clearwater-config-manager/clearwater/shared_config" do
+template "/home/ubuntu/clearwater-config-manager/ubuntu/shared_config" do
   mode "0644"
   source "shared_config.erb"
   variables domain: domain,
@@ -130,7 +130,7 @@ execute "poll_etcd" do
 end
 
 execute "upload_shared_config" do
-  user "clearwater"
+  user "ubuntu"
   command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload shared_config"
   action :nothing
 end
