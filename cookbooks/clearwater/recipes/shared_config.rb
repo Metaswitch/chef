@@ -14,6 +14,30 @@ package "clearwater-management" do
   options "--force-yes"
 end
 
+ruby_block "wait_for_etcd" do
+  # Check that etcd is listening on port 4000 - we'll do more checks later
+  block do
+    loop do
+      begin
+        s = TCPSocket.new(node[:cloud][:local_ipv4], 4000)
+        break
+      rescue SystemCallError
+        sleep 1
+      end
+    end
+  end
+  notifies :run, "execute[poll_etcd]", :immediately
+  notifies :run, "execute[download_shared_config]", :immediately
+end
+
+# Check that etcd can read/write keys, and well as listen on 4000
+execute "poll_etcd" do
+  user "root"
+  command "/usr/share/clearwater/bin/poll_etcd.sh --quorum"
+  retry_delay 1
+  retries 60
+end
+
 execute "download_shared_config" do
   user "ubuntu"
   command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download shared_config --autoconfirm"
@@ -100,33 +124,7 @@ template "/home/ubuntu/clearwater-config-manager/root/shared_config" do
     memento_auth_store: "vellum#{site_suffix}.#{domain}",
     scscf_uri: "sip:scscf.sprout#{site_suffix}.#{domain}",
     upstream_port: 0
-  notifies :run, "ruby_block[wait_for_etcd]", :immediately
-end
-
-ruby_block "wait_for_etcd" do
-  # Check that etcd is listening on port 4000 - we'll do more checks later
-  block do
-    loop do
-      begin
-        s = TCPSocket.new(node[:cloud][:local_ipv4], 4000)
-        break
-      rescue SystemCallError
-        sleep 1
-      end
-    end
-  end
-  notifies :run, "execute[poll_etcd]", :immediately
   notifies :run, "execute[upload_shared_config]", :immediately
-
-  action :nothing
-end
-
-# Check that etcd can read/write keys, and well as listen on 4000
-execute "poll_etcd" do
-  user "root"
-  command "/usr/share/clearwater/bin/poll_etcd.sh --quorum"
-  retry_delay 1
-  retries 60
 end
 
 execute "upload_shared_config" do
