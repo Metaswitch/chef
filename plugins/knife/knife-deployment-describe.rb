@@ -55,7 +55,7 @@ module ClearwaterKnifePlugins
                 raw_dkpg_output = ssh.exec! "dpkg -l #{package_name}"
                 match_data = /#{package_name}\s+([0-9\.-]+)/.match raw_dkpg_output
                 if match_data.nil?
-                  puts "No package version found"
+                  puts "No package version found for #{package_name}"
                 else
                   version = match_data[1]
                   versions.each_with_index do |v, i|
@@ -84,9 +84,9 @@ module ClearwaterKnifePlugins
         "homer" => ["homer"],
         "ralf" => ["ralf", "chronos", "astaire"],
         "homestead" => ["homestead"],
-        "sprout" => ["sprout", "sprout-libs", "chronos", "memento", "astaire"],
+        "sprout" => ["sprout", "sprout-libs", "memento"],
         "dime" => ["ralf", "homestead"],
-        "vellum" => ["chronos", "astaire"]
+        "vellum" => ["chronos", "astaire", "rogers"]
       }
     end
 
