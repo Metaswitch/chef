@@ -14,6 +14,12 @@ package "clearwater-management" do
   options "--force-yes"
 end
 
+execute "download_shared_config" do
+  user "ubuntu"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download shared_config --autoconfirm"
+  action :run
+end
+
 domain = if node[:clearwater][:use_subdomain]
            node.chef_environment + "." + node[:clearwater][:root_domain]
          else
@@ -66,7 +72,9 @@ for i in 1..number_of_sites
   sprout_aliases.push("sprout-site#{i}." + domain)
 end
 
-template "/etc/clearwater/shared_config" do
+# cw-config downloads files to ~/clearwater-config-manager/[USERNAME]. Users
+# modify the file and then upload it from there.
+template "/home/ubuntu/clearwater-config-manager/root/shared_config" do
   mode "0644"
   source "shared_config.erb"
   variables domain: domain,
@@ -122,7 +130,7 @@ execute "poll_etcd" do
 end
 
 execute "upload_shared_config" do
-  user "root"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/upload_shared_config"
+  user "ubuntu"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload shared_config --autoconfirm"
   action :nothing
 end
