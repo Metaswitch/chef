@@ -28,8 +28,6 @@ ruby_block "wait_for_etcd" do
   end
   notifies :run, "execute[poll_etcd]", :immediately
   notifies :run, "execute[download_shared_config]", :immediately
-
-  action :nothing
 end
 
 # Check that etcd can read/write keys, and well as listen on 4000
