@@ -27,6 +27,7 @@ ruby_block "wait_for_etcd" do
     end
   end
   notifies :run, "execute[poll_etcd]", :immediately
+  sleep 60
   notifies :run, "execute[download_shared_config]", :immediately
 end
 
