@@ -9,6 +9,7 @@
 
 require_relative 'knife-clearwater-utils'
 require_relative 'trigger-chef-client'
+require_relative 'boxes'
 
 module ClearwaterKnifePlugins
   class SiteKill < Chef::Knife
