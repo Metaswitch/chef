@@ -16,7 +16,7 @@ GEM
       net-ssh-multi (~> 1.1.0)
       ohai (>= 0.6.0)
       rest-client (>= 1.0.4, < 1.7.0)
-      yajl-ruby (~> 1.1)
+      yajl-ruby (~> 1.3)
     coderay (1.0.9)
     colored (1.2)
     erubis (2.7.0)
@@ -181,7 +181,7 @@ GEM
       colored
       facets (>= 2.4.1)
       quality_extensions (>= 1.1.2)
-    yajl-ruby (1.1.0)
+    yajl-ruby (1.3.1)
 
 PLATFORMS
   ruby
