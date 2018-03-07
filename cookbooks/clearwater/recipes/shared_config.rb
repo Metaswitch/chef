@@ -133,3 +133,24 @@ execute "upload_shared_config" do
   command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload shared_config --autoconfirm"
   action :nothing
 end
+
+execute "download_sas_config" do
+  user "ubuntu"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download sas.json --autoconfirm"
+  action :run
+end
+
+sas_ip = IPSocket.getaddress(node[:clearwater][:sas_server])
+
+template "/home/ubuntu/clearwater-config-manager/root/sas.json" do
+  mode "0644"
+  source "sas.json.erb"
+  variables sas_ip: sas_ip
+  notifies :run, "execute[upload_sas_config]", :immediately
+end
+
+execute "upload_sas_config" do
+  user "ubuntu"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload sas.json --autoconfirm"
+  action :nothing
+end
