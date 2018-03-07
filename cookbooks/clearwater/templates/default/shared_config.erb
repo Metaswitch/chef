@@ -14,7 +14,8 @@ sprout_registration_store=<%= @sprout_registration_store %>
 cassandra_hostname=<%= @cassandra_hostname %>
 chronos_hostname=<%= @chronos_hostname %>
 ralf_session_store=<%= @ralf_session_store %>
-<% if not @memento_auth_store.nil? %>memento_auth_store=<%= @memento_auth_store %><% end %>enum_server=<%= @node[:clearwater][:enum_server] or "" %>
+<% if not @memento_auth_store.nil? %>memento_auth_store=<%= @memento_auth_store %><% end %>
+enum_server=<%= @node[:clearwater][:enum_server] or "" %>
 alias_list=<%= @alias_list %>
 scscf_uri=<%= @scscf_uri %>
 upstream_port=<%= @upstream_port %>
