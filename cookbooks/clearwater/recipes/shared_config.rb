@@ -136,7 +136,7 @@ end
 
 execute "download_sas_config" do
   user "ubuntu"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download sas.json --autoconfirm"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config download sas_json --autoconfirm"
   action :run
 end
 
@@ -151,6 +151,6 @@ end
 
 execute "upload_sas_config" do
   user "ubuntu"
-  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload sas.json --autoconfirm"
+  command "/usr/share/clearwater/clearwater-config-manager/scripts/cw-config upload sas_json --autoconfirm"
   action :nothing
 end
