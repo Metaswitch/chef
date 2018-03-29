@@ -198,22 +198,24 @@ module ClearwaterKnifePlugins
       # create one.
       seagull_count = (config[:seagull] ? 1 : 0)
 
-      new_counts = Hash.new(0)
+      new_counts = get_current_counts(number_of_sites)
       new_counts["ellis-site1".to_sym] = 1
-      new_counts[:seagull] = seagull_count || old_counts[:seagull]
-      %w{bono homer sprout vellum dime}.each do |node|
-        for i in 1..number_of_sites
+      for i in 1..number_of_sites
+        new_counts["seagull-site#{i}".to_sym] = seagull_count || old_counts[:seagull]
+        %w{bono homer sprout vellum dime}.each do |node|
           new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || [old_counts["#{node}-site#{i}".to_sym], 1].max
         end
-      end
-      %w{ibcf sipp}.each do |node|
-        for i in 1..number_of_sites
+        %w{ibcf sipp}.each do |node|
           new_counts["#{node}-site#{i}".to_sym] = count["#{node}-site#{i}".to_sym] || old_counts["#{node}-site#{i}".to_sym]
         end
       end
 
       # Confirm changes if there are any
       whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp", "ralf", "seagull", "vellum", "dime"]
+
+      Chef::Log.debug "Old nodes: #{old_counts}"
+      Chef::Log.debug "New nodes: #{new_counts}"
+
       confirm_changes(old_counts, new_counts, whitelist) unless old_counts == new_counts
 
       # Create security groups
