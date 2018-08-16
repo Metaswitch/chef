@@ -54,6 +54,7 @@ module Clearwater
     def add_security_group_rule(group, rule)
       Chef::Log.info "Adding rule #{rule} to #{group.name}"
       group.authorize_port_range(PortRangeObject.new(rule), rule)
+      sleep 1
     end
 
     # Add a list of rules to a group.
@@ -71,6 +72,7 @@ module Clearwater
     def remove_security_group_rule(group, rule)
       Chef::Log.info "Revoking rule #{rule} from #{group.name}"
       group.revoke_port_range(PortRangeObject.new(rule), rule)
+      sleep 1
     end
 
     # Remove a list of rules from a group.
