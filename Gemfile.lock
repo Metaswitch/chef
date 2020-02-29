@@ -165,8 +165,8 @@ GEM
       method_source (~> 0.8)
       slop (~> 3.4)
     quality_extensions (1.3.2)
-    rack (1.5.2)
-    rack-protection (1.5.0)
+    rack (1.6.11)
+    rack-protection (1.5.5)
       rack
     rest-client (1.6.7)
       mime-types (>= 1.16)
